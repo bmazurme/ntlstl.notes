@@ -5,7 +5,7 @@ import { Editor } from './Editor';
 import MarkdownPreview from './MarkdownPreview';
 import { useState } from 'react';
 
-import { Button, TextInput, Card } from '@gravity-ui/uikit';
+import { Button, TextInput, Card, Text } from '@gravity-ui/uikit';
 
 const App: React.FC = () => {
   const [value, setValue] = useState('');
@@ -29,6 +29,7 @@ const App: React.FC = () => {
           </Button>
 
         <Card theme="normal" size="l">
+          <Text variant="header-2">some text</Text>
           <MarkdownPreview
             getValue={() => value}
             allowHTML={false}
