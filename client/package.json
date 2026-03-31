@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@gravity-ui/graph": "^1.9.3",
     "@gravity-ui/markdown-editor": "^15.36.0",
     "@gravity-ui/uikit": "^7.35.2",
     "lodash": "^4.17.23",
