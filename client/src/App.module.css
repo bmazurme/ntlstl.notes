@@ -1,0 +1,16 @@
+.container {
+  display: grid;
+  gap: 16px;
+  margin-top: 40px;
+}
+.form {
+  /* background-color: rgb(31, 138, 215); */
+  display: grid;
+  gap: 16px;
+}
+
+.preview {
+  margin-top: 20px;
+  text-align: left;
+  padding: 16px;
+}
