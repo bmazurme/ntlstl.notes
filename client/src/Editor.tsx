@@ -1,11 +1,13 @@
 import React from 'react';
 import { useMarkdownEditor, MarkdownEditorView, type MarkupString } from '@gravity-ui/markdown-editor';
+import { Button } from '@gravity-ui/uikit';
+import style from './Editor.module.css';
 
 export interface EditorProps {
   onSubmit: (value: MarkupString) => void;
 };
 
-export const Editor: React.FC<EditorProps> = ({onSubmit}) => {
+export const Editor: React.FC<EditorProps> = ({ onSubmit }) => {
   const editor = useMarkdownEditor({
     md: {
       html: false,
@@ -25,5 +27,12 @@ export const Editor: React.FC<EditorProps> = ({onSubmit}) => {
     };
   }, [onSubmit]);
 
-  return <MarkdownEditorView stickyToolbar autofocus editor={editor} />;
+  return (
+    <div className={style.editor}>
+      <MarkdownEditorView stickyToolbar autofocus editor={editor} className={style.area} />
+      <Button view="action" size="l" onClick={() => onSubmit(editor.getValue())}>
+        Save
+      </Button>
+    </div>
+  );
 };
