@@ -1,17 +1,35 @@
-.container {
+/* .container {
   display: grid;
   gap: 16px;
   margin-top: 40px;
 }
+
 .form {
-  /* background-color: rgb(31, 138, 215); */
   display: grid;
   gap: 16px;
-}
+} */
 
 .preview {
   margin-top: 20px;
   text-align: left;
   padding: 16px;
   min-height: 100px;
+}
+
+.title {
+  display: flex;
+  margin-bottom: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--g-color-line-generic);
+}
+
+.markdown{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.labels {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
 }
