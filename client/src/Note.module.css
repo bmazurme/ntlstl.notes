@@ -1,19 +1,11 @@
-/* .container {
-  display: grid;
-  gap: 16px;
-  margin-top: 40px;
-}
-
-.form {
-  display: grid;
-  gap: 16px;
-} */
-
 .preview {
   margin-top: 20px;
   text-align: left;
   padding: 16px;
-  min-height: 100px;
+  min-height: 300px;
+  display: grid;
+  grid-template-areas: "header" "markdown" "labels";
+  grid-template-rows: auto 1fr auto;
 }
 
 .title {
