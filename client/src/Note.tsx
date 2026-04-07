@@ -3,7 +3,8 @@ import MarkdownPreview from './MarkdownPreview';
 
 import style from './Note.module.css';
 
-const Note = ({ value }: { value: string }) => {
+const Note = ({ title, value, labels }
+  : { title: string; value: string; labels: string[] }) => {
   return (
     <Card
       theme="normal"
@@ -14,7 +15,7 @@ const Note = ({ value }: { value: string }) => {
         variant="header-2"
         className={style.title}
       >
-        some text
+        {title}
       </Text>
 
       <div className={style.markdown}>
@@ -27,9 +28,14 @@ const Note = ({ value }: { value: string }) => {
       </div>
 
       <div className={style.labels}>
-        <Label theme="clear">Clear</Label>
-        <Label theme="clear">Clear</Label>
-        <Label theme="clear">Clear</Label>
+        {labels.map((label) => (
+          <Label
+            key={label}
+            theme="clear"
+          >
+            {label}
+          </Label>
+        ))}
       </div>
 
     </Card>
