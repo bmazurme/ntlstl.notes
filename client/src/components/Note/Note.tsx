@@ -1,5 +1,5 @@
 import { Card, Text, Label } from '@gravity-ui/uikit';
-import MarkdownPreview from './MarkdownPreview';
+import MarkdownPreview from '../../MarkdownPreview';
 
 import style from './Note.module.css';
 

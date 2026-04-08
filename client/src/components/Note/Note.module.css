@@ -5,19 +5,18 @@
   min-height: 300px;
   display: grid;
   grid-template-areas: "header" "markdown" "labels";
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: minmax(80px, auto) 1fr auto;
 }
 
 .title {
   display: flex;
-  margin-bottom: 20px;
   padding: 16px 0;
   border-bottom: 1px solid var(--g-color-line-generic);
 }
 
 .markdown{
   margin-top: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .labels {
