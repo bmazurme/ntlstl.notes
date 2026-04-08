@@ -1,0 +1,5 @@
+.form {
+  /* background-color: rgb(31, 138, 215); */
+  display: grid;
+  gap: 16px;
+}
