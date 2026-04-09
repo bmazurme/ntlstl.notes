@@ -1,5 +1,3 @@
-
-// import { useThemeValue } from '@gravity-ui/uikit';
 import { YfmStaticView } from '@gravity-ui/markdown-editor';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash/debounce';
@@ -61,10 +59,19 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
   // const [meta, setMeta] = useState<object | undefined>({});
   const divRef = useRef<HTMLDivElement>(null);
 
+
+  const safeSetHtml = (value: string | Promise<string>) => {
+    if (value instanceof Promise) {
+      value.then(resolvedValue => setHtml(resolvedValue));
+    } else {
+      setHtml(value);
+    }
+  };
+
   const render = useMemo(
-    () => debounce(() => {
+    () => debounce(async () => {
       try {
-        const res = transform(getValue(), {
+        const res = await transform(getValue(), {
           allowHTML,
           breaks,
           // plugins,
@@ -73,7 +80,7 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
           needToSanitizeHtml,
         }).result;
 
-        setHtml(res.html);
+        safeSetHtml(res.html);
         // setMeta(res.meta);
       } catch (error) {
         console.error('Ошибка преобразования Markdown:', error);
