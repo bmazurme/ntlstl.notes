@@ -2,12 +2,13 @@
   display: grid;
   gap: 16px;
   margin-top: 40px;
+  /* background-color: cadetblue; */
+  padding-bottom: 40px;
 }
-.form {
-  /* background-color: rgb(31, 138, 215); */
+/* .form {
   display: grid;
   gap: 16px;
-}
+} */
 
 .preview {
   margin-top: 20px;
@@ -20,4 +21,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.link {
+  display: flex;
+  padding: 0;
+  /* background-color: aquamarine; */
+
 }
