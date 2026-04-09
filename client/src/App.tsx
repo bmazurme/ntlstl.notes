@@ -1,64 +1,84 @@
 import { useState } from 'react';
 import {
-  Icon, ThemeProvider, Toaster, ToasterComponent, ToasterProvider, Button, TextInput, Text, Pagination,
-  type PaginationProps, 
+  ThemeProvider, Toaster, ToasterComponent, ToasterProvider,
 } from '@gravity-ui/uikit';
-import type { MarkupString } from '@gravity-ui/markdown-editor';
-import { Sun, Moon } from '@gravity-ui/icons';
 
-import { Editor } from './Editor';
-import Note from './Note';
+import MainPage from './pages/MainPage/MainPage';
+import EditorPage from './pages/EditorPage/EditorPage';
+import NotePage from './pages/NotePage/NotePage';
+import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
 
-import style from './App.module.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+
 
 const App: React.FC = () => {
-  const [state, setState] = useState({ page: 1, pageSize: 100 });
-  const [value, setValue] = useState('');
   const [theme, setTheme] = useState('dark');
   const toaster = new Toaster();
 
+  const [value, setValue] = useState('');
+  const [labels, setLabels] = useState(['label1', 'label2', 'label3']);
+  const [title, setTitle] = useState('');
+
   const handleSubmit = (value: MarkupString) => {
     console.log('Отправленное значение:', value);
+    setLabels(labels);
     setValue(value);
   };
-  const handleUpdate: PaginationProps['onUpdate'] = (page, pageSize) =>
-    setState((prevState) => ({ ...prevState, page, pageSize }));
 
   return (
     <ThemeProvider theme={theme}>
       <ToasterProvider toaster={toaster}>
         <ToasterComponent />
 
-        <div className={style.container}>
-          <div className={style.header}>
-            <Text variant="header-2">Notes</Text>
-            <Button
-              view="outlined"
-              size="l"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            >
-              <Icon
-                data={theme === 'dark' ? Sun : Moon}
-                size={18}
-              />
-            </Button>
-          </div>
+        <BrowserRouter>
+          <Routes>
+            <Route
+              path="/"
+              element={(
+                <MainPage
+                  setTheme={setTheme}
+                  theme={theme}
+                />
+              )}
+            />
+            <Route
+              path="/editor"
+              element={(
+                <EditorPage
+                  setTheme={setTheme}
+                  theme={theme}
+                  setTitle={setTitle}
+                  title={title}
+                  handleSubmit={handleSubmit}
+                />
+              )}
+            />
+            <Route
+              path="/note"
+              element={(
+                <NotePage
+                  setTheme={setTheme}
+                  theme={theme}
+                  title={title}
+                  value={value}
+                  labels={labels}
+                />
+              )}
+            />
+            <Route
+              path="*"
+              element={(
+                <NotFoundPage
+                  setTheme={setTheme}
+                  theme={theme}
+                />
+              )}
+            />
 
-          <div className={style.form}>
-            <TextInput placeholder="Title" size="l" />
-            <TextInput placeholder="Tag" size="l" />
-            <Editor onSubmit={handleSubmit} />
-          </div>
-          <Note value={value} />
-          <Pagination
-            page={state.page}
-            pageSize={state.pageSize}
-            total={10000}
-            onUpdate={handleUpdate}
-          />
-        </div>
+          </Routes>
+        </BrowserRouter>
 
-        {/* <Note value={value} /> */}
       </ToasterProvider>
     </ThemeProvider>
   );
