@@ -33,7 +33,7 @@ const Note = ({ title, value, labels }
       </div>
 
       <div className={style.labels}>
-        {labels.length > 0
+        {labels.length > 10
           ? labels.map((label) => (
             <Label
               key={label}
