@@ -1,16 +1,14 @@
 import { useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import {
   ThemeProvider, Toaster, ToasterComponent, ToasterProvider,
 } from '@gravity-ui/uikit';
+import type { MarkupString } from '@gravity-ui/markdown-editor';
 
 import MainPage from './pages/MainPage/MainPage';
 import EditorPage from './pages/EditorPage/EditorPage';
 import NotePage from './pages/NotePage/NotePage';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
-
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-
-
 
 const App: React.FC = () => {
   const [theme, setTheme] = useState('dark');
@@ -37,10 +35,29 @@ const App: React.FC = () => {
               path="/"
               element={(
                 <MainPage
+                  page={1}
                   setTheme={setTheme}
                   theme={theme}
                 />
               )}
+            />
+            <Route
+              path="/notes"
+              element={(
+                <MainPage
+                  setTheme={setTheme}
+                  theme={theme}
+                />
+              )}
+            />
+            <Route
+              path="/notes"
+              element={
+                <Navigate
+                  to="/"
+                  replace
+                />
+              }
             />
             <Route
               path="/editor"
@@ -55,7 +72,7 @@ const App: React.FC = () => {
               )}
             />
             <Route
-              path="/note"
+              path="/note/:noteId"
               element={(
                 <NotePage
                   setTheme={setTheme}
