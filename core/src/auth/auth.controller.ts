@@ -1,21 +1,9 @@
-import {
-  Controller,
-  Post,
-  Request,
-  UseGuards,
-  // Body,
-  Res,
-} from '@nestjs/common';
+import { Controller, Post, Request, UseGuards, Res, Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response, Request as CustomRequest } from 'express';
 
 import { AuthService } from './auth.service';
-
-// interface CustomRequest extends Request {
-//   cookies?: {
-//     [key: string]: string;
-//   };
-// }
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -32,14 +20,27 @@ export class AuthController {
 
   @Post('refresh')
   async refreshToken(
-    // @Body() body: { refreshToken: string },
     @Request() req: CustomRequest & { cookies?: { refreshToken?: string } },
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authService.refreshTokens(
-      // body.refreshToken,
-      req,
-      response,
-    );
+    return this.authService.refreshTokens(req, response);
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @Post('/logout')
+  logout(
+    @Request() req: CustomRequest & { cookies?: { refreshToken?: string } },
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.logout(req, response);
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @Get('check')
+  checkAuth(
+    @Request() request: CustomRequest & { cookies?: { refreshToken?: string } },
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.checkAuth(request, response);
   }
 }

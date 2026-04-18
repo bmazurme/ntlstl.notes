@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash, genSalt } from 'bcrypt';
 import { Response, Request as CustomRequest } from 'express';
 
 import { UsersService } from '../users/users.service';
+import { CheckAuthResponseDto } from './dto/check-auth.response.dto';
 
 interface TokenPayload {
   userId: number;
@@ -59,7 +60,8 @@ export class AuthService {
       // sameSite: 'strict', // Prevent CSRF
       sameSite: process.env.NODE_ENV !== 'dev' ? 'strict' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      path: '/auth/refresh', // Only accessible for refresh endpoint
+      // path: '/auth/refresh', // Only accessible for refresh endpoint
+      // path: '/', // Only accessible for refresh endpoint
     });
 
     return {
@@ -70,7 +72,6 @@ export class AuthService {
   }
 
   async refreshTokens(
-    // refreshToken: string,
     req: CustomRequest & { cookies?: { refreshToken?: string } },
     res: Response,
   ) {
@@ -114,7 +115,8 @@ export class AuthService {
         // sameSite: 'strict', // Prevent CSRF
         sameSite: process.env.NODE_ENV !== 'dev' ? 'strict' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-        path: '/auth/refresh', // Only accessible for refresh endpoint
+        // path: '/auth/refresh', // Only accessible for refresh endpoint
+        // path: '/', // Only accessible for refresh endpoint
       });
 
       return {
@@ -125,5 +127,65 @@ export class AuthService {
     } catch (error) {
       throw new Error('Invalid refresh token');
     }
+  }
+
+  async logout(
+    req: CustomRequest & { cookies?: { refreshToken?: string } },
+    response: Response,
+  ) {
+    try {
+      response.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
+        // sameSite: 'strict', // Prevent CSRF
+        sameSite: process.env.NODE_ENV !== 'dev' ? 'strict' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+        // path: '/auth/refresh', // Only accessible for refresh endpoint
+        path: '/', // Only accessible for refresh endpoint
+      });
+
+      return { message: 'Successfully logged out' };
+    } catch (error) {
+      throw new HttpException(
+        'Failed to logout',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async checkAuth(
+    request: CustomRequest & { cookies?: { refreshToken?: string } },
+    response: Response,
+  ): Promise<CheckAuthResponseDto> {
+    try {
+      const refreshToken = request.cookies.refreshToken;
+      // Проверяем refresh token
+      // const payload = this.verifyRefreshToken(refreshToken); -> guard
+      const user = await this.usersService.findByRefreshToken(refreshToken);
+
+      if (!user) {
+        response.status(401);
+        return { isAuthenticated: false };
+      }
+
+      const payload: TokenPayload = { userId: user.id };
+      const accessToken = this.jwtService.sign(payload);
+
+      response.status(200);
+
+      return {
+        accessToken,
+        isAuthenticated: true,
+      };
+    } catch (error) {
+      response.status(401);
+      return { isAuthenticated: false };
+    }
+  }
+
+  private verifyRefreshToken(token: string): any {
+    return this.jwtService.verify(token, {
+      secret: process.env.REFRESH_JWT_SECRET || 'refreshSecretKey',
+    });
   }
 }
