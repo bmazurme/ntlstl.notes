@@ -22,7 +22,6 @@ export class AuthService {
     const user = await this.usersService.findByUsername(username);
     const salt = await genSalt(this.saltRounds);
     const _hash = await hash(password, salt);
-
     console.log(_hash);
 
     if (user && (await compare(password, user.password))) {
@@ -60,8 +59,7 @@ export class AuthService {
       // sameSite: 'strict', // Prevent CSRF
       sameSite: process.env.NODE_ENV !== 'dev' ? 'strict' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-      // path: '/auth/refresh', // Only accessible for refresh endpoint
-      // path: '/', // Only accessible for refresh endpoint
+      path: '/auth', // Only accessible for refresh endpoint
     });
 
     return {
@@ -115,8 +113,7 @@ export class AuthService {
         // sameSite: 'strict', // Prevent CSRF
         sameSite: process.env.NODE_ENV !== 'dev' ? 'strict' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-        // path: '/auth/refresh', // Only accessible for refresh endpoint
-        // path: '/', // Only accessible for refresh endpoint
+        path: '/auth', // Only accessible for refresh endpoint
       });
 
       return {
@@ -140,8 +137,7 @@ export class AuthService {
         // sameSite: 'strict', // Prevent CSRF
         sameSite: process.env.NODE_ENV !== 'dev' ? 'strict' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-        // path: '/auth/refresh', // Only accessible for refresh endpoint
-        path: '/', // Only accessible for refresh endpoint
+        path: '/auth', // Only accessible for refresh endpoint
       });
 
       return { message: 'Successfully logged out' };
