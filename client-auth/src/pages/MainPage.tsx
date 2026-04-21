@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { useLoginMutation, useLogoutMutation, useCheckAuthQuery } from '../store/api/auth-api/endpoints';
 import { useGetUserInfoMutation } from '../store/api/users-api/endpoints';
@@ -10,11 +10,9 @@ import { setCredentials, logout, setChecking } from '../store/slices/auth-slice'
 import ProtectedWrapper from '../components/ProtectedWrapper';
 
 import heroImg from '../assets/hero.png';
-import type { RootState } from '../store';
+// import type { RootState } from '../store';
 
 function MainPage() {
-  const _isAuthenticated = useSelector((state: RootState) => state.auth);
-  console.log(_isAuthenticated);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -86,6 +84,12 @@ function MainPage() {
           onClick={() => navigate('/any')}
         >
           Any Page
+        </button>
+        <button
+          className="counter"
+          onClick={() => navigate('/kit')}
+        >
+          Kit Page
         </button>
         <ProtectedWrapper>
           <button
