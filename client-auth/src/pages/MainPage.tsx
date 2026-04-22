@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@gravity-ui/uikit';
 
 import { useAppDispatch } from '../hooks';
 import { useLoginMutation, useLogoutMutation, useCheckAuthQuery } from '../store/api/auth-api/endpoints';
@@ -10,7 +11,6 @@ import { setCredentials, logout, setChecking } from '../store/slices/auth-slice'
 import ProtectedWrapper from '../components/ProtectedWrapper';
 
 import heroImg from '../assets/hero.png';
-// import type { RootState } from '../store';
 
 function MainPage() {
   const navigate = useNavigate();
@@ -72,37 +72,44 @@ function MainPage() {
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
         </div>
-        <button
-          className="counter"
+
+        <Button
+          view="outlined-action"
+          size="m"
           onClick={handleLogin}
         >
           Login
-        </button>
-        <button
-          className="counter"
+        </Button>
+        <Button
+          view="outlined-action"
+          size="m"
           onClick={() => navigate('/any')}
         >
           Any Page
-        </button>
-        <button
-          className="counter"
+        </Button>
+        <Button
+          view="outlined-action"
+          size="m"
           onClick={() => navigate('/kit')}
         >
           Kit Page
-        </button>
+        </Button>
+
         <ProtectedWrapper>
-          <button
-            className="counter"
+          <Button
+            view="outlined-action"
+            size="m"
             onClick={handleGetUserInfo}
           >
             Get info
-          </button>
-          <button
-            className="counter"
+          </Button>
+          <Button
+            view="outlined-action"
+            size="m"
             onClick={handleLogout}
           >
             Logout
-          </button>
+          </Button>
         </ProtectedWrapper>
       </section>
     </>
