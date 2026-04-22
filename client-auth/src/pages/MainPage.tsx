@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
+import { useAppDispatch } from '../hooks';
 import { useLoginMutation, useLogoutMutation, useCheckAuthQuery } from '../store/api/auth-api/endpoints';
 import { useGetUserInfoMutation } from '../store/api/users-api/endpoints';
 
@@ -13,9 +13,8 @@ import heroImg from '../assets/hero.png';
 // import type { RootState } from '../store';
 
 function MainPage() {
-
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [login] = useLoginMutation();
   const [logoutAuth] = useLogoutMutation();
   const { data, isLoading, error } = useCheckAuthQuery();
