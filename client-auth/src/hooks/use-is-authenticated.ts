@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '.';
 import type { RootState } from '../store';
 
 /**
@@ -6,8 +6,8 @@ import type { RootState } from '../store';
  * @returns {boolean} true, если пользователь авторизован
  */
 export const useIsAuthenticated = (): { isAuthenticated: boolean; isChecking: boolean } => {
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const status = useSelector((state: RootState) => state.auth.status);
+  const isAuthenticated = useAppSelector((state: RootState) => state.auth.isAuthenticated);
+  const status = useAppSelector((state: RootState) => state.auth.status);
 
   return {
     isAuthenticated,
