@@ -2,6 +2,7 @@
 import type { PropsWithChildren } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
+import { Button } from '@gravity-ui/uikit';
 
 import ContentWrapper from './ContentWrapper';
 
@@ -47,16 +48,21 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
           <p className={style.message}>{errorMessage}</p>
           <div className={style.block}>
             Try to
-            <button
-              className="counter"
+            <Button
+              view="outlined-utility"
+              size="m"
               onClick={resetErrorBoundary}
             >
               Reload app
-            </button>
+            </Button>
             or
-            <button className="counter" onClick={navigateHome}>
+            <Button
+              view="outlined-action"
+              size="m"
+              onClick={navigateHome}
+            >
               Go to homepage
-            </button>
+            </Button>
           </div>
         </section>
       )}
