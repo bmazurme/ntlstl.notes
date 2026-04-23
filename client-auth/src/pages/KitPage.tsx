@@ -1,26 +1,61 @@
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@gravity-ui/uikit';
+import { Button, Icon } from '@gravity-ui/uikit';
+import { Moon, Sun } from '@gravity-ui/icons';
 
-import ErrorBoundaryWrapper from '../components/ErrorBoundaryWrapper';
 import BrokenComponent from '../components/BrokenComponent';
+import { useAppDispatch } from '../hooks';
+import { useTheme } from '../hooks/use-theme';
+import { setTheme } from '../store';
+
 
 function KitPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { isDark } = useTheme();
+  const toggleTheme = (value: boolean) => dispatch(setTheme({ isDark: value }));
 
   return (
     <>
-      <ErrorBoundaryWrapper>
-        <section id="center">
+      <section id="center">
+        <div>
           <Button
-            view="outlined-action"
+            view="normal"
             size="m"
-            onClick={() => navigate('/')}
+            pin="round-clear"
+            selected={!isDark}
+            aria-label="Светлая тема"
+            onClick={() => toggleTheme(false)}
           >
-            To Main
+            <Icon data={Sun} size={16} />
           </Button>
-          <BrokenComponent />
-        </section>
-      </ErrorBoundaryWrapper>
+          <Button
+            view="normal"
+            size="m"
+            pin="clear-round"
+            selected={isDark}
+            aria-label="Темная тема"
+            onClick={() => toggleTheme(true)}
+          >
+            <Icon data={Moon} size={16} />
+          </Button>
+        </div>
+
+        <Button
+          view="outlined-action"
+          size="m"
+          onClick={() => navigate('/')}
+        >
+          To Main
+        </Button>
+        <Button
+          view="outlined-action"
+          size="m"
+          onClick={() => toggleTheme(!isDark)}
+        >
+          Toggle theme
+        </Button>
+        <BrokenComponent />
+      </section>
     </>
   )
 }
