@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@gravity-ui/uikit';
 
 import ErrorBoundaryWrapper from '../components/ErrorBoundaryWrapper';
 import BrokenComponent from '../components/BrokenComponent';
@@ -10,15 +11,13 @@ function KitPage() {
     <>
       <ErrorBoundaryWrapper>
         <section id="center">
-          <div className="hero">
-            error
-          </div>
-           <button
-            className="counter"
+          <Button
+            view="outlined-action"
+            size="m"
             onClick={() => navigate('/')}
           >
-            Home
-          </button>
+            To Main
+          </Button>
           <BrokenComponent />
         </section>
       </ErrorBoundaryWrapper>
