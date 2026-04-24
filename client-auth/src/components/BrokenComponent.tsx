@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from '@gravity-ui/uikit';
 
 function BrokenComponent() {
   const [shouldCrash, setShouldCrash] = useState(false);
@@ -10,9 +11,13 @@ function BrokenComponent() {
   return (
     <div>
       <h3>Рабочий компонент</h3>
-      <button className="counter" onClick={() => setShouldCrash(true)}>
+      <Button
+        view="outlined-danger"
+        size="m"
+        onClick={() => setShouldCrash(true)}
+      >
         Сломать компонент
-      </button>
+      </Button>
     </div>
   );
 }
