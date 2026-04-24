@@ -1,11 +1,9 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@gravity-ui/uikit';
 
 import { useAppDispatch } from '../hooks';
 import { useLoginMutation, useLogoutMutation, useCheckAuthQuery } from '../store/api/auth-api/endpoints';
-import { useGetUserInfoMutation } from '../store/api/users-api/endpoints';
-
 import { setCredentials, logout, setChecking } from '../store/slices/auth-slice';
 
 import ProtectedWrapper from '../components/ProtectedWrapper';
@@ -18,7 +16,6 @@ function MainPage() {
   const [login] = useLoginMutation();
   const [logoutAuth] = useLogoutMutation();
   const { data, isLoading, error } = useCheckAuthQuery();
-  const [getUserInfo] = useGetUserInfoMutation();
 
   const handleLogin = async () => {
     try {
@@ -28,7 +25,7 @@ function MainPage() {
     } catch (error) {
       console.error('Login failed:', error);
     }
-  }
+  };
 
   const handleLogout = async () => {
     try {
@@ -39,16 +36,7 @@ function MainPage() {
     } catch (error) {
       console.error('Logout failed:', error);
     }
-  }
-
-  const handleGetUserInfo = useCallback(async () => {
-    try {
-      const response = await getUserInfo().unwrap();
-      console.log('User info:', response);
-    } catch (error) {
-      console.error('Failed to fetch user info:', error);
-    }
-  }, [getUserInfo]);
+  };
 
   useEffect(() => {
     if (isLoading) {
@@ -72,14 +60,6 @@ function MainPage() {
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
         </div>
-
-        <Button
-          view="outlined-action"
-          size="m"
-          onClick={handleLogin}
-        >
-          Login
-        </Button>
         <Button
           view="outlined-action"
           size="m"
@@ -94,14 +74,21 @@ function MainPage() {
         >
           Kit Page
         </Button>
+        <Button
+          view="outlined-action"
+          size="m"
+          onClick={handleLogin}
+        >
+          Login
+        </Button>
 
         <ProtectedWrapper>
           <Button
             view="outlined-action"
             size="m"
-            onClick={handleGetUserInfo}
+            onClick={() => navigate('/protected')}
           >
-            Get info
+            Protected Page
           </Button>
           <Button
             view="outlined-action"
