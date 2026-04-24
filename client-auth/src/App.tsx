@@ -2,9 +2,8 @@ import { Route, Routes } from 'react-router-dom';
 
 import MainPage from './pages/MainPage';
 import KitPage from './pages/KitPage';
+import ProtectedPage from './pages/ProtectedPage';
 import NotFoundPage from './pages/NotFoundPage';
-
-import './App.css';
 
 function App() {
   return (
@@ -12,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={(<MainPage />)} />
         <Route path="/kit" element={(<KitPage />)} />
+        <Route path="protected" element={(<ProtectedPage />)} />
         <Route path="*" element={(<NotFoundPage />)} />
       </Routes>
     </>
