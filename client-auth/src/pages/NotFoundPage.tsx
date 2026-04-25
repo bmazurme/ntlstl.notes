@@ -1,7 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@gravity-ui/uikit';
-
-import heroImg from '../assets/hero.png';
+import { Button, Text } from '@gravity-ui/uikit';
 
 function NotFoundPage() {
   const navigate = useNavigate();
@@ -9,15 +7,21 @@ function NotFoundPage() {
   return (
     <>
       <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-        </div>
+        <Text variant="header-2">
+          404
+        </Text>
+        <Text variant="header-1">
+          Страница не найдена
+        </Text>
+        <Text variant="body-3">
+          К сожалению, запрошенная страница не существует или была перемещена.
+        </Text>
         <Button
           view="outlined-action"
           size="m"
           onClick={() => navigate('/')}
         >
-          To Main
+          Вернуться на главную
         </Button>
       </section>
     </>
