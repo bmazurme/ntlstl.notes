@@ -1,11 +1,19 @@
-import style from './PostPage.module.css';
+// import style from './PostPage.module.css';
 
 function PostPage() {
   return (
     <>
-      <section className={style.container}>
-        <div className={style.content}>
-          Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      <section className="post">
+        <div className="post-title">
+          Установка и настройка NGINX NTLM-модуля
+        </div>
+        <div className="post-excerpt">
+          NGINX NTLM-модуль — это дополнительный модуль для веб-сервера Nginx,
+          который позволяет реализовать аутентификацию по протоколу NTLM.
+          Это особенно полезно при работе с корпоративными сетями и Active Directory.
+        </div>
+        <div className="post-meta">
+          post-meta
         </div>
       </section>
     </>
