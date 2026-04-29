@@ -2,6 +2,7 @@ import { Button } from '@gravity-ui/uikit';
 import { useToaster } from '@gravity-ui/uikit';
 
 import BrokenComponent from '../components/BrokenComponent';
+import ContentWrapper from '../components/ContentWrapper';
 
 function KitPage() {
   const { add } = useToaster();
@@ -13,18 +14,22 @@ function KitPage() {
   });
   
   return (
-    <>
-      <section id="center">
-        <Button
-          view="outlined-action"
-          size="m"
-          onClick={addToast}
-        >
-          Add tost
-        </Button>
-        <BrokenComponent />
-      </section>
-    </>
+    <ContentWrapper
+      children={(
+        <>
+          <section id="center">
+            <Button
+              view="outlined-action"
+              size="m"
+              onClick={addToast}
+            >
+              Add tost
+            </Button>
+            <BrokenComponent />
+          </section>
+        </>)}
+      sidebar
+    />
   )
 }
 
