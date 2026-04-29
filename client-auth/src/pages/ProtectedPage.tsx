@@ -5,6 +5,7 @@ import { useGetUserInfoMutation } from '../store/api/users-api/endpoints';
 
 import ProtectedWrapper from '../components/ProtectedWrapper';
 import RedirectToLogin from '../components/RedirectToLogin';
+import ContentWrapper from '../components/ContentWrapper';
 
 function ProtectedPage() {
   const [getUserInfo] = useGetUserInfoMutation();
@@ -19,19 +20,21 @@ function ProtectedPage() {
   }, [getUserInfo]);
 
   return (
-    <>
-      <section id="center">
-        <ProtectedWrapper fallback={<RedirectToLogin />}>
-          <Button
-            view="outlined-action"
-            size="m"
-            onClick={handleGetUserInfo}
-          >
-            Get info
-          </Button>
-        </ProtectedWrapper>
-      </section>
-    </>
+    <ContentWrapper
+      children={(
+        <section id="center">
+          <ProtectedWrapper fallback={<RedirectToLogin />}>
+            <Button
+              view="outlined-action"
+              size="m"
+              onClick={handleGetUserInfo}
+            >
+              Get info
+            </Button>
+          </ProtectedWrapper>
+        </section>)}
+      sidebar
+    />
   )
 }
 
