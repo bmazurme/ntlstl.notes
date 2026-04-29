@@ -1,13 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { Button, Text } from '@gravity-ui/uikit';
-import style from './NotFoundPage.module.css';
+
+import ContentWrapper from '../components/ContentWrapper';
+
+// import style from './NotFoundPage.module.css';
 
 function NotFoundPage() {
   const navigate = useNavigate();
 
   return (
-    <>
-      <section className={style.container}>
+    <ContentWrapper children={(
+      <section className="error">
         <Text variant="header-2">
           404
         </Text>
@@ -24,8 +27,8 @@ function NotFoundPage() {
         >
           Вернуться на главную
         </Button>
-      </section>
-    </>
+      </section>)}
+    />  
   )
 }
 
