@@ -23,8 +23,9 @@ function Posts({ page: forcedPage }: { page?: number }) {
 
     setState((prevState) => ({ ...prevState, page, pageSize }));
   }
+
   return (
-    <section className="posts">
+    <main className="main">
       <Post />
       <Post />
 
@@ -34,7 +35,7 @@ function Posts({ page: forcedPage }: { page?: number }) {
         total={10000}
         onUpdate={handleUpdate}
       />
-    </section>
+    </main>
   )
 }
 
