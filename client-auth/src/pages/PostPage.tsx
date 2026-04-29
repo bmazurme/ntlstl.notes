@@ -1,10 +1,12 @@
 import { useParams } from 'react-router-dom';
 
+import ContentWrapper from '../components/ContentWrapper';
+
 function PostPage() {
   const { noteId } = useParams();
 
   return (
-    <>
+    <ContentWrapper children={(
       <section className="post">
         <div className="post-title">
           {noteId} = 
@@ -18,8 +20,9 @@ function PostPage() {
         <div className="post-meta">
           post-meta
         </div>
-      </section>
-    </>
+      </section>)}
+      sidebar
+    />
   )
 }
 
