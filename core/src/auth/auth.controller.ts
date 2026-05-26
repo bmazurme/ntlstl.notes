@@ -4,8 +4,9 @@ import { Response, Request as CustomRequest } from 'express';
 
 import { AuthService } from './auth.service';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
+import { User } from '../users/entities/user.entity';
 
-@Controller('auth')
+@Controller('api/v1/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -28,9 +29,10 @@ export class AuthController {
   }
 
   @UseGuards(RefreshTokenGuard)
-  @Post('/logout')
+  @Post('logout')
   logout(
-    @Request() req: CustomRequest & { cookies?: { refreshToken?: string } },
+    @Request()
+    req: CustomRequest & { cookies?: { refreshToken?: string }; user: User },
     @Res({ passthrough: true }) response: Response,
   ) {
     return this.authService.logout(req, response);
