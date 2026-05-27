@@ -12,6 +12,9 @@ export class Note extends BaseEntity {
   })
   title: string;
 
+  @Column({ type: 'text', nullable: false }) // или @Column({ type: 'varchar', length: 255, nullable: false })
+  preview: string;
+
   @Column({ type: 'text' }) // или @Column({ type: 'varchar', length: 10000 })
   content: string;
 
