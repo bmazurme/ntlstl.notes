@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
+import { PassportModule } from '@nestjs/passport';
 
 import { OauthService } from './oauth.service';
 import { OauthController } from './oauth.controller';
@@ -11,7 +12,6 @@ import { AuthModule } from '../auth/auth.module';
 
 import { YandexStrategy } from './strategies/yandex.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
