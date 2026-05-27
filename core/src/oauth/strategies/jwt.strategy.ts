@@ -37,13 +37,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   /**
    * Validates decoded JWT payload
    * @param payload Decoded JWT payload containing user information
-   * @returns User object with ID and roles
-   * @description Extracts user ID and roles from payload for further use in application
+   * @description Extracts user ID from payload for further use in application
    */
-  validate(payload: { sub: number; roles: string[] }) {
+  validate(payload: { sub: number }) {
     return {
       id: payload.sub,
-      roles: payload.roles,
+      // roles: payload.roles,
     };
   }
 }
