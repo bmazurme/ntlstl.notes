@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -7,6 +7,7 @@ import { Note } from './entities/note.entity';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { Type } from '../types/entities/type.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class NotesService {
@@ -15,12 +16,13 @@ export class NotesService {
     private readonly noteRepository: Repository<Note>,
   ) {}
 
-  async create(createNoteDto: CreateNoteDto) {
+  async create(createNoteDto: CreateNoteDto, user: User) {
     const note = new Note();
 
     note.title = createNoteDto.title;
     note.content = createNoteDto.content;
     note.type = createNoteDto.type as Type;
+    note.creator = user;
 
     const { id } = await this.noteRepository.save(note);
 
@@ -32,7 +34,7 @@ export class NotesService {
     });
   }
 
-  async findAll(page: number = 1) {
+  async findAll(page: number) {
     const take = 10; // количество записей на странице
     const skip = (page - 1) * take;
 
@@ -59,8 +61,29 @@ export class NotesService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} note`;
+  async findOne(id: number) {
+    const document = await this.noteRepository.findOne({
+      where: { id },
+      relations: {
+        type: true,
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        type: {
+          id: true,
+          name: true,
+        },
+      },
+    });
+
+    if (!document) {
+      // this.logger.error('Not Found');
+      throw new NotFoundException();
+    }
+
+    return document;
   }
 
   update(id: number, updateNoteDto: UpdateNoteDto) {
