@@ -15,8 +15,7 @@ import {
   createRequestCounter,
   createRequestDurationHistogram,
 } from '../metrics/metrics.provider';
-
-// import * as bcrypt from 'bcrypt';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class UsersService {
@@ -53,32 +52,43 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    // private readonly typesService: TypesService,
   ) {}
 
-  private readonly users = [
-    {
-      id: 1,
-      username: 'john',
-      password: '$2b$10$oNa8UD6IULhrWTXodJ2ZTuiAoOYho0GC6WdCpElGLQCvHnxV72utS', // 'changeme'
-      refreshToken: null,
-    },
-  ];
+  // private readonly users = [
+  //   {
+  //     id: 1,
+  //     username: 'john',
+  //     password: '$2b$10$oNa8UD6IULhrWTXodJ2ZTuiAoOYho0GC6WdCpElGLQCvHnxV72utS', // 'changeme'
+  //     refreshToken: null,
+  //   },
+  // ];
 
-  async findByUsername(username: string) {
-    return this.users.find((user) => user.username === username);
-  }
+  // async findByUsername(username: string) {
+  //   return this.users.find((user) => user.username === username);
+  // }
 
   async findByRefreshToken(refreshToken: string) {
-    return this.users.find((user) => user.refreshToken === refreshToken);
+    // return this.users.find((user) => user.refreshToken === refreshToken);
+    return this.findUser<User>(
+      { refreshToken },
+      'findByRefreshToken',
+      undefined,
+      // ['roles'],
+    );
   }
 
-  async saveRefreshToken(userId: number, refreshToken: string) {
-    const user = this.users.find((u) => u.id === userId);
+  async saveRefreshToken(id: number, newRefreshToken: string) {
+    return this.updateUser(
+      id,
+      { refreshToken: newRefreshToken },
+      'update',
+      'saveRefreshToken',
+    );
+    // const user = this.users.find((u) => u.id === userId);
 
-    if (user) {
-      user.refreshToken = refreshToken;
-    }
+    // if (user) {
+    //   user.refreshToken = refreshToken;
+    // }
   }
 
   async create(createUserDto: CreateUserDto) {
@@ -107,8 +117,6 @@ export class UsersService {
         email: true,
         status: true,
         isActive: true,
-        // isDark: true,
-        // isCompact: true,
       },
       // ['roles'],
     );
@@ -149,5 +157,83 @@ export class UsersService {
 
       return user as T;
     });
+  }
+
+  // private async findUser<T>(
+  //   where: FindOptionsWhere<User>,
+  //   operation: keyof typeof this.metrics,
+  //   select?: FindOptionsSelect<User>,
+  //   relations?: string[],
+  // ): Promise<T | null> {
+  //   return this.trackOperation(operation, async () => {
+  //     const options: FindOneOptions<User> = { where, select, relations };
+  //     const user = await this.userRepository.findOne(options);
+
+  //     if (user) {
+  //       this.logger.log(`Found user: ${JSON.stringify(where)}`);
+  //     } else {
+  //       this.logger.warn(`User not found: ${JSON.stringify(where)}`);
+  //     }
+
+  //     return user as T;
+  //   });
+  // }
+
+  private async updateUser(
+    userId: number,
+    updateFields: Partial<User>,
+    operation: keyof typeof this.metrics,
+    logMessage: string,
+  ): Promise<UserResponseDto> {
+    return this.trackOperation(operation, async () => {
+      const user = await this.userRepository.findOneOrFail({
+        where: { id: userId },
+      });
+      const updatedUser = { ...user, ...updateFields };
+
+      await this.userRepository.save(updatedUser);
+      this.logger.log(`${logMessage} - ${userId}`);
+
+      return {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        status: updatedUser.status,
+      };
+    });
+  }
+
+  async isRefreshTokenValid(
+    userId: number,
+    refreshToken: string,
+  ): Promise<boolean> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          id: userId,
+          refreshToken: refreshToken,
+          // isActive: true,
+        },
+        select: {
+          id: true,
+          refreshToken: true,
+          isActive: true,
+        },
+      });
+
+      if (!user) {
+        this.logger.warn(`Invalid refresh token for user ${userId}`);
+        return false;
+      }
+
+      // Дополнительная проверка срока действия, если хранится в БД
+      // if (user.refreshTokenExpiresAt && user.refreshTokenExpiresAt < new Date()) {
+      //   return false;
+      // }
+
+      return true;
+    } catch (error) {
+      // this.handleError('isRefreshTokenValid', error as Error, `user ${userId}`);
+      return false;
+    }
   }
 }
