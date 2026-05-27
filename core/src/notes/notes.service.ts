@@ -50,6 +50,7 @@ export class NotesService {
       select: {
         id: true,
         title: true,
+        preview: true,
         content: true,
         type: true,
       },
@@ -70,6 +71,7 @@ export class NotesService {
       select: {
         id: true,
         title: true,
+        preview: true,
         content: true,
         type: {
           id: true,
