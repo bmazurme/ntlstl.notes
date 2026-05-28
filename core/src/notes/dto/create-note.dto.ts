@@ -16,6 +16,9 @@ export class CreateNoteDto {
   title: string;
 
   @IsString({ message: 'Название должно быть строкой' })
+  preview: string;
+
+  @IsString({ message: 'Название должно быть строкой' })
   content: string;
 
   @Type(() => TypeIdDto)
