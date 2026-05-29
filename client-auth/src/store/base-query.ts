@@ -2,7 +2,7 @@ import { fetchBaseQuery } from '@reduxjs/toolkit/query';
 
 import type { RootState } from '../store';
 
-const BASE_PROJECT_API_URL = import.meta.env.VITE_API_DOMAIN || 'http://localhost:3000';
+const BASE_PROJECT_API_URL = import.meta.env.VITE_API_DOMAIN || 'http://localhost:3000/api/v1';
 
 // Create our baseQuery instance
 const baseQuery = fetchBaseQuery({
