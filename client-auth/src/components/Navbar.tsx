@@ -20,9 +20,18 @@ export default function Navbar() {
           <Button
             view="outlined-action"
             size="s"
-            onClick={() => navigate('/any')}
+            onClick={() => navigate('/add-note')}
           >
-            Any Page
+            Add Note
+          </Button>
+        </li>
+        <li className="g-list__item">
+          <Button
+            view="outlined-action"
+            size="s"
+            onClick={() => navigate('/oauth')}
+          >
+            OAUTH Page
           </Button>
         </li>
       </ul>
