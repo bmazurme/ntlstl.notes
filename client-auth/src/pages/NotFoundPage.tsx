@@ -3,8 +3,6 @@ import { Button, Text } from '@gravity-ui/uikit';
 
 import ContentWrapper from '../components/ContentWrapper';
 
-// import style from './NotFoundPage.module.css';
-
 function NotFoundPage() {
   const navigate = useNavigate();
 
