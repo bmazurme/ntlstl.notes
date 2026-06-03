@@ -16,7 +16,6 @@ export default function HeaderMenu() {
   const handleLogin = async () => {
     try {
       const response = await login({ username: 'john', password: 'changeme' }).unwrap();
-      console.log('Login successful:', response);
       dispatch(setCredentials({ accessToken: response.accessToken, isAuthenticated: true }));
     } catch (error) {
       console.error('Login failed:', error);
@@ -27,7 +26,6 @@ export default function HeaderMenu() {
     try {
       await logoutAuth().unwrap();
       dispatch(logout());
-      console.log('Logout successful');
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -35,44 +33,22 @@ export default function HeaderMenu() {
 
   return (
     <div className="header-menu">
-      <nav>
-        <ul className="g-list">
-          <ProtectedWrapper
-            fallback={
-              <li className="g-list__item">
-                <Button
-                  view="outlined-action"
-                  size="s"
-                  onClick={handleLogin}
-                >
-                  Login
-                </Button>
-              </li>
-            }
-          >
-            <>
-              <li className="g-list__item">
-                <Button
-                  view="outlined-action"
-                  size="s"
-                  onClick={() => navigate('/profile')}
-                >
-                  Profile Page
-                </Button>
-              </li>
-              <li className="g-list__item">
-                <Button
-                  view="outlined-action"
-                  size="s"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
-              </li>
-            </>
-          </ProtectedWrapper>
-        </ul>
-      </nav>
+      <ProtectedWrapper
+        fallback={
+          <Button view="outlined-action" size="m" onClick={handleLogin}>
+            Login
+          </Button>
+        }
+      >
+        <>
+          <Button view="flat" size="m" onClick={() => navigate('/profile')}>
+            Profile
+          </Button>
+          <Button view="outlined-danger" size="m" onClick={handleLogout}>
+            Logout
+          </Button>
+        </>
+      </ProtectedWrapper>
     </div>
   );
 }
