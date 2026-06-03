@@ -58,6 +58,13 @@ const notesApiEndpoints = notesApi
         }),
         invalidatesTags: ['Notes'],
       }),
+      deleteNote: builder.mutation<void, number>({
+        query: (id) => ({
+          url: `/notes/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Notes'],
+      }),
     }),
   });
 
@@ -66,5 +73,6 @@ export const {
   useUpdateNoteMutation,
   useGetNoteByIdQuery,
   useGetNotesByPageMutation,
+  useDeleteNoteMutation,
 } = notesApiEndpoints;
 export { notesApiEndpoints };
