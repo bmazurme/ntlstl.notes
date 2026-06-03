@@ -6,35 +6,15 @@ export default function Navbar() {
 
   return (
     <nav className="blog-nav">
-      <ul className="g-list">
-        <li className="g-list__item">
-          <Button
-            view="outlined-action"
-            size="s"
-            onClick={() => navigate('/kit')}
-          >
-            Kit Page
-          </Button>
-        </li>
-        <li className="g-list__item">
-          <Button
-            view="outlined-action"
-            size="s"
-            onClick={() => navigate('/add-note')}
-          >
-            Add Note
-          </Button>
-        </li>
-        <li className="g-list__item">
-          <Button
-            view="outlined-action"
-            size="s"
-            onClick={() => navigate('/oauth')}
-          >
-            OAUTH Page
-          </Button>
-        </li>
-      </ul>
+      <Button view="flat" size="m" onClick={() => navigate('/kit')}>
+        Kit
+      </Button>
+      <Button view="flat" size="m" onClick={() => navigate('/add-note')}>
+        Add Note
+      </Button>
+      <Button view="flat" size="m" onClick={() => navigate('/oauth')}>
+        OAuth
+      </Button>
     </nav>
   );
 }
