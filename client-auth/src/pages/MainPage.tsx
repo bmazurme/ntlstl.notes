@@ -1,5 +1,5 @@
 import ContentWrapper from '../components/ContentWrapper';
-import Posts from '../components/Posts';
+import Posts from '../components/notes/notes';
 
 function MainPage({ page }: { page?: number }) {
   return (
