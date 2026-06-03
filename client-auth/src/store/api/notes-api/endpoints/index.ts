@@ -11,9 +11,10 @@ type Note = {
   // };
 };
 
-type NoteResponse = {
+export type NoteResponse = {
   id: number;
   title: string;
+  preview: string;
   content: string;
   type: {
     id: number;
@@ -35,6 +36,14 @@ const notesApiEndpoints = notesApi
         }),
         invalidatesTags: ['Notes'],
       }),
+      updateNote: builder.mutation<NoteResponse, Note & { id: number }>({
+        query: ({ id, ...data }: Note & { id: number }) => ({
+          url: `/notes/${id}`,
+          method: 'PATCH',
+          body: { ...data, type: { id: Number(data.type) } },
+        }),
+        invalidatesTags: ['Notes'],
+      }),
       getNoteById: builder.query<NoteResponse, number>({
         query: (id) => ({
           url: `/notes/${id}`,
@@ -52,5 +61,10 @@ const notesApiEndpoints = notesApi
     }),
   });
 
-export const { useCreateNoteMutation, useGetNoteByIdQuery, useGetNotesByPageMutation } = notesApiEndpoints;
+export const {
+  useCreateNoteMutation,
+  useUpdateNoteMutation,
+  useGetNoteByIdQuery,
+  useGetNotesByPageMutation,
+} = notesApiEndpoints;
 export { notesApiEndpoints };
