@@ -12,16 +12,18 @@ export default function Header() {
     <header className="blog-header">
       <div className="header-container">
         <Button
-          view="outlined-action"
+          view="flat"
           size="m"
           onClick={() => navigate('/')}
         >
           NTLSTL
         </Button>
-        <ThemeButton />
+        <Navbar />
+        <div className="header-actions">
+          <HeaderMenu />
+          <ThemeButton />
+        </div>
       </div>
-      <Navbar />
-      <HeaderMenu />
     </header>
   );
 }
