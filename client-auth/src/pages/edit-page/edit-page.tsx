@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Loader } from '@gravity-ui/uikit';
 
 import EditForm from '../../components/edit-form/edit-form';
@@ -11,6 +11,7 @@ import style from './edit-page.module.css';
 
 export default function EditPage() {
   const { noteId } = useParams();
+  const navigate = useNavigate();
   const types = useAppSelector(typesSelector);
   const { data, isLoading } = useGetNoteByIdQuery(+noteId!);
   const [updateNote] = useUpdateNoteMutation();
@@ -19,6 +20,7 @@ export default function EditPage() {
     const type = types.find((t) => t.name === formData.type)!;
     try {
       await updateNote({ id: +noteId!, ...formData, type: String(type.id) });
+      navigate(`/note/${noteId}`);
     } catch (error) {
       console.error('Ошибка при сохранении заметки:', error);
     }
