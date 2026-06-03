@@ -16,7 +16,6 @@ function transform(
   }
 ) {
 
-  // Настраиваем marked
   setOptions({
     gfm: true, // GitHub Flavored Markdown
     breaks: options.breaks ?? true,
@@ -45,7 +44,6 @@ interface MarkdownPreviewProps {
 }
 
 const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
-  // const theme = useThemeValue();
   const {
     // plugins,
     getValue,
