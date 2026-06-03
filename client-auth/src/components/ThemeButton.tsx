@@ -20,7 +20,10 @@ export default function ThemeButton() {
         aria-label="Светлая тема"
         onClick={() => toggleTheme(false)}
       >
-        <Icon data={Sun} size={16} />
+        <Icon
+          data={Sun}
+          size={16}
+        />
       </Button>
       <Button
         view="normal"
@@ -30,7 +33,10 @@ export default function ThemeButton() {
         aria-label="Темная тема"
         onClick={() => toggleTheme(true)}
       >
-        <Icon data={Moon} size={16} />
+        <Icon
+          data={Moon}
+          size={16}
+        />
       </Button>
     </div>
   );
