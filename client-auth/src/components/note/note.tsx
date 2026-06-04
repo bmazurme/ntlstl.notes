@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, Label, Text } from '@gravity-ui/uikit';
+import { Card, Label, Text } from '@gravity-ui/uikit';
 
-import MarkdownPreview from '../MarkdownPreview/MarkdownPreview';
+import MarkdownPreview from '../markdown-preview/markdown-preview';
 import { MARKDOWN_SETTINGS } from './markdown-settings';
 import type { NoteProps } from './note.props';
 
@@ -11,36 +11,30 @@ export default function Note({ note }: NoteProps) {
   return (
     <Card
       className="blog-post"
-      view="filled"
-      type="container"
+      theme="normal"
+      // view="filled"
+      // type="action"
+      type="selection"
       size="l"
+      onClick={() => navigate(`/note/${note.id}`)}
     >
       <div className="post-title">
-        <Text variant="header-2">
+        <Text variant="header-1">
           {note.title}
         </Text>
+        <Label
+          theme="normal"
+          size="s"
+        >
+          {note.type.name}
+        </Label>
       </div>
-      <Label
-        className="post-meta"
-        theme="normal"
-        size="m"
-      >
-        {note.type.name}
-      </Label>
+
       <div className="post-content">
         <MarkdownPreview
           getValue={() => note?.preview || ''}
           {...MARKDOWN_SETTINGS}
         />
-      </div>
-      <div className="read-more">
-        <Button
-          view="outlined-action"
-          size="m"
-          onClick={() => navigate(`/note/${note.id}`)}
-        >
-          read-more
-        </Button>
       </div>
     </Card>
   )
