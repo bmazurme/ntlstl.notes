@@ -6,12 +6,12 @@ export default function Navbar() {
 
   return (
     <nav className="blog-nav">
-      <Button view="flat" size="m" onClick={() => navigate('/kit')}>
+      {/* <Button view="flat" size="m" onClick={() => navigate('/kit')}>
         Kit
-      </Button>
-      <Button view="flat" size="m" onClick={() => navigate('/add-note')}>
+      </Button> */}
+      {/* <Button view="flat" size="m" onClick={() => navigate('/add-note')}>
         Add Note
-      </Button>
+      </Button> */}
       <Button view="flat" size="m" onClick={() => navigate('/oauth')}>
         OAuth
       </Button>
