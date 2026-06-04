@@ -11,7 +11,7 @@ import './index.css';
 import App from './App.tsx';
 import { store } from './store';
 
-import ErrorBoundaryWrapper from './components/ErrorBoundaryWrapper.tsx';
+import ErrorBoundaryWrapper from './components/error-boundary-wrapper/error-boundary-wrapper.tsx';
 import ThemeWrapper from './components/ThemeWrapper.tsx';
 
 const toaster = new Toaster();
