@@ -9,3 +9,23 @@ services:
       - VITE_API_DOMAIN=${VITE_API_DOMAIN:-http://localhost:3000/api/v1}
       - VITE_TOKEN=${VITE_TOKEN}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  cypress:
+    image: cypress/included:latest
+    depends_on:
+      client:
+        condition: service_healthy
+    environment:
+      - CYPRESS_baseUrl=http://client
+    volumes:
+      - ./cypress:/e2e/cypress
+      - ./cypress.config.ts:/e2e/cypress.config.ts
+      - ./cypress/screenshots:/e2e/cypress/screenshots
+    working_dir: /e2e
+    profiles:
+      - e2e
