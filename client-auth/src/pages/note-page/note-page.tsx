@@ -1,9 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Button, Card, Icon, Label, Modal, Skeleton, Text } from '@gravity-ui/uikit';
+import { Button, Card, Icon, Label, Skeleton, Text } from '@gravity-ui/uikit';
 import { Pencil, TrashBin, ArrowLeft, CircleFill } from '@gravity-ui/icons';
 
-import ContentWrapper from '../../components/ContentWrapper';
+import ContentWrapper from '../../components/content-wrapper';
+import ProtectedWrapper from '../../components/protected-wrapper';
+import ConfirmDeleteModal from '../../components/confirm-delete-modal';
 import { useGetNoteByIdQuery, useDeleteNoteMutation } from '../../store/api/notes-api/endpoints';
 import MarkdownPreview from '../../components/markdown-preview/markdown-preview';
 import { MARKDOWN_SETTINGS } from '../../components/note/markdown-settings';
@@ -44,7 +46,7 @@ export default function NotePage() {
             size="l"
           >
             <div className={style.header}>
-              <div>
+              <div className={style.navigation}>
                 <Button
                   view="flat"
                   size="s"
@@ -55,24 +57,26 @@ export default function NotePage() {
                 </Button>
                 <Label icon={<Icon size={14} data={CircleFill} />}>{data?.type?.name}</Label>
               </div>
-              <div className={style.tools}>
-                <Button
-                  view="outlined-action"
-                  size="s"
-                  onClick={() => navigate(`/edit-note/${noteId}`)}
-                >
-                  <Icon data={Pencil} size={14} />
-                  Edit
-                </Button>
-                <Button
-                  view="outlined-danger"
-                  size="s"
-                  onClick={() => setConfirmOpen(true)}
-                >
-                  <Icon data={TrashBin} size={14} />
-                  Delete
-                </Button>
-              </div>
+              <ProtectedWrapper>
+                <div className={style.tools}>
+                  <Button
+                    view="outlined-action"
+                    size="s"
+                    onClick={() => navigate(`/edit-note/${noteId}`)}
+                  >
+                    <Icon data={Pencil} size={14} />
+                    Edit
+                  </Button>
+                  <Button
+                    view="outlined-danger"
+                    size="s"
+                    onClick={() => setConfirmOpen(true)}
+                  >
+                    <Icon data={TrashBin} size={14} />
+                    Delete
+                  </Button>
+                </div>
+              </ProtectedWrapper>
             </div>
             <div className="post-title">
               {isLoading
@@ -94,30 +98,12 @@ export default function NotePage() {
         sidebar
       />
 
-      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '320px' }}>
-          <Text variant="header-1">Удалить заметку?</Text>
-          <Text>Это действие нельзя отменить.</Text>
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-            <Button
-              view="normal"
-              size="m"
-              onClick={() => setConfirmOpen(false)}
-              disabled={isDeleting}
-            >
-              Отмена
-            </Button>
-            <Button
-              view="outlined-danger"
-              size="m"
-              onClick={handleDelete}
-              loading={isDeleting}
-            >
-              Удалить
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      <ConfirmDeleteModal
+        open={confirmOpen}
+        isLoading={isDeleting}
+        onConfirm={handleDelete}
+        onClose={() => setConfirmOpen(false)}
+      />
     </>
   );
 }

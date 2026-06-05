@@ -6,7 +6,11 @@
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--g-color-line-generic);
 }
-
+.navigation {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 .tools {
   display: flex;
   gap: 10px;
