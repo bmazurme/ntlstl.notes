@@ -1,26 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@gravity-ui/uikit';
 
-import { useLoginMutation, useLogoutMutation } from '../store/api/auth-api/endpoints';
-import { useAppDispatch } from '../hooks';
-import { logout, setCredentials } from '../store';
+import { useLogoutMutation } from '../../store/api/auth-api/endpoints';
+import { useAppDispatch } from '../../hooks';
+import { logout } from '../../store';
 
-import ProtectedWrapper from './ProtectedWrapper';
+import ProtectedWrapper from '../protected-wrapper';
 
 export default function HeaderMenu() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [login] = useLoginMutation();
   const [logoutAuth] = useLogoutMutation();
-
-  const handleLogin = async () => {
-    try {
-      const response = await login({ username: 'john', password: 'changeme' }).unwrap();
-      dispatch(setCredentials({ accessToken: response.accessToken, isAuthenticated: true }));
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -35,7 +25,7 @@ export default function HeaderMenu() {
     <div className="header-menu">
       <ProtectedWrapper
         fallback={
-          <Button view="outlined-action" size="m" onClick={handleLogin}>
+          <Button view="flat" size="m" onClick={() => navigate('/oauth')}>
             Login
           </Button>
         }
