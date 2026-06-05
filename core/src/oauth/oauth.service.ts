@@ -29,6 +29,20 @@ export class OauthService {
   }
 
   async signinOrSignup({ email }: User, response: Response): Promise<void> {
+    const allowedEmails = this.configService.get<string>('EMAILS');
+    if (allowedEmails) {
+      const list = allowedEmails
+        .split(',')
+        .map((e) => e.trim())
+        .filter(Boolean);
+      if (!list.includes(email)) {
+        this.logger.warn(
+          `Blocked OAuth attempt for unregistered email: ${email}`,
+        );
+        return response.redirect(`${this.getTargetUrl()}/oauth-error`);
+      }
+    }
+
     let currentUser: User | null = await this.cacheManager.get(email);
 
     if (!currentUser) {

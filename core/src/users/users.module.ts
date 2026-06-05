@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CacheModule } from '@nestjs/cache-manager';
 
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { TypesModule } from '../types/types.module';
-
 import { User } from './entities/user.entity';
 
 @Module({
-  imports: [TypesModule, TypeOrmModule.forFeature([User])],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    CacheModule.register({ ttl: 300, max: 100 }),
+  ],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

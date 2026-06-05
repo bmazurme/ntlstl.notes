@@ -1,39 +1,42 @@
 import { NestFactory } from '@nestjs/core';
-import { INestApplication } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import { WinstonModule } from 'nest-winston';
 import cookieParser from 'cookie-parser';
-// import { ValidationPipe } from '@nestjs/common';
+import compression from 'compression';
+import helmet from 'helmet';
 
 import { AppModule } from './app.module';
-
-export const swaggerConfig = new DocumentBuilder()
-  .setTitle('Tools')
-  .setDescription('The place API description')
-  .setVersion('1.0')
-  .addTag('tools')
-  .build();
-
-export const configureCors = (app: INestApplication) => {
-  app.enableCors({
-    origin: ['http://localhost:5173'],
-    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    credentials: true,
-    maxAge: 3600,
-    optionsSuccessStatus: 204,
-  });
-};
+import { configureCors } from './config/cors.config';
+import { swaggerConfig } from './config/swagger.config';
+import { winstonConfig } from './config/logger.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const logger = WinstonModule.createLogger(winstonConfig);
+
+  const app = await NestFactory.create(AppModule, { logger });
+
   app.use(cookieParser());
+  app.use(compression());
+  app.use(helmet());
 
   configureCors(app);
 
-  const documentFactory = () =>
-    SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, documentFactory);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
-  await app.listen(3000);
+  if (process.env.NODE_ENV === 'development') {
+    const documentFactory = () =>
+      SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api', app, documentFactory);
+  }
+
+  const port = 3000;
+  await app.listen(port);
+  logger.log(`Application is running on port ${port}`, 'Bootstrap');
 }
 bootstrap();

@@ -19,7 +19,4 @@ export class User extends BaseEntity {
 
   @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
   refreshToken: string;
-
-  // @Column({ type: 'boolean', default: false, nullable: false })
-  // isDark: boolean;
 }

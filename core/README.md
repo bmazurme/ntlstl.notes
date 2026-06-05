@@ -1,73 +1,109 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# core
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS REST API для приложения заметок.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Стек
 
-## Description
+- **NestJS 10** + TypeORM + PostgreSQL
+- **JWT** — access token (15 мин, Authorization header) + refresh token (7 дней, httpOnly cookie)
+- **Passport.js** — Local, JWT, Yandex OAuth стратегии
+- **Cache Manager** — in-memory кеш для notes, types, users
+- **Winston** — логирование: DailyRotateFile в dev, Loki в prod
+- **prom-client** — метрики Prometheus на `/metrics`
+- **Swagger** — документация API, доступна только в `NODE_ENV=development`
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Структура
 
-## Installation
-
-```bash
-$ npm install
+```
+src/
+├── config/         # cors, typeorm, swagger, logger
+├── auth/           # JWT + Local аутентификация
+├── oauth/          # Yandex OAuth
+├── users/          # Профиль пользователя
+├── notes/          # CRUD заметок с пагинацией
+├── types/          # Типы/теги заметок
+└── metrics/        # Prometheus interceptor + /metrics endpoint
 ```
 
-## Running the app
+## Переменные окружения
 
-```bash
-# development
-$ npm run start
+```env
+NODE_ENV=development
 
-# watch mode
-$ npm run start:dev
+JWT_SECRET=
+REFRESH_JWT_SECRET=
 
-# production mode
-$ npm run start:prod
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB_TOOLS=notes-db
+
+TOOLS_YANDEX_ID=              # ID приложения Yandex OAuth
+TOOLS_YANDEX_SECRET=
+TOOLS_YANDEX_REDIRECT=        # http://localhost:3000/api/v1/oauth/yandex/redirect
+TOOLS_TARGET_URL=             # URL фронтенда для редиректа после OAuth
+
+EMAILS=user@example.com       # Белый список email через запятую; если не задан — пускает всех
+
+LOKI_HOST=http://localhost:3100  # Используется только в production
 ```
 
-## Test
+## Команды
 
 ```bash
-# unit tests
-$ npm run test
+npm install
 
-# e2e tests
-$ npm run test:e2e
+# Разработка (watch mode)
+npm run start:dev
 
-# test coverage
-$ npm run test:cov
+# Сборка
+npm run build
+
+# Продакшн
+npm run start:prod
+
+# Линтинг
+npm run lint
+
+# Юнит-тесты
+npm test
+
+# Юнит-тесты с покрытием
+npm run test:cov
+
+# E2E-тесты
+npm run test:e2e
 ```
 
-## Support
+## API
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Базовый путь: `/api/v1`
 
-## Stay in touch
+| Метод | Путь | Описание |
+|---|---|---|
+| `GET` | `/oauth/yandex` | Инициировать Yandex OAuth |
+| `GET` | `/oauth/yandex/redirect` | Callback Yandex OAuth |
+| `POST` | `/auth/login` | Вход по email + пароль |
+| `POST` | `/auth/refresh` | Обновить access token по refresh cookie |
+| `POST` | `/auth/logout` | Выход |
+| `GET` | `/users/me` | Данные текущего пользователя |
+| `PATCH` | `/users/:id` | Обновить профиль |
+| `GET` | `/notes` | Список заметок (`?page=1`) |
+| `GET` | `/notes/type/:typeId` | Заметки по типу (`?page=1`) |
+| `GET` | `/notes/:id` | Одна заметка |
+| `POST` | `/notes` | Создать заметку |
+| `PATCH` | `/notes/:id` | Обновить заметку |
+| `DELETE` | `/notes/:id` | Удалить заметку |
+| `GET` | `/types` | Список типов |
+| `POST` | `/types` | Создать тип |
+| `PATCH` | `/types/:id` | Обновить тип |
+| `DELETE` | `/types/:id` | Удалить тип |
+| `GET` | `/metrics` | Prometheus метрики |
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Swagger UI: `/api` (только `NODE_ENV=development`).
 
-## License
+## Логи
 
-Nest is [MIT licensed](LICENSE).
+- **development**: `logs/app-YYYY-MM-DD.log`, ротация 14 дней / 20 МБ / gzip
+- **production**: Loki по адресу `LOKI_HOST`

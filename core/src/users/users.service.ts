@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import {
   FindOneOptions,
   FindOptionsRelations,
@@ -7,6 +12,7 @@ import {
   Repository,
 } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -52,6 +58,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   // private readonly users = [
@@ -109,17 +116,26 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
-    return this.findUser<User>(
-      { email },
-      'findByEmail',
-      {
-        id: true,
-        email: true,
-        status: true,
-        isActive: true,
-      },
-      // ['roles'],
-    );
+    return this.findUser<User>({ email }, 'findByEmail', {
+      id: true,
+      email: true,
+      status: true,
+      isActive: true,
+    });
+  }
+
+  async findById(id: number) {
+    const key = `users:${id}`;
+    const cached = await this.cacheManager.get<User>(key);
+    if (cached) return cached;
+
+    const user = await this.findUser<User>({ id }, 'findCurrent', {
+      id: true,
+      email: true,
+      status: true,
+    });
+    if (user) await this.cacheManager.set(key, user);
+    return user;
   }
 
   private async trackOperation<T>(
@@ -179,6 +195,13 @@ export class UsersService {
   //   });
   // }
 
+  async update(
+    id: number,
+    updateFields: Partial<User>,
+  ): Promise<UserResponseDto> {
+    return this.updateUser(id, updateFields, 'update', 'update');
+  }
+
   private async updateUser(
     userId: number,
     updateFields: Partial<User>,
@@ -192,6 +215,7 @@ export class UsersService {
       const updatedUser = { ...user, ...updateFields };
 
       await this.userRepository.save(updatedUser);
+      await this.cacheManager.del(`users:${userId}`);
       this.logger.log(`${logMessage} - ${userId}`);
 
       return {

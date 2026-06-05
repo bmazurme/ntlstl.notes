@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { WinstonModule } from 'nest-winston';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,20 +11,28 @@ import { OauthModule } from './oauth/oauth.module';
 import { UsersModule } from './users/users.module';
 import { NotesModule } from './notes/notes.module';
 import { TypesModule } from './types/types.module';
+import { MetricsModule } from './metrics/metrics.module';
 
-import { TypeOrmModuleConfig } from './type-orm.config';
+import { TypeOrmModuleConfig } from './config/type-orm.config';
+import { winstonConfig } from './config/logger.config';
+import { HttpMetricsInterceptor } from './metrics/metrics.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    WinstonModule.forRoot(winstonConfig),
     TypeOrmModuleConfig,
     AuthModule,
     OauthModule,
     UsersModule,
     NotesModule,
     TypesModule,
+    MetricsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_INTERCEPTOR, useClass: HttpMetricsInterceptor },
+  ],
 })
 export class AppModule {}

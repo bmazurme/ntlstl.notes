@@ -1,16 +1,19 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 import { Type } from './entities/type.entity';
 
 import { CreateTypeDto } from './dto/create-type.dto';
 import { UpdateTypeDto } from './dto/update-type.dto';
 
-import {
-  // createRequestCounter,
-  createRequestDurationHistogram,
-} from '../metrics/metrics.provider';
+import { createRequestDurationHistogram } from '../metrics/metrics.provider';
 
 @Injectable()
 export class TypesService {
@@ -24,6 +27,7 @@ export class TypesService {
   constructor(
     @InjectRepository(Type)
     private readonly typeRepository: Repository<Type>,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   async create(createTypeDto: CreateTypeDto) {
@@ -31,19 +35,28 @@ export class TypesService {
     type.name = createTypeDto.name;
 
     const { id } = await this.typeRepository.save(type);
-    return this.typeRepository.findOne({
-      where: { id },
-    });
+    await this.cacheManager.del('types:all');
+
+    return this.typeRepository.findOne({ where: { id } });
   }
 
   async findAll() {
-    return this.typeRepository.find();
+    const cached = await this.cacheManager.get<Type[]>('types:all');
+    if (cached) return cached;
+
+    const result = await this.typeRepository.find();
+    await this.cacheManager.set('types:all', result);
+    return result;
   }
 
   async findOne(id: number) {
-    return this.typeRepository.findOne({
-      where: { id },
-    });
+    const key = `types:${id}`;
+    const cached = await this.cacheManager.get<Type>(key);
+    if (cached) return cached;
+
+    const result = await this.typeRepository.findOne({ where: { id } });
+    if (result) await this.cacheManager.set(key, result);
+    return result;
   }
 
   async update(id: number, updateTypeDto: UpdateTypeDto) {
@@ -56,6 +69,10 @@ export class TypesService {
       const updatedType = { ...existingType, ...updateTypeDto };
 
       await this.typeRepository.save(updatedType);
+      await Promise.all([
+        this.cacheManager.del('types:all'),
+        this.cacheManager.del(`types:${id}`),
+      ]);
       this.logger.log(`Type updated - id: ${id}`);
 
       return updatedType;
@@ -78,12 +95,15 @@ export class TypesService {
       }
 
       await this.typeRepository.remove(type);
+      await Promise.all([
+        this.cacheManager.del('types:all'),
+        this.cacheManager.del(`types:${id}`),
+      ]);
       this.logger.log(`Type removed - id: ${id}`);
 
       return { message: 'Type successfully removed' };
     } catch (error) {
       this.logger.error(`Remove type error - id: ${id}`, error);
-
       throw error;
     } finally {
       end();

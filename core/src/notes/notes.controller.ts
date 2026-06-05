@@ -36,6 +36,10 @@ export class NotesController {
   findAll(@Param('page') page: string) {
     return this.notesService.findAll(+page);
   }
+  @Get('type/:typeId/pages/:page')
+  findAllByType(@Param('page') page: string, @Param('typeId') typeId: string) {
+    return this.notesService.findAllByType(+typeId, +page);
+  }
 
   @UseGuards(JwtGuard)
   @Patch(':id')

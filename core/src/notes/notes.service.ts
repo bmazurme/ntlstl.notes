@@ -1,6 +1,7 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 import { Note } from './entities/note.entity';
 import { Type } from '../types/entities/type.entity';
@@ -16,6 +17,7 @@ export class NotesService {
   constructor(
     @InjectRepository(Note)
     private readonly noteRepository: Repository<Note>,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   async create(createNoteDto: CreateNoteDto, user: User) {
@@ -41,16 +43,14 @@ export class NotesService {
 
       const { id } = await this.noteRepository.save(note);
 
-      this.logger.debug('Note saved successfully', {
-        noteId: id,
-      });
+      this.logger.debug('Note saved successfully', { noteId: id });
 
       const result = await this.noteRepository.findOne({
         where: { id },
-        relations: {
-          type: true,
-        },
+        relations: { type: true },
       });
+
+      await this.invalidateListCache();
 
       this.logger.log('Note created successfully', {
         noteId: result?.id,
@@ -72,6 +72,10 @@ export class NotesService {
   async findAll(page: number) {
     this.logger.log('Fetching notes list', { page });
 
+    const key = `notes:page:${page}`;
+    const cached = await this.cacheManager.get(key);
+    if (cached) return cached;
+
     const take = 10;
     const skip = (page - 1) * take;
 
@@ -79,12 +83,8 @@ export class NotesService {
 
     try {
       const [results, total] = await this.noteRepository.findAndCount({
-        relations: {
-          type: true,
-        },
-        order: {
-          id: 'DESC',
-        },
+        relations: { type: true },
+        order: { id: 'DESC' },
         take,
         skip,
         select: {
@@ -102,17 +102,58 @@ export class NotesService {
         page,
       });
 
-      return {
-        data: results,
-        total,
-      };
+      const response = { data: results, total };
+      await this.cacheManager.set(key, response);
+      return response;
     } catch (error) {
-      this.logger.error('Failed to fetch notes list', {
-        error: error.message,
-        page,
-        stack: error.stack,
+      this.logger.error('Failed to fetch notes list', { error, page });
+      throw error;
+    }
+  }
+
+  async findAllByType(typeId: number, page: number) {
+    this.logger.log('Fetching notes list by type', { typeId, page });
+
+    const key = `notes:type:${typeId}:page:${page}`;
+    const cached = await this.cacheManager.get(key);
+    if (cached) return cached;
+
+    const take = 10;
+    const skip = (page - 1) * take;
+
+    this.logger.debug('Pagination parameters', { page, take, skip });
+
+    try {
+      const [results, total] = await this.noteRepository.findAndCount({
+        relations: { type: true },
+        where: { type: { id: typeId } },
+        order: { id: 'DESC' },
+        take,
+        skip,
+        select: {
+          id: true,
+          title: true,
+          preview: true,
+          content: true,
+          type: true,
+        },
       });
 
+      this.logger.debug('Notes fetched successfully', {
+        count: results.length,
+        total,
+        page,
+      });
+
+      const response = { data: results, total };
+      await this.cacheManager.set(key, response);
+      return response;
+    } catch (error) {
+      this.logger.error('Failed to fetch notes list by type', {
+        error,
+        typeId,
+        page,
+      });
       throw error;
     }
   }
@@ -120,21 +161,20 @@ export class NotesService {
   async findOne(id: number) {
     this.logger.log('Fetching note by ID', { id });
 
+    const key = `notes:${id}`;
+    const cached = await this.cacheManager.get<Note>(key);
+    if (cached) return cached;
+
     try {
       const document = await this.noteRepository.findOne({
         where: { id },
-        relations: {
-          type: true,
-        },
+        relations: { type: true },
         select: {
           id: true,
           title: true,
           preview: true,
           content: true,
-          type: {
-            id: true,
-            name: true,
-          },
+          type: { id: true, name: true },
         },
       });
 
@@ -143,17 +183,11 @@ export class NotesService {
         throw new NotFoundException();
       }
 
+      await this.cacheManager.set(key, document);
       return document;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      this.logger.error('Failed to fetch note', {
-        error: error.message,
-        id,
-        stack: error.stack,
-      });
+      if (error instanceof NotFoundException) throw error;
+      this.logger.error('Failed to fetch note', { error, id });
       throw error;
     }
   }
@@ -218,18 +252,15 @@ export class NotesService {
         title: result?.title,
       });
 
+      await Promise.all([
+        this.cacheManager.del(`notes:${id}`),
+        this.invalidateListCache(),
+      ]);
+
       return result as Note;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      this.logger.error('Failed to update note', {
-        error: error.message,
-        id,
-        updateData: updateNoteDto,
-        stack: error.stack,
-      });
-
+      if (error instanceof NotFoundException) throw error;
+      this.logger.error('Failed to update note', { error, id });
       throw error;
     }
   }
@@ -238,9 +269,7 @@ export class NotesService {
     this.logger.log('Deleting note', { id });
 
     try {
-      const noteToRemove = await this.noteRepository.findOne({
-        where: { id },
-      });
+      const noteToRemove = await this.noteRepository.findOne({ where: { id } });
 
       if (!noteToRemove) {
         this.logger.error(`Note with ID ${id} not found for deletion`);
@@ -249,22 +278,22 @@ export class NotesService {
 
       await this.noteRepository.remove(noteToRemove);
 
+      await Promise.all([
+        this.cacheManager.del(`notes:${id}`),
+        this.invalidateListCache(),
+      ]);
+
       this.logger.log(`Note with ID ${id} successfully deleted`);
 
-      return {
-        message: `Note with ID ${id} has been successfully removed`,
-      };
+      return { message: `Note with ID ${id} has been successfully removed` };
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      this.logger.error('Failed to delete note', {
-        error: error.message,
-        id,
-        stack: error.stack,
-      });
+      if (error instanceof NotFoundException) throw error;
+      this.logger.error('Failed to delete note', { error, id });
       throw error;
     }
+  }
+
+  private async invalidateListCache(): Promise<void> {
+    await (this.cacheManager as any).reset();
   }
 }
