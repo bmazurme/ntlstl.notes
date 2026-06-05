@@ -4,10 +4,9 @@ import type { PropsWithChildren } from 'react';
 import { useAppDispatch } from '../../hooks';
 import { useCheckAuthQuery } from '../../store/api/auth-api/endpoints';
 import { setCredentials, logout, setChecking } from '../../store/slices/auth-slice';
-
+import Footer from '../footer';
 import Header from '../header';
 import Sidebar from '../sidebar';
-import Footer from '../footer';
 
 interface ContentWrapperProps extends PropsWithChildren {
   sidebar?: boolean;

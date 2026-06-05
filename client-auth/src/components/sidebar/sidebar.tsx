@@ -1,12 +1,14 @@
+import { Plus, Hashtag, Layers } from '@gravity-ui/icons';
+import { Button, Icon, Skeleton } from '@gravity-ui/uikit';
 import { useEffect } from 'react';
 import { useNavigate, useParams, useMatch } from 'react-router-dom';
-import { Button, Icon } from '@gravity-ui/uikit';
-import { Plus, Hashtag, Layers } from '@gravity-ui/icons';
 
-import ProtectedWrapper from '../protected-wrapper';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { setTypes, typesSelector, useGetTypesMutation } from '../../store';
 import { toaster } from '../../main';
+import { setTypes, typesSelector, useGetTypesMutation } from '../../store';
+import ProtectedWrapper from '../protected-wrapper';
+
+import style from './sidebar.module.css';
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -14,7 +16,7 @@ export default function Sidebar() {
   const isAllNotes = !useMatch('/notes/type/:typeId');
   const dispatch = useAppDispatch();
   const types = useAppSelector(typesSelector);
-  const [getTypes] = useGetTypesMutation();
+  const [getTypes, { isLoading: isTypesLoading }] = useGetTypesMutation();
 
   useEffect(() => {
     const fetchTypes = async () => {
@@ -22,36 +24,79 @@ export default function Sidebar() {
         const types = await getTypes().unwrap();
         dispatch(setTypes(types));
       } catch {
-        toaster.add({ name: 'fetch-types-error', title: 'Не удалось загрузить типы', theme: 'danger' });
+        toaster.add({
+          name: 'fetch-types-error',
+          title: 'Не удалось загрузить типы',
+          theme: 'danger',
+        });
       }
     };
 
     fetchTypes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="sidebar">
+    <nav
+      className="sidebar"
+      aria-label="Фильтрация заметок"
+    >
       <ProtectedWrapper>
-        <Button view="action" size="m" onClick={() => navigate('/add-note')}>
-          <Icon data={Plus} size={14} />
+        <Button
+          view="action"
+          size="m"
+          aria-label="Создать новую заметку"
+          onClick={() => navigate('/add-note')}
+        >
+          <Icon
+            data={Plus}
+            size={14}
+            aria-hidden="true"
+          />
           Add Note
         </Button>
       </ProtectedWrapper>
-      <Button view={isAllNotes ? 'normal' : 'flat'} size="m" onClick={() => navigate('/')}>
-        <Icon data={Layers} size={14} />
+
+      <Button
+        view={isAllNotes ? 'normal' : 'flat'}
+        size="m"
+        aria-current={isAllNotes ? 'page' : undefined}
+        onClick={() => navigate('/')}
+      >
+        <Icon
+          data={Layers}
+          size={14}
+          aria-hidden="true"
+        />
         All notes
       </Button>
-      {types.map((type) => (
-        <Button
-          key={type.id}
-          view={typeId === String(type.id) ? 'normal' : 'flat'}
-          size="m"
-          onClick={() => navigate(`/notes/type/${type.id}`)}
-        >
-          <Icon data={Hashtag} size={14} />
-          {type.name}
-        </Button>
-      ))}
-    </div>
+
+      {isTypesLoading
+        ? Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              className={style.skeleton}
+            />
+          ))
+        : types.map((type) => {
+            const isActive = typeId === String(type.id);
+            return (
+              <Button
+                key={type.id}
+                view={isActive ? 'normal' : 'flat'}
+                size="m"
+                aria-current={isActive ? 'page' : undefined}
+                onClick={() => navigate(`/notes/type/${type.id}`)}
+              >
+                <Icon
+                  data={Hashtag}
+                  size={14}
+                  aria-hidden="true"
+                />
+                {type.name}
+              </Button>
+            );
+          })}
+    </nav>
   );
 }

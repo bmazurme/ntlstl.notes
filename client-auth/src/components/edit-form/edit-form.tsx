@@ -1,18 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Controller, useForm } from 'react-hook-form';
+ 
 import { MarkdownEditorView, useMarkdownEditor } from '@gravity-ui/markdown-editor';
 import { Button, Select, TextInput, Text } from '@gravity-ui/uikit';
+import { useCallback, useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import { setTypes, typesSelector, useGetTypesMutation, type NoteResponse } from '../../store';
-import { toaster } from '../../main';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import { toaster } from '../../main';
+import { setTypes, typesSelector, useGetTypesMutation, type NoteResponse } from '../../store';
+
+import { type FormPayload } from './edit-form-payload';
+import style from './edit-form.module.css';
 import fields from './form.fields';
 import { TEXT_INPUT_PROPS } from './text-input-props';
-import { type FormPayload } from './edit-form-payload';
 
-import style from './edit-form.module.css';
 
 interface EditLayoutProps {
   title: string;
@@ -59,16 +60,14 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
     md: { html: false },
   });
 
-  // Синхронизируем значения редакторов с формой
   useEffect(() => {
     const updateFormValues = () => {
       setValue('preview', previewEditor.getValue());
       setValue('content', contentEditor.getValue());
     };
 
-    // Обновляем форму при изменении в редакторах
     const handleChange = () => updateFormValues();
-    
+
     previewEditor.on('change', handleChange);
     contentEditor.on('change', handleChange);
 
@@ -76,6 +75,7 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       previewEditor.off('change', handleChange);
       contentEditor.off('change', handleChange);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, setValue]);
 
   useEffect(() => {
@@ -89,11 +89,13 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
     };
 
     fetchTypes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <form
       className={style.form}
+      aria-label={title}
       onSubmit={handleSubmit(action)}
     >
       <div className={style.header}>
@@ -135,6 +137,8 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
                   {...TEXT_INPUT_PROPS}
                   value={typeof field.value === 'string' ? field.value : ''}
                   error={fieldState.error?.message}
+                  aria-required={!!input.required}
+                  aria-invalid={!!fieldState.error}
                 />
               )
               : (
@@ -149,6 +153,8 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
                   validationState={errors?.type ? 'invalid' : undefined}
                   placeholder={isLoading ? 'Загрузка...' : 'Выберите вариант'}
                   disabled={isLoading}
+                  aria-required={true}
+                  aria-invalid={!!errors?.type}
                   options={types.map(({ id, name }) => ({ id, value: id.toString(), content: name }))}
                 />
               )

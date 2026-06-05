@@ -2,6 +2,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 1rem 0;
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--g-color-line-generic);
@@ -10,8 +12,16 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
 }
 .tools {
   display: flex;
   gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .tools {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }

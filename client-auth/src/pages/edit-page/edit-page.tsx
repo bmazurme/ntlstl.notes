@@ -1,12 +1,13 @@
-import { useNavigate, useParams } from 'react-router-dom';
 import { Loader } from '@gravity-ui/uikit';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import EditForm from '../../components/edit-form/edit-form';
 import ContentWrapper from '../../components/content-wrapper';
-import { typesSelector, useGetNoteByIdQuery, useUpdateNoteMutation } from '../../store';
-import { useAppSelector } from '../../hooks';
+import EditForm from '../../components/edit-form/edit-form';
 import type { FormPayload } from '../../components/edit-form/edit-form-payload';
+import PageMeta from '../../components/page-meta';
+import { useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
+import { typesSelector, useGetNoteByIdQuery, useUpdateNoteMutation } from '../../store';
 
 import style from './edit-page.module.css';
 
@@ -26,21 +27,33 @@ export default function EditPage() {
       await updateNote({ id: +noteId!, ...formData, type: typeId });
       navigate(`/note/${noteId}`);
     } catch {
-      toaster.add({ name: 'update-note-error', title: 'Не удалось сохранить заметку', theme: 'danger' });
+      toaster.add({
+        name: 'update-note-error',
+        title: 'Не удалось сохранить заметку',
+        theme: 'danger',
+      });
     }
   };
 
   return (
     <ContentWrapper>
+      <PageMeta title={data ? `Редактирование — ${data.title}` : 'Редактирование'} />
       <div className={style.container}>
         {isLoading || !data
-          ? <Loader size="l" />
-          : <EditForm
+          ? (
+            <Loader
+              size="l"
+              aria-label="Загрузка заметки"
+            />
+          )
+          : (
+            <EditForm
               title="Editing"
               data={data}
               action={onSubmit}
-            />}
+            />
+          )}
       </div>
     </ContentWrapper>
   );
-};
+}

@@ -1,5 +1,6 @@
-import { useAppSelector } from '.';
 import type { RootState } from '../store';
+
+import { useAppSelector } from '.';
 
 /**
  * Хук для проверки, авторизован ли пользователь

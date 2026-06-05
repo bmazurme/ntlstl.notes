@@ -1,9 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@gravity-ui/uikit';
+import { useNavigate } from 'react-router-dom';
 
-import ThemeButton from '../theme-button';
-import Navbar from '../navbar';
 import HeaderMenu from '../header-menu';
+import Navbar from '../navbar';
+import ThemeButton from '../theme-button';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -15,6 +15,7 @@ export default function Header() {
           <Button
             view="flat"
             size="m"
+            aria-label="NTLSTL — перейти на главную"
             onClick={() => navigate('/')}
           >
             NTLSTL

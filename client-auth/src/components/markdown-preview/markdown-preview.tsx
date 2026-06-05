@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { YfmStaticView } from '@gravity-ui/markdown-editor';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash/debounce';
 import { parse, setOptions } from 'marked';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import style from './markdown-preview.module.css';
 
 function transform(
   markdown: string,
@@ -15,26 +17,22 @@ function transform(
     needToSanitizeHtml?: boolean;
   }
 ) {
-
   setOptions({
-    gfm: true, // GitHub Flavored Markdown
+    gfm: true,
     breaks: options.breaks ?? true,
-    // smartypants: true
   });
 
-  // Преобразуем Markdown в HTML
   const html = parse(markdown);
 
   return {
     result: {
       html,
-      meta: {}
-    }
+      meta: {},
+    },
   };
 }
 
 interface MarkdownPreviewProps {
-  // plugins?: any[];
   getValue: () => string;
   allowHTML?: boolean;
   breaks?: boolean;
@@ -45,19 +43,16 @@ interface MarkdownPreviewProps {
 
 const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
   const {
-    // plugins,
     getValue,
     allowHTML,
     breaks,
     linkify,
     linkifyTlds,
-    needToSanitizeHtml
+    needToSanitizeHtml,
   } = props;
 
   const [html, setHtml] = useState('');
-  // const [meta, setMeta] = useState<object | undefined>({});
   const divRef = useRef<HTMLDivElement>(null);
-
 
   const safeSetHtml = (value: string | Promise<string>) => {
     if (value instanceof Promise) {
@@ -73,24 +68,18 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
         const res = await transform(getValue(), {
           allowHTML,
           breaks,
-          // plugins,
           linkify,
           linkifyTlds,
           needToSanitizeHtml,
         }).result;
 
         safeSetHtml(res.html);
-        // setMeta(res.meta);
       } catch (error) {
         console.error('Ошибка преобразования Markdown:', error);
         setHtml('<p>Ошибка при преобразовании Markdown</p>');
-        // setMeta({});
       }
     }, 200),
-    [
-      getValue, allowHTML, breaks,
-      // plugins,
-      linkify, linkifyTlds, needToSanitizeHtml]
+    [getValue, allowHTML, breaks, linkify, linkifyTlds, needToSanitizeHtml]
   );
 
   useEffect(() => {
@@ -98,11 +87,10 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
   }, [props, render]);
 
   return (
-    <div>
+    <div className={style.wrapper}>
       <YfmStaticView
         ref={divRef}
         html={html}
-        // noListReset
         className="demo-preview"
       />
     </div>

@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import ContentWrapper from '../../components/content-wrapper';
 import EditForm from '../../components/edit-form/edit-form';
 import type { FormPayload } from '../../components/edit-form/edit-form-payload';
-import { useCreateNoteMutation } from '../../store';
+import PageMeta from '../../components/page-meta';
 import { toaster } from '../../main';
+import { useCreateNoteMutation } from '../../store';
 
 import style from './add-page.module.css';
 
@@ -17,11 +18,17 @@ export default function AddPage() {
       await createNote(formData);
       navigate('/');
     } catch {
-      toaster.add({ name: 'create-note-error', title: 'Не удалось создать заметку', theme: 'danger' });
+      toaster.add({
+        name: 'create-note-error',
+        title: 'Не удалось создать заметку',
+        theme: 'danger',
+      });
     }
   };
+
   return (
     <ContentWrapper>
+      <PageMeta title="Новая заметка" />
       <div className={style.container}>
         <EditForm
           title="Addition"
@@ -30,4 +37,4 @@ export default function AddPage() {
       </div>
     </ContentWrapper>
   );
-};
+}

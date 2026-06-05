@@ -1,11 +1,6 @@
-// import { useNavigate } from 'react-router-dom';
-// import { Button } from '@gravity-ui/uikit';
-
 export default function Navbar() {
-  // const navigate = useNavigate();
-
   return (
-    <nav className="blog-nav">
+    <nav className="blog-nav" aria-label="Основная навигация">
       Developer notes
     </nav>
   );

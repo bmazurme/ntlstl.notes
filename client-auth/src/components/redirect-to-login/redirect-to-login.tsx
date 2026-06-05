@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import style from './redirect-to-login.module.css';
+
 const RedirectToLogin = () => {
   const navigate = useNavigate();
 
@@ -13,7 +15,7 @@ const RedirectToLogin = () => {
   }, [navigate]);
 
   return (
-    <div style={{ textAlign: 'center', padding: '2rem' }}>
+    <div className={style.container}>
       Перенаправление на страницу входа...
     </div>
   );

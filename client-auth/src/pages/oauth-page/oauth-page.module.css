@@ -29,5 +29,6 @@
 .yandexLogo {
   display: block;
   height: 44px;
-  width: auto;
+  width: 135px;
+  aspect-ratio: 135 / 44;
 }

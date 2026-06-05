@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
-import { Button, Icon } from '@gravity-ui/uikit';
 import { Moon, Sun } from '@gravity-ui/icons';
+import { Button, Icon } from '@gravity-ui/uikit';
+import { useEffect } from 'react';
 
 import { useAppDispatch } from '../../hooks';
+import useLocalStorage from '../../hooks/use-local-storage';
 import { useTheme } from '../../hooks/use-theme';
 import { setTheme } from '../../store';
-import useLocalStorage from '../../hooks/use-local-storage';
 
 const THEME_KEY = 'theme';
 
@@ -16,6 +16,7 @@ export default function ThemeButton() {
 
   useEffect(() => {
     dispatch(setTheme({ isDark: storedTheme === 'dark' }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleTheme = () => {

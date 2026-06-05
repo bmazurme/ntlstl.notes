@@ -1,17 +1,28 @@
 import { useIsAuthenticated } from '../../hooks/use-is-authenticated';
 
+import style from './protected-wrapper.module.css';
+
 const ProtectedWrapper = ({
   children,
   requiredRoles = [],
   fallback = null,
-  anyRole = false
+  anyRole = false,
 }: {
   children: React.ReactNode;
   requiredRoles?: string[];
   fallback?: React.ReactNode;
-  anyRole?: boolean; }) => {
-  const { isAuthenticated } = useIsAuthenticated();
+  anyRole?: boolean;
+}) => {
+  const { isAuthenticated, isChecking } = useIsAuthenticated();
   const userRoles: string[] = [];
+
+  if (isChecking) {
+    return (
+      <span className={style.hidden} aria-hidden="true">
+        {children}
+      </span>
+    );
+  }
 
   if (!isAuthenticated) {
     return fallback;

@@ -1,11 +1,10 @@
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@gravity-ui/uikit';
+import { useNavigate } from 'react-router-dom';
 
-import { useLogoutMutation } from '../../store/api/auth-api/endpoints';
 import { useAppDispatch } from '../../hooks';
-import { logout } from '../../store';
 import { toaster } from '../../main';
-
+import { logout } from '../../store';
+import { useLogoutMutation } from '../../store/api/auth-api/endpoints';
 import ProtectedWrapper from '../protected-wrapper';
 
 export default function HeaderMenu() {
@@ -18,7 +17,11 @@ export default function HeaderMenu() {
       await logoutAuth().unwrap();
       dispatch(logout());
     } catch {
-      toaster.add({ name: 'logout-error', title: 'Не удалось выйти', theme: 'danger' });
+      toaster.add({
+        name: 'logout-error',
+        title: 'Не удалось выйти',
+        theme: 'danger',
+      });
     }
   };
 
@@ -26,16 +29,28 @@ export default function HeaderMenu() {
     <div className="header-menu">
       <ProtectedWrapper
         fallback={
-          <Button view="flat" size="m" onClick={() => navigate('/oauth')}>
+          <Button
+            view="flat"
+            size="m"
+            onClick={() => navigate('/oauth')}
+          >
             Login
           </Button>
         }
       >
         <>
-          <Button view="flat" size="m" onClick={() => navigate('/profile')}>
+          <Button
+            view="flat"
+            size="m"
+            onClick={() => navigate('/profile')}
+          >
             Profile
           </Button>
-          <Button view="outlined-danger" size="m" onClick={handleLogout}>
+          <Button
+            view="outlined-utility"
+            size="m"
+            onClick={handleLogout}
+          >
             Logout
           </Button>
         </>

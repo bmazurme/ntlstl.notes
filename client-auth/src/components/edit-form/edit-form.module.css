@@ -29,3 +29,19 @@
   padding: 16px;
   min-height: 320px;
 }
+
+@media (max-width: 768px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tools {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .content {
+    min-height: 200px;
+  }
+}

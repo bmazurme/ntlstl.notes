@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { PropsWithChildren } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 import { Button, Text } from '@gravity-ui/uikit';
+import type { PropsWithChildren } from 'react';
+import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
+import { useNavigate } from 'react-router-dom';
 
 import ContentWrapper from '../content-wrapper';
 
@@ -15,11 +15,11 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
     if (error instanceof Error) {
       return error.message;
     }
-    
+
     if (typeof error === 'string') {
       return error;
     }
-    
+
     if (error && typeof error === 'object') {
       if ('message' in error) {
         return String((error as any).message);
@@ -35,11 +35,12 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
 
   const errorMessage = getErrorMessage();
   const navigate = useNavigate();
+
   const navigateHome = () => {
     resetErrorBoundary();
     navigate('/');
   };
-  
+
   return (
     <ContentWrapper
       children={(
@@ -83,7 +84,7 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
 export default function ErrorBoundaryWrapper({ children }: ErrorBoundaryWrapperProps) {
   return (
     <ErrorBoundary
-      onReset={() => console.log('reset')}
+      onReset={() => () => {}}
       FallbackComponent={ErrorFallback}
     >
       <>{children}</>

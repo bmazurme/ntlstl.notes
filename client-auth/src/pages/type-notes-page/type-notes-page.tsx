@@ -1,13 +1,16 @@
+import { Pagination, type PaginationProps, Skeleton, Text } from '@gravity-ui/uikit';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Pagination, type PaginationProps, Skeleton, Text } from '@gravity-ui/uikit';
 
 import ContentWrapper from '../../components/content-wrapper';
 import Note from '../../components/note/note';
-import { useGetNotesByTypeMutation } from '../../store/api/notes-api/endpoints';
+import PageMeta from '../../components/page-meta';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { notesSelector, setNotes } from '../../store';
 import { toaster } from '../../main';
+import { notesSelector, setNotes } from '../../store';
+import { useGetNotesByTypeMutation } from '../../store/api/notes-api/endpoints';
+
+import style from './type-notes-page.module.css';
 
 export default function TypeNotesPage() {
   const { typeId } = useParams();
@@ -30,9 +33,14 @@ export default function TypeNotesPage() {
         dispatch(setNotes({ notes: data }));
         setState((prev) => ({ ...prev, total }));
       } catch {
-        toaster.add({ name: 'fetch-notes-by-type-error', title: 'Не удалось загрузить заметки', theme: 'danger' });
+        toaster.add({
+          name: 'fetch-notes-by-type-error',
+          title: 'Не удалось загрузить заметки',
+          theme: 'danger',
+        });
       }
     };
+
     fetch();
   }, [typeId, state.page, getNotesByType, dispatch]);
 
@@ -43,12 +51,31 @@ export default function TypeNotesPage() {
 
   return (
     <ContentWrapper sidebar>
-      <main className="main">
+      <PageMeta title="Заметки по типу" />
+      <main
+        className="main"
+        aria-label="Заметки по типу"
+        aria-live="polite"
+      >
         {isLoading
-          ? <Skeleton style={{ width: '100%', minHeight: '240px' }} />
+          ? (
+            <Skeleton className={style.skeleton} />
+          )
           : notes.length === 0
-            ? <Text variant="body-1" color="secondary">Нет заметок этого типа</Text>
-            : notes.map((note) => <Note key={note.id} note={note} />)}
+            ? (
+              <Text
+                variant="body-1"
+                color="secondary"
+              >
+                Нет заметок этого типа
+              </Text>
+            )
+            : notes.map((note) => (
+                <Note
+                  key={note.id}
+                  note={note}
+                />
+              ))}
 
         {state.total > state.pageSize && (
           <Pagination
@@ -56,6 +83,7 @@ export default function TypeNotesPage() {
             pageSize={state.pageSize}
             total={state.total}
             onUpdate={handleUpdate}
+            aria-label="Навигация по страницам"
           />
         )}
       </main>
