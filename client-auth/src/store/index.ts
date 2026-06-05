@@ -1,12 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 import { authApi, usersApi, notesApi, typesApi } from './api/index';
-
 import authReducer from './slices/auth-slice';
-import usersReducer from './slices/users-slice';
-import themeReducer from './slices/theme-slice';
 import notesReducer from './slices/notes-slice';
+import themeReducer from './slices/theme-slice';
 import typesReducer from './slices/types-slice';
+import usersReducer from './slices/users-slice';
 
 export * from './api/auth-api/endpoints/index';
 export * from './api/users-api/endpoints/index';

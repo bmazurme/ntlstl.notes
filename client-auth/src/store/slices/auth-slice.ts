@@ -21,10 +21,12 @@ const authSlice = createSlice({
     setCredentials: (state, action) => {
       state.accessToken = action.payload.accessToken;
       state.isAuthenticated = true;
+      state.status = 'idle';
     },
     logout: (state) => {
       state.accessToken = null;
       state.isAuthenticated = false;
+      state.status = 'idle';
     },
     setChecking: (state) => {
       state.status = 'checking';

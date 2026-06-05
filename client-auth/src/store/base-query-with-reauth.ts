@@ -1,8 +1,9 @@
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
+import type { RootState } from '../store';
+
 import baseQuery from './base-query';
 import { logout, setCredentials } from './slices/auth-slice';
-import type { RootState } from '../store';
 
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
@@ -12,10 +13,6 @@ const baseQueryWithReauth: BaseQueryFn<
   let result = await baseQuery(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    console.log('Token expired, attempting to refresh...');
-
-    console.log(api.getState()); // Debug: Check the current stat
-    // const refreshToken = (api.getState() as RootState).auth.refreshToken;
     const isAuthenticated = (api.getState() as RootState).auth.isAuthenticated;
 
     // if (!refreshToken) {

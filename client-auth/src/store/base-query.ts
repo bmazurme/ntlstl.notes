@@ -8,7 +8,6 @@ const baseQuery = fetchBaseQuery({
   baseUrl: BASE_PROJECT_API_URL,
   prepareHeaders: (headers, { getState }) => {
     const accessToken = (getState() as RootState).auth.accessToken;
-    console.log('Preparing headers with accessToken:', accessToken);
 
     if (accessToken) {
       headers.set('Authorization', `Bearer ${accessToken}`);
