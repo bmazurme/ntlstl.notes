@@ -9,6 +9,7 @@ type User = {
 type UserResponse = {
   id: number;
   username: string;
+  status: string;
 };
 
 const usersApiEndpoints = usersApi

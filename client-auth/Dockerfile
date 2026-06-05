@@ -1,6 +1,11 @@
 # Stage 1: build
 FROM node:22-alpine AS builder
 
+ARG VITE_API_DOMAIN=http://localhost/api/v1
+ARG VITE_TOKEN
+ENV VITE_API_DOMAIN=$VITE_API_DOMAIN
+ENV VITE_TOKEN=$VITE_TOKEN
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
