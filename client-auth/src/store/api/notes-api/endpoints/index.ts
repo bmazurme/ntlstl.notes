@@ -65,6 +65,13 @@ const notesApiEndpoints = notesApi
         }),
         invalidatesTags: ['Notes'],
       }),
+      getNotesByType: builder.mutation<{ data: NoteResponse[]; total: number }, { typeId: number; page: number }>({
+        query: ({ typeId, page }) => ({
+          url: `/notes/type/${typeId}/pages/${page}`,
+          method: 'GET',
+        }),
+        invalidatesTags: ['Notes'],
+      }),
     }),
   });
 
@@ -74,5 +81,6 @@ export const {
   useGetNoteByIdQuery,
   useGetNotesByPageMutation,
   useDeleteNoteMutation,
+  useGetNotesByTypeMutation,
 } = notesApiEndpoints;
 export { notesApiEndpoints };
