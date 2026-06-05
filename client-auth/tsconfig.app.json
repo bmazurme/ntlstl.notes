@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src", "../client/src/components/broken-component"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test"]
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test", "cypress"]
 }
