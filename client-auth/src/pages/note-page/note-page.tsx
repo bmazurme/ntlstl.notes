@@ -6,6 +6,7 @@ import { Pencil, TrashBin, ArrowLeft, CircleFill } from '@gravity-ui/icons';
 import ContentWrapper from '../../components/content-wrapper';
 import ProtectedWrapper from '../../components/protected-wrapper';
 import ConfirmDeleteModal from '../../components/confirm-delete-modal';
+import { toaster } from '../../main';
 import { useGetNoteByIdQuery, useDeleteNoteMutation } from '../../store/api/notes-api/endpoints';
 import MarkdownPreview from '../../components/markdown-preview/markdown-preview';
 import { MARKDOWN_SETTINGS } from '../../components/note/markdown-settings';
@@ -30,9 +31,14 @@ export default function NotePage() {
   }, [navigate, canGoBack]);
 
   const handleDelete = async () => {
-    await deleteNote(+noteId!);
-    setConfirmOpen(false);
-    navigate('/notes');
+    try {
+      await deleteNote(+noteId!).unwrap();
+      setConfirmOpen(false);
+      navigate('/notes');
+    } catch {
+      toaster.add({ name: 'delete-note-error', title: 'Не удалось удалить заметку', theme: 'danger' });
+      setConfirmOpen(false);
+    }
   };
 
   return (

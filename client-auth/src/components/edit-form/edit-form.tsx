@@ -6,6 +6,7 @@ import { MarkdownEditorView, useMarkdownEditor } from '@gravity-ui/markdown-edit
 import { Button, Select, TextInput, Text } from '@gravity-ui/uikit';
 
 import { setTypes, typesSelector, useGetTypesMutation, type NoteResponse } from '../../store';
+import { toaster } from '../../main';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import fields from './form.fields';
 import { TEXT_INPUT_PROPS } from './text-input-props';
@@ -82,8 +83,8 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       try {
         const types = await getTypes().unwrap();
         dispatch(setTypes(types));
-      } catch (err) {
-        console.log('err', err);
+      } catch {
+        toaster.add({ name: 'fetch-types-form-error', title: 'Не удалось загрузить типы', theme: 'danger' });
       }
     };
 

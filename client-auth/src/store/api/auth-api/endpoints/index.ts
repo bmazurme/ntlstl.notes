@@ -1,10 +1,5 @@
 import authApi from '..';
 
-type LoginRequest = {
-  username: string;
-  password: string;
-};
-
 type LoginResponse = {
   accessToken: string;
   expiresIn: number;
@@ -21,14 +16,6 @@ const authApiEndpoints = authApi
   })
   .injectEndpoints({
     endpoints: (builder) => ({
-      login: builder.mutation<LoginResponse, LoginRequest>({
-        query: (loginData) => ({
-          url: '/auth/login',
-          method: 'POST',
-          body: loginData,
-        }),
-        invalidatesTags: ['Auth'],
-      }),
       refresh: builder.mutation<LoginResponse, void>({
         query: () => ({
           url: '/auth/refresh',
@@ -55,7 +42,6 @@ const authApiEndpoints = authApi
   });
 
 export const {
-  useLoginMutation,
   useRefreshMutation,
   useLogoutMutation,
   useCheckAuthQuery,

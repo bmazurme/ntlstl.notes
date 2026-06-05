@@ -4,6 +4,7 @@ import { Button } from '@gravity-ui/uikit';
 import { useLogoutMutation } from '../../store/api/auth-api/endpoints';
 import { useAppDispatch } from '../../hooks';
 import { logout } from '../../store';
+import { toaster } from '../../main';
 
 import ProtectedWrapper from '../protected-wrapper';
 
@@ -16,8 +17,8 @@ export default function HeaderMenu() {
     try {
       await logoutAuth().unwrap();
       dispatch(logout());
-    } catch (error) {
-      console.error('Logout failed:', error);
+    } catch {
+      toaster.add({ name: 'logout-error', title: 'Не удалось выйти', theme: 'danger' });
     }
   };
 

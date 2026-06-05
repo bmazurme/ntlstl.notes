@@ -6,6 +6,7 @@ import ContentWrapper from '../../components/content-wrapper';
 import { typesSelector, useGetNoteByIdQuery, useUpdateNoteMutation } from '../../store';
 import { useAppSelector } from '../../hooks';
 import type { FormPayload } from '../../components/edit-form/edit-form-payload';
+import { toaster } from '../../main';
 
 import style from './edit-page.module.css';
 
@@ -24,8 +25,8 @@ export default function EditPage() {
     try {
       await updateNote({ id: +noteId!, ...formData, type: typeId });
       navigate(`/note/${noteId}`);
-    } catch (error) {
-      console.error('Ошибка при сохранении заметки:', error);
+    } catch {
+      toaster.add({ name: 'update-note-error', title: 'Не удалось сохранить заметку', theme: 'danger' });
     }
   };
 

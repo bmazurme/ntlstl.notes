@@ -6,6 +6,7 @@ import { Plus, Hashtag, Layers } from '@gravity-ui/icons';
 import ProtectedWrapper from '../protected-wrapper';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { setTypes, typesSelector, useGetTypesMutation } from '../../store';
+import { toaster } from '../../main';
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -20,8 +21,8 @@ export default function Sidebar() {
       try {
         const types = await getTypes().unwrap();
         dispatch(setTypes(types));
-      } catch (err) {
-        console.log('err', err);
+      } catch {
+        toaster.add({ name: 'fetch-types-error', title: 'Не удалось загрузить типы', theme: 'danger' });
       }
     };
 

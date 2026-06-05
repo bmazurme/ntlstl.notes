@@ -12,7 +12,7 @@ import App from './App.tsx';
 import { store } from './store';
 
 import ErrorBoundaryWrapper from './components/error-boundary-wrapper/error-boundary-wrapper.tsx';
-import ThemeWrapper from './components/ThemeWrapper.tsx';
+import ThemeWrapper from './components/theme-wrapper';
 
 const toaster = new Toaster();
 

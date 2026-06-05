@@ -1,4 +1,4 @@
-import ContentWrapper from '../../components/ContentWrapper';
+import ContentWrapper from '../../components/content-wrapper';
 import Posts from '../../components/notes/notes';
 
 function MainPage({ page }: { page?: number }) {

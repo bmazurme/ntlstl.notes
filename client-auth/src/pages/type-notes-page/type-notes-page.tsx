@@ -7,6 +7,7 @@ import Note from '../../components/note/note';
 import { useGetNotesByTypeMutation } from '../../store/api/notes-api/endpoints';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { notesSelector, setNotes } from '../../store';
+import { toaster } from '../../main';
 
 export default function TypeNotesPage() {
   const { typeId } = useParams();
@@ -22,13 +23,14 @@ export default function TypeNotesPage() {
 
   useEffect(() => {
     if (!typeId) return;
+
     const fetch = async () => {
       try {
         const { data, total } = await getNotesByType({ typeId: +typeId, page: state.page }).unwrap();
         dispatch(setNotes({ notes: data }));
         setState((prev) => ({ ...prev, total }));
-      } catch (error) {
-        console.error('Failed to fetch notes by type', error);
+      } catch {
+        toaster.add({ name: 'fetch-notes-by-type-error', title: 'Не удалось загрузить заметки', theme: 'danger' });
       }
     };
     fetch();

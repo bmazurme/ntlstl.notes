@@ -1,14 +1,10 @@
 import notesApi from '..';
 
 type Note = {
-  // id: number;
   title: string;
   preview: string;
   content: string;
   type: string;
-  // type: {
-  //   id: number;
-  // };
 };
 
 export type NoteResponse = {
