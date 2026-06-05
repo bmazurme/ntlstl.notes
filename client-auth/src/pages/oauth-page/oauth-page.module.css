@@ -1,0 +1,33 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 64px 24px;
+  flex: 1;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.yandexButton {
+  display: inline-block;
+  line-height: 0;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+}
+
+.yandexButton:hover {
+  opacity: 0.85;
+}
+
+.yandexLogo {
+  display: block;
+  height: 44px;
+  width: auto;
+}
