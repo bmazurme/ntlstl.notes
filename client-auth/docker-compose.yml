@@ -1,0 +1,11 @@
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_DOMAIN=${VITE_API_DOMAIN:-http://localhost:3000/api/v1}
+      - VITE_TOKEN=${VITE_TOKEN}
+    restart: unless-stopped
