@@ -1,3 +1,15 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--g-color-line-generic);
+}
+.tools {
+  display: flex;
+  gap: 10px;
+}
 .form {
   display: grid;
   gap: 16px;

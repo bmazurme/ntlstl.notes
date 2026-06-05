@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { MarkdownEditorView, useMarkdownEditor } from '@gravity-ui/markdown-editor';
-import { Button, Select, TextInput } from '@gravity-ui/uikit';
+import { Button, Select, TextInput, Text } from '@gravity-ui/uikit';
 
 import { setTypes, typesSelector, useGetTypesMutation, type NoteResponse } from '../../store';
 import { useAppDispatch, useAppSelector } from '../../hooks';
@@ -13,11 +14,14 @@ import { type FormPayload } from './edit-form-payload';
 import style from './edit-form.module.css';
 
 interface EditLayoutProps {
+  title: string;
   data?: NoteResponse;
   action: (formData: FormPayload) => Promise<void>;
 }
 
-export default function EditForm({ data, action }: EditLayoutProps) {
+export default function EditForm({ title, data, action }: EditLayoutProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const [getTypes, { isLoading }] = useGetTypesMutation();
   const types = useAppSelector(typesSelector);
@@ -31,6 +35,15 @@ export default function EditForm({ data, action }: EditLayoutProps) {
       content: data?.content || '',
     },
   });
+
+  const canGoBack = location.key !== 'default';
+  const handleBack = useCallback(() => {
+      if (canGoBack) {
+        navigate(-1);
+      } else {
+        navigate('/');
+      }
+    }, [navigate, canGoBack]);
 
   const contentEditor = useMarkdownEditor({
     initial: {
@@ -82,6 +95,27 @@ export default function EditForm({ data, action }: EditLayoutProps) {
       className={style.form}
       onSubmit={handleSubmit(action)}
     >
+      <div className={style.header}>
+        <Text variant="subheader-1">
+          {title}
+        </Text>
+        <div className={style.tools}>
+          <Button
+            view="flat"
+            size="s"
+            onClick={handleBack}
+          >
+            Cancel
+          </Button>
+          <Button
+            view="action"
+            size="s"
+            type="submit"
+          >
+            Save
+          </Button>
+        </div>
+      </div>
       {fields.map((input) => (
         <Controller
           key={input.name}
@@ -132,13 +166,6 @@ export default function EditForm({ data, action }: EditLayoutProps) {
         editor={contentEditor}
         className={style.content}
       />
-      <Button
-        view="action"
-        size="l"
-        type="submit"
-      >
-        Save
-      </Button>
     </form>
   );
 };
