@@ -1,0 +1,88 @@
+name: Test
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+jobs:
+  test-core:
+    name: Core — lint & test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: notes-db-test
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    defaults:
+      run:
+        working-directory: core
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: core/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ci-secret
+          REFRESH_JWT_SECRET: ci-refresh-secret
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB_TOOLS: notes-db-test
+          TOOLS_YANDEX_ID: dummy
+          TOOLS_YANDEX_SECRET: dummy
+          TOOLS_YANDEX_REDIRECT: http://localhost:3000/api/v1/oauth/yandex/redirect
+          TOOLS_TARGET_URL: http://localhost
+
+  test-client:
+    name: Client — lint & test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: client-auth
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client-auth/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
