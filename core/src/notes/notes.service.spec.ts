@@ -36,11 +36,13 @@ describe('NotesService', () => {
     remove: jest.fn(),
   };
 
+  const mockStoreKeys = jest.fn();
+
   const mockCache = {
     get: jest.fn(),
     set: jest.fn(),
     del: jest.fn(),
-    reset: jest.fn(),
+    store: { keys: mockStoreKeys },
   };
 
   beforeEach(async () => {
@@ -155,7 +157,7 @@ describe('NotesService', () => {
 
       mockRepo.save.mockResolvedValue({ id: 1 });
       mockRepo.findOne.mockResolvedValue(note);
-      mockCache.reset = jest.fn().mockResolvedValue(undefined);
+      mockStoreKeys.mockResolvedValue(['notes:page:1', 'notes:type:2:page:1']);
 
       const result = await service.create(dto, user);
 
@@ -174,7 +176,7 @@ describe('NotesService', () => {
         .mockResolvedValueOnce(updated);
       mockRepo.save.mockResolvedValue(updated);
       mockCache.del.mockResolvedValue(undefined);
-      mockCache.reset = jest.fn().mockResolvedValue(undefined);
+      mockStoreKeys.mockResolvedValue(['notes:page:1', 'notes:type:2:page:1']);
 
       const result = await service.update(1, { title: 'Updated' } as any);
 
@@ -197,7 +199,7 @@ describe('NotesService', () => {
       mockRepo.findOne.mockResolvedValue(note);
       mockRepo.remove.mockResolvedValue(undefined);
       mockCache.del.mockResolvedValue(undefined);
-      mockCache.reset = jest.fn().mockResolvedValue(undefined);
+      mockStoreKeys.mockResolvedValue(['notes:page:1']);
 
       const result = await service.remove(1);
 

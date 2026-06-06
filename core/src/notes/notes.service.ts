@@ -294,6 +294,13 @@ export class NotesService {
   }
 
   private async invalidateListCache(): Promise<void> {
-    await (this.cacheManager as any).reset();
+    const store = (this.cacheManager as any).store;
+    if (typeof store?.keys !== 'function') return;
+
+    const keys: string[] = await store.keys();
+    const toDelete = keys.filter(
+      (k: string) => k.startsWith('notes:page:') || k.startsWith('notes:type:'),
+    );
+    await Promise.all(toDelete.map((k: string) => this.cacheManager.del(k)));
   }
 }
