@@ -13,7 +13,7 @@ export const TypeOrmModuleConfig = TypeOrmModule.forRootAsync({
     port: +configService.get('POSTGRES_PORT') || 5432,
     username: configService.get('POSTGRES_USER') ?? 'postgres',
     password: configService.get('POSTGRES_PASSWORD') ?? 'newPassword',
-    database: configService.get('POSTGRES_DB_TOOLS') ?? 'notes-db',
+    database: configService.get('POSTGRES_DB_NOTES') ?? 'notes-db',
     entities: [User, Note, Type],
     synchronize: true,
   }),

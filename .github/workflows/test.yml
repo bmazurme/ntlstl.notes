@@ -55,11 +55,11 @@ jobs:
           POSTGRES_PORT: 5432
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB_TOOLS: notes-db-test
-          TOOLS_YANDEX_ID: dummy
-          TOOLS_YANDEX_SECRET: dummy
-          TOOLS_YANDEX_REDIRECT: http://localhost:3000/api/v1/oauth/yandex/redirect
-          TOOLS_TARGET_URL: http://localhost
+          POSTGRES_DB_NOTES: notes-db-test
+          NOTES_YANDEX_ID: dummy
+          NOTES_YANDEX_SECRET: dummy
+          NOTES_YANDEX_REDIRECT: http://localhost:3000/api/v1/oauth/yandex/redirect
+          NOTES_TARGET_URL: http://localhost
 
   test-client:
     name: Client — lint & test

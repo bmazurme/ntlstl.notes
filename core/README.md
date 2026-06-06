@@ -37,7 +37,7 @@ POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
-POSTGRES_DB_TOOLS=notes-db
+POSTGRES_DB_NOTES=notes-db
 
 NOTES_YANDEX_ID=              # ID приложения Yandex OAuth
 NOTES_YANDEX_SECRET=
