@@ -30,6 +30,8 @@ src/
 ```env
 NODE_ENV=development
 
+CORS_ORIGINS=http://localhost:5173,http://localhost:4173,http://localhost  # Разрешённые origins через запятую
+
 JWT_SECRET=
 REFRESH_JWT_SECRET=
 
