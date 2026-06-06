@@ -5,8 +5,8 @@ import EditPage from './pages/edit-page';
 import MainPage from './pages/main-page';
 import NotFoundPage from './pages/not-found-page';
 import NotePage from './pages/note-page';
-import OauthPage from './pages/oauth-page';
 import OauthErrorPage from './pages/oauth-error-page/oauth-error-page';
+import OauthPage from './pages/oauth-page';
 import ProfilePage from './pages/profile-page';
 import TypeNotesPage from './pages/type-notes-page';
 
