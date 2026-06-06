@@ -1,0 +1,67 @@
+name: Deploy to Yandex Cloud
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types:
+      - created
+  workflow_dispatch:
+
+jobs:
+  push-core:
+    name: Build & push core
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Yandex Cloud CR Login
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build and push core image
+        env:
+          CR_HOST: ${{ secrets.CR_HOST }}
+          CR_REGISTRY: ${{ secrets.CR_REGISTRY }}
+          CR_IMAGE: ${{ secrets.CR_IMAGE_CORE }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -t "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:$IMAGE_TAG" \
+            -t "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:latest" \
+            ./core
+
+          docker push "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:$IMAGE_TAG"
+          docker push "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:latest"
+
+  push-client:
+    name: Build & push client
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Yandex Cloud CR Login
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build and push client image
+        env:
+          CR_HOST: ${{ secrets.CR_HOST }}
+          CR_REGISTRY: ${{ secrets.CR_REGISTRY }}
+          CR_IMAGE: ${{ secrets.CR_IMAGE_CLIENT }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            --build-arg VITE_API_DOMAIN=${{ secrets.VITE_API_DOMAIN }} \
+            --build-arg VITE_TOKEN=${{ secrets.VITE_TOKEN }} \
+            -t "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:$IMAGE_TAG" \
+            -t "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:latest" \
+            ./client-auth
+
+          docker push "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:$IMAGE_TAG"
+          docker push "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:latest"
