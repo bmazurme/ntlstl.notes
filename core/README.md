@@ -76,6 +76,12 @@ npm run test:cov
 
 # E2E-тесты
 npm run test:e2e
+
+# Миграции
+npm run migration:generate src/migrations/MigrationName  # сгенерировать по diff с entities
+npm run migration:run                                     # применить pending миграции
+npm run migration:revert                                  # откатить последнюю миграцию
+npm run migration:show                                    # показать статус миграций
 ```
 
 ## API

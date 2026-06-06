@@ -11,8 +11,8 @@ import { TypeIdDto } from '../../types/dto/type-id.dto';
 
 export class CreateNoteDto {
   @IsString({ message: 'Название должно быть строкой' })
-  @MinLength(2, { message: 'Название должно содержать минимум 2 символа' })
-  @MaxLength(100, { message: 'Название не может превышать 100 символов' })
+  @MinLength(3, { message: 'Название должно содержать минимум 3 символа' })
+  @MaxLength(150, { message: 'Название не может превышать 150 символов' })
   title: string;
 
   @IsString({ message: 'Название должно быть строкой' })

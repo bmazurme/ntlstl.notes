@@ -7,15 +7,21 @@ import { Type } from '../types/entities/type.entity';
 
 export const TypeOrmModuleConfig = TypeOrmModule.forRootAsync({
   imports: [ConfigModule],
-  useFactory: (configService: ConfigService) => ({
-    type: 'postgres',
-    host: configService.get('POSTGRES_HOST') ?? 'localhost',
-    port: +configService.get('POSTGRES_PORT') || 5432,
-    username: configService.get('POSTGRES_USER') ?? 'postgres',
-    password: configService.get('POSTGRES_PASSWORD') ?? 'newPassword',
-    database: configService.get('POSTGRES_DB_NOTES') ?? 'notes-db',
-    entities: [User, Note, Type],
-    synchronize: true,
-  }),
+  useFactory: (configService: ConfigService) => {
+    const isDev = configService.get('NODE_ENV') !== 'production';
+
+    return {
+      type: 'postgres',
+      host: configService.get('POSTGRES_HOST') ?? 'localhost',
+      port: +configService.get('POSTGRES_PORT') || 5432,
+      username: configService.get('POSTGRES_USER') ?? 'postgres',
+      password: configService.get('POSTGRES_PASSWORD') ?? 'newPassword',
+      database: configService.get('POSTGRES_DB_NOTES') ?? 'notes-db',
+      entities: [User, Note, Type],
+      synchronize: isDev,
+      migrations: isDev ? [] : ['dist/migrations/*.js'],
+      migrationsRun: !isDev,
+    };
+  },
   inject: [ConfigService],
 });
