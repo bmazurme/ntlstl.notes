@@ -9,7 +9,7 @@ import { AuthService } from '../auth/auth.service';
 const mockUser = () => ({ id: 1, email: 'test@example.com' }) as any;
 
 const configValues: Record<string, string | null> = {
-  TOOLS_TARGET_URL: 'http://localhost:5173',
+  NOTES_TARGET_URL: 'http://localhost:5173',
   EMAILS: null,
 };
 
@@ -37,7 +37,7 @@ describe('OauthService', () => {
   };
 
   beforeEach(async () => {
-    configValues.TOOLS_TARGET_URL = 'http://localhost:5173';
+    configValues.NOTES_TARGET_URL = 'http://localhost:5173';
     configValues.EMAILS = null;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -66,11 +66,11 @@ describe('OauthService', () => {
       expect(service.getTargetUrl()).toBe('http://localhost:5173');
     });
 
-    it('throws when TOOLS_TARGET_URL is not configured', () => {
-      configValues.TOOLS_TARGET_URL = null;
+    it('throws when NOTES_TARGET_URL is not configured', () => {
+      configValues.NOTES_TARGET_URL = null;
 
       expect(() => service.getTargetUrl()).toThrow(
-        'TOOLS_TARGET_URL is not configured',
+        'NOTES_TARGET_URL is not configured',
       );
     });
   });

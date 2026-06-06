@@ -39,10 +39,10 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB_TOOLS=notes-db
 
-TOOLS_YANDEX_ID=              # ID приложения Yandex OAuth
-TOOLS_YANDEX_SECRET=
-TOOLS_YANDEX_REDIRECT=        # http://localhost:3000/api/v1/oauth/yandex/redirect
-TOOLS_TARGET_URL=             # URL фронтенда для редиректа после OAuth
+NOTES_YANDEX_ID=              # ID приложения Yandex OAuth
+NOTES_YANDEX_SECRET=
+NOTES_YANDEX_REDIRECT=        # http://localhost:3000/api/v1/oauth/yandex/redirect
+NOTES_TARGET_URL=             # URL фронтенда для редиректа после OAuth
 
 EMAILS=user@example.com       # Белый список email через запятую; если не задан — пускает всех
 

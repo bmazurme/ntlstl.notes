@@ -20,10 +20,10 @@ export class OauthService {
   ) {}
 
   getTargetUrl() {
-    const targetUrl = this.configService.get<string>('TOOLS_TARGET_URL');
+    const targetUrl = this.configService.get<string>('NOTES_TARGET_URL');
 
     if (!targetUrl) {
-      throw new Error('TOOLS_TARGET_URL is not configured');
+      throw new Error('NOTES_TARGET_URL is not configured');
     }
     return targetUrl;
   }

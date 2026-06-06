@@ -7,9 +7,9 @@ import { Profile, Strategy } from 'passport-yandex';
 export class YandexStrategy extends PassportStrategy(Strategy, 'yandex') {
   constructor(private readonly configService: ConfigService) {
     super({
-      clientID: configService.get('TOOLS_YANDEX_ID') ?? '',
-      clientSecret: configService.get('TOOLS_YANDEX_SECRET') ?? '',
-      callbackURL: configService.get('TOOLS_YANDEX_REDIRECT'),
+      clientID: configService.get('NOTES_YANDEX_ID') ?? '',
+      clientSecret: configService.get('NOTES_YANDEX_SECRET') ?? '',
+      callbackURL: configService.get('NOTES_YANDEX_REDIRECT'),
     });
   }
 
