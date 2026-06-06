@@ -1,0 +1,131 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB_NOTES:-notes-db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  notes-core:
+    build:
+      context: ./core
+    env_file:
+      - ./core/.env
+    environment:
+      NODE_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB_NOTES: ${POSTGRES_DB_NOTES:-notes-db}
+      LOKI_HOST: http://loki:3100
+    ports:
+      - "3000:3000"
+    volumes:
+      - core_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      loki:
+        condition: service_started
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client-auth
+      args:
+        VITE_API_DOMAIN: ${VITE_API_DOMAIN:-http://localhost/api/v1}
+        VITE_TOKEN: ${VITE_TOKEN:-}
+    ports:
+      - "80:80"
+    depends_on:
+      - notes-core
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:9
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.4.2
+    command: -config.file=/etc/loki/loki.yml
+    volumes:
+      - ./monitoring/loki.yml:/etc/loki/loki.yml:ro
+      - loki_data:/loki
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.4.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - notes-core
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.0.1
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
+  cypress:
+    image: cypress/included:latest
+    depends_on:
+      client:
+        condition: service_healthy
+      notes-core:
+        condition: service_started
+    environment:
+      CYPRESS_BASE_URL: http://client
+    volumes:
+      - ./client-auth/cypress:/e2e/cypress
+      - ./client-auth/cypress.config.ts:/e2e/cypress.config.ts
+      - ./client-auth/cypress/tsconfig.json:/e2e/tsconfig.json
+      - ./client-auth/cypress/screenshots:/e2e/cypress/screenshots
+    working_dir: /e2e
+    profiles:
+      - e2e
+
+volumes:
+  postgres_data:
+  core_logs:
+  loki_data:
+  prometheus_data:
+  grafana_data:
