@@ -44,9 +44,18 @@ export class TypesService {
     const cached = await this.cacheManager.get<Type[]>('types:all');
     if (cached) return cached;
 
-    const result = await this.typeRepository.find();
-    await this.cacheManager.set('types:all', result);
-    return result;
+    const result = await this.typeRepository
+      .createQueryBuilder('type')
+      .leftJoin('type.notes', 'notes')
+      .addSelect('COUNT(notes.id)', 'notesCount')
+      .groupBy('type.id')
+      .orderBy('notesCount', 'DESC')
+      .getRawAndEntities();
+
+    const sortedEntities = result.entities;
+
+    await this.cacheManager.set('types:all', sortedEntities);
+    return sortedEntities;
   }
 
   async findOne(id: number) {
