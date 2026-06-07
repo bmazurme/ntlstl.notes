@@ -8,6 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 import '@gravity-ui/uikit/styles/fonts.css';
 import '@gravity-ui/uikit/styles/styles.css';
 import '@gravity-ui/markdown-editor/styles/styles.css';
+import '@diplodoc/transform/dist/css/yfm.css';
 import './index.css';
 
 import App from './App.tsx';
