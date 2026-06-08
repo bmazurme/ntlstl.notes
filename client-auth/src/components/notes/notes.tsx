@@ -20,7 +20,7 @@ export default function Notes({ page: forcedPage }: NotesProps) {
   const [searchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get('page') || '1', 10);
   const currentPage = forcedPage !== undefined ? forcedPage : pageFromUrl;
-  const [state, setState] = useState({ page: currentPage, pageSize: 100, total: 0 });
+  const [state, setState] = useState({ page: currentPage, pageSize: 10, total: 0 });
 
   const handleUpdate: PaginationProps['onUpdate'] = (page, pageSize) => {
     setState((prevState) => ({ ...prevState, page, pageSize }));

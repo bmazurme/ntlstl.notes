@@ -1,5 +1,5 @@
 import ContentWrapper from '../../components/content-wrapper';
-import Posts from '../../components/notes/notes';
+import Notes from '../../components/notes/notes';
 import PageMeta from '../../components/page-meta';
 
 function MainPage({ page }: { page?: number }) {
@@ -10,7 +10,7 @@ function MainPage({ page }: { page?: number }) {
         description="Все заметки"
       />
       <ContentWrapper
-        children={(<Posts page={page} />)}
+        children={(<Notes page={page} />)}
         sidebar
       />
     </>

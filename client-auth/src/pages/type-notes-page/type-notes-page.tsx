@@ -20,7 +20,7 @@ export default function TypeNotesPage() {
 
   const [searchParams] = useSearchParams();
   const pageFromUrl = parseInt(searchParams.get('page') || '1', 10);
-  const [state, setState] = useState({ page: pageFromUrl, pageSize: 100, total: 0 });
+  const [state, setState] = useState({ page: pageFromUrl, pageSize: 10, total: 0 });
 
   const [getNotesByType, { isLoading }] = useGetNotesByTypeMutation();
 
