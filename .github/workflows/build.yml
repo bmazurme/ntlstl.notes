@@ -41,7 +41,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: client-auth
+        working-directory: client
 
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: client-auth/package-lock.json
+          cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: client-dist
-          path: client-auth/dist
+          path: client/dist
           retention-days: 1
 
   docker:
@@ -91,7 +91,7 @@ jobs:
       - name: Build client image
         uses: docker/build-push-action@v6
         with:
-          context: ./client-auth
+          context: ./client
           push: false
           tags: lite-client:${{ github.sha }}
           build-args: |

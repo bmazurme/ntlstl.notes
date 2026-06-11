@@ -61,7 +61,7 @@ jobs:
             --build-arg VITE_TOKEN=${{ secrets.VITE_TOKEN }} \
             -t "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:$IMAGE_TAG" \
             -t "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:latest" \
-            ./client-auth
+            ./client
 
           docker push "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:$IMAGE_TAG"
           docker push "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:latest"

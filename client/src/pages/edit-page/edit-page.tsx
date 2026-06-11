@@ -36,7 +36,7 @@ export default function EditPage() {
   };
 
   return (
-    <ContentWrapper>
+    <ContentWrapper sidebar>
       <PageMeta title={data ? `Редактирование — ${data.title}` : 'Редактирование'} />
       <div className={style.container}>
         {isLoading || !data

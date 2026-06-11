@@ -6,7 +6,7 @@
 ```
 lite/
 ├── core/           # NestJS API (порт 3000)
-├── client-auth/    # React SPA (порт 80)
+├── client/         # React SPA (порт 80)
 ├── monitoring/     # Конфиги Loki, Prometheus, Grafana
 └── docker-compose.yml
 ```
@@ -86,4 +86,4 @@ docker compose up -d
 docker compose up -d postgres loki prometheus grafana pgadmin
 ```
 
-Затем запустите core и client-auth локально — см. README в каждом пакете.
+Затем запустите core и client локально — см. README в каждом пакете.

@@ -1,4 +1,4 @@
-import { Plus, Hashtag, Layers } from '@gravity-ui/icons';
+import { Plus, CircleFill, Layers } from '@gravity-ui/icons';
 import { Button, Icon, Skeleton } from '@gravity-ui/uikit';
 import { useEffect } from 'react';
 import { useNavigate, useParams, useMatch } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { useNavigate, useParams, useMatch } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
 import { setTypes, typesSelector, useGetTypesMutation } from '../../store';
+import { TYPE_COLORS } from '../../utils/constants';
 import ProtectedWrapper from '../protected-wrapper';
 
 import style from './sidebar.module.css';
@@ -89,9 +90,10 @@ export default function Sidebar() {
                 onClick={() => navigate(`/notes/type/${type.id}`)}
               >
                 <Icon
-                  data={Hashtag}
-                  size={14}
+                  data={CircleFill}
+                  size={12}
                   aria-hidden="true"
+                  style={{ color: TYPE_COLORS[type.id] }}
                 />
                 {type.name}
               </Button>

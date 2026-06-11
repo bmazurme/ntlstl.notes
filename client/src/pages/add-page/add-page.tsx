@@ -27,7 +27,7 @@ export default function AddPage() {
   };
 
   return (
-    <ContentWrapper>
+    <ContentWrapper sidebar>
       <PageMeta title="Новая заметка" />
       <div className={style.container}>
         <EditForm

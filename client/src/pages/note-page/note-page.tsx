@@ -75,6 +75,7 @@ export default function NotePage() {
                   All notes
                 </Button>
                 <Label
+                  className={data?.type ? `type-label-${data.type.id}` : undefined}
                   icon={(
                     <Icon
                       size={14}

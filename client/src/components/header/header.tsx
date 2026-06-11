@@ -14,12 +14,17 @@ export default function Header() {
         <div className="header-brand">
           <Button
             view="flat"
-            size="m"
+            size="l"
+            className="header-logo-button"
             aria-label="NTLSTL — перейти на главную"
             onClick={() => navigate('/')}
           >
-            NTLSTL
+            <span className="header-logo">N</span>
           </Button>
+          <span className="header-brand-text">
+            <span className="header-brand-title">NTLST</span>
+            <span className="header-brand-subtitle">Developer notes</span>
+          </span>
           <Navbar />
         </div>
         <div className="header-actions">

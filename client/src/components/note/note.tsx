@@ -1,4 +1,5 @@
-import { Card, Label, Text } from '@gravity-ui/uikit';
+import { CircleFill } from '@gravity-ui/icons';
+import { Card, Icon, Label, Text } from '@gravity-ui/uikit';
 import { useNavigate } from 'react-router-dom';
 
 import MarkdownPreview from '../markdown-preview/markdown-preview';
@@ -25,8 +26,15 @@ export default function Note({ note }: NoteProps) {
           {note.title}
         </Text>
         <Label
-          theme="success"
           size="s"
+          className={`type-label-${note.type.id}`}
+          icon={(
+            <Icon
+              data={CircleFill}
+              size={12}
+              aria-hidden="true"
+            />
+          )}
         >
           {note.type.name}
         </Label>

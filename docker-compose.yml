@@ -39,7 +39,7 @@ services:
 
   client:
     build:
-      context: ./client-auth
+      context: ./client
       args:
         VITE_API_DOMAIN: ${VITE_API_DOMAIN:-http://localhost/api/v1}
         VITE_TOKEN: ${VITE_TOKEN:-}
@@ -115,10 +115,10 @@ services:
     environment:
       CYPRESS_BASE_URL: http://client
     volumes:
-      - ./client-auth/cypress:/e2e/cypress
-      - ./client-auth/cypress.config.ts:/e2e/cypress.config.ts
-      - ./client-auth/cypress/tsconfig.json:/e2e/tsconfig.json
-      - ./client-auth/cypress/screenshots:/e2e/cypress/screenshots
+      - ./client/cypress:/e2e/cypress
+      - ./client/cypress.config.ts:/e2e/cypress.config.ts
+      - ./client/cypress/tsconfig.json:/e2e/tsconfig.json
+      - ./client/cypress/screenshots:/e2e/cypress/screenshots
     working_dir: /e2e
     profiles:
       - e2e
