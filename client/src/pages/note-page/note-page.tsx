@@ -126,7 +126,7 @@ export default function NotePage() {
               {isLoading
                 ? (
                   <Skeleton
-                    className="loader"
+                    className={style.loader}
                     aria-label="Загрузка заголовка"
                   />
                 )
@@ -145,7 +145,7 @@ export default function NotePage() {
               {isLoading
                 ? (
                   <Skeleton
-                    className="loader-content"
+                    className={style.loaderContent}
                     aria-label="Загрузка содержимого"
                   />
                 )

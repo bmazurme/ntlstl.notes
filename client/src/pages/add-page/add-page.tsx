@@ -7,8 +7,6 @@ import PageMeta from '../../components/page-meta';
 import { toaster } from '../../main';
 import { useCreateNoteMutation } from '../../store';
 
-import style from './add-page.module.css';
-
 export default function AddPage() {
   const navigate = useNavigate();
   const [createNote] = useCreateNoteMutation();
@@ -29,7 +27,7 @@ export default function AddPage() {
   return (
     <ContentWrapper sidebar>
       <PageMeta title="Новая заметка" />
-      <div className={style.container}>
+      <div className="form-container">
         <EditForm
           title="Addition"
           action={onSubmit}

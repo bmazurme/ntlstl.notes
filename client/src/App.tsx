@@ -13,7 +13,7 @@ const ProfilePage = lazy(() => import('./pages/profile-page'));
 const TypeNotesPage = lazy(() => import('./pages/type-notes-page'));
 
 const fallback = (
-  <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
+  <div className="suspense-fallback">
     <Loader size="m" />
   </div>
 );

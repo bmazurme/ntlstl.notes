@@ -9,8 +9,6 @@ import { useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
 import { typesSelector, useGetNoteByIdQuery, useUpdateNoteMutation } from '../../store';
 
-import style from './edit-page.module.css';
-
 export default function EditPage() {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -38,7 +36,7 @@ export default function EditPage() {
   return (
     <ContentWrapper sidebar>
       <PageMeta title={data ? `Редактирование — ${data.title}` : 'Редактирование'} />
-      <div className={style.container}>
+      <div className="form-container">
         {isLoading || !data
           ? (
             <Loader

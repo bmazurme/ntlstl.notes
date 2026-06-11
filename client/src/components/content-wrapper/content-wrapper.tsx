@@ -8,6 +8,8 @@ import Footer from '../footer';
 import Header from '../header';
 import Sidebar from '../sidebar';
 
+import style from './content-wrapper.module.css';
+
 interface ContentWrapperProps extends PropsWithChildren {
   sidebar?: boolean;
 }
@@ -33,9 +35,9 @@ export default function ContentWrapper({ children, sidebar }: ContentWrapperProp
   }, [data, isLoading, dispatch, error]);
 
   return (
-    <div className="container">
+    <div className={style.container}>
       <Header />
-      <div className="blog-main">
+      <div className={style.blogMain}>
         {children}
         {sidebar && <Sidebar />}
       </div>
