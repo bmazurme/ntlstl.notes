@@ -4,6 +4,8 @@ import ContentWrapper from '../../components/content-wrapper';
 import EditForm from '../../components/edit-form/edit-form';
 import type { FormPayload } from '../../components/edit-form/edit-form-payload';
 import PageMeta from '../../components/page-meta';
+import ProtectedWrapper from '../../components/protected-wrapper';
+import RedirectToLogin from '../../components/redirect-to-login';
 import { toaster } from '../../main';
 import { useCreateNoteMutation } from '../../store';
 
@@ -26,13 +28,15 @@ export default function AddPage() {
 
   return (
     <ContentWrapper sidebar>
-      <PageMeta title="Новая заметка" />
-      <div className="form-container">
-        <EditForm
-          title="Addition"
-          action={onSubmit}
-        />
-      </div>
+      <ProtectedWrapper fallback={<RedirectToLogin />}>
+        <PageMeta title="Новая заметка" />
+        <div className="form-container">
+          <EditForm
+            title="Addition"
+            action={onSubmit}
+          />
+        </div>
+      </ProtectedWrapper>
     </ContentWrapper>
   );
 }

@@ -5,6 +5,8 @@ import ContentWrapper from '../../components/content-wrapper';
 import EditForm from '../../components/edit-form/edit-form';
 import type { FormPayload } from '../../components/edit-form/edit-form-payload';
 import PageMeta from '../../components/page-meta';
+import ProtectedWrapper from '../../components/protected-wrapper';
+import RedirectToLogin from '../../components/redirect-to-login';
 import { useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
 import { typesSelector, useGetNoteByIdQuery, useUpdateNoteMutation } from '../../store';
@@ -35,23 +37,25 @@ export default function EditPage() {
 
   return (
     <ContentWrapper sidebar>
-      <PageMeta title={data ? `Редактирование — ${data.title}` : 'Редактирование'} />
-      <div className="form-container">
-        {isLoading || !data
-          ? (
-            <Loader
-              size="l"
-              aria-label="Загрузка заметки"
-            />
-          )
-          : (
-            <EditForm
-              title="Editing"
-              data={data}
-              action={onSubmit}
-            />
-          )}
-      </div>
+      <ProtectedWrapper fallback={<RedirectToLogin />}>
+        <PageMeta title={data ? `Редактирование — ${data.title}` : 'Редактирование'} />
+        <div className="form-container">
+          {isLoading || !data
+            ? (
+              <Loader
+                size="l"
+                aria-label="Загрузка заметки"
+              />
+            )
+            : (
+              <EditForm
+                title="Editing"
+                data={data}
+                action={onSubmit}
+              />
+            )}
+        </div>
+      </ProtectedWrapper>
     </ContentWrapper>
   );
 }
