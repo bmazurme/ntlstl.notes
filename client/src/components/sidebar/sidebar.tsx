@@ -61,6 +61,7 @@ export default function Sidebar() {
       <Button
         view={isAllNotes ? 'normal' : 'flat'}
         size="m"
+        className={style.navButton}
         aria-current={isAllNotes ? 'page' : undefined}
         onClick={() => navigate('/')}
       >
@@ -86,6 +87,7 @@ export default function Sidebar() {
                 key={type.id}
                 view={isActive ? 'normal' : 'flat'}
                 size="m"
+                className={style.navButton}
                 aria-current={isActive ? 'page' : undefined}
                 onClick={() => navigate(`/notes/type/${type.id}`)}
               >
