@@ -1,7 +1,9 @@
 import { INestApplication } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 export const configureCors = (app: INestApplication) => {
-  const raw = process.env.CORS_ORIGINS ?? '';
+  const configService = app.get(ConfigService);
+  const raw = configService.get<string>('CORS_ORIGINS') ?? '';
   const origin = raw
     .split(',')
     .map((o) => o.trim())

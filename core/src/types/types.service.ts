@@ -33,6 +33,7 @@ export class TypesService {
   async create(createTypeDto: CreateTypeDto) {
     const type = new Type();
     type.name = createTypeDto.name;
+    type.color = createTypeDto.color;
 
     const { id } = await this.typeRepository.save(type);
     await this.cacheManager.del('types:all');

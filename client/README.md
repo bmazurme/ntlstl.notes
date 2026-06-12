@@ -1,4 +1,4 @@
-# client-auth
+# client
 
 React SPA для приложения заметок с Markdown-редактором и аутентификацией через Yandex OAuth.
 

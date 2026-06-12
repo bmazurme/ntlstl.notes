@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
@@ -16,6 +17,8 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, { logger });
 
+  const configService = app.get(ConfigService);
+
   app.use(cookieParser());
   app.use(compression());
   app.use(helmet());
@@ -29,13 +32,13 @@ async function bootstrap() {
     }),
   );
 
-  if (process.env.NODE_ENV === 'development') {
+  if (configService.get<string>('NODE_ENV') === 'development') {
     const documentFactory = () =>
       SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('api', app, documentFactory);
   }
 
-  const port = 3000;
+  const port = configService.get<number>('PORT') ?? 3000;
   await app.listen(port);
   logger.log(`Application is running on port ${port}`, 'Bootstrap');
 }

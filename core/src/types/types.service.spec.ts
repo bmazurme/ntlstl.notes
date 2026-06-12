@@ -17,6 +17,7 @@ const mockType = (overrides = {}): Type =>
   ({
     id: 1,
     name: 'Article',
+    color: '#4aa1f2',
     notes: [],
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -26,6 +27,14 @@ const mockType = (overrides = {}): Type =>
 describe('TypesService', () => {
   let service: TypesService;
 
+  const mockQueryBuilder = {
+    leftJoin: jest.fn().mockReturnThis(),
+    addSelect: jest.fn().mockReturnThis(),
+    groupBy: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    getRawAndEntities: jest.fn(),
+  };
+
   const mockRepo = {
     save: jest.fn(),
     find: jest.fn(),
@@ -33,6 +42,7 @@ describe('TypesService', () => {
     findOneOrFail: jest.fn(),
     findOneBy: jest.fn(),
     remove: jest.fn(),
+    createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
   };
 
   const mockCache = {
@@ -72,7 +82,7 @@ describe('TypesService', () => {
     it('fetches from DB and caches on miss', async () => {
       const types = [mockType()];
       mockCache.get.mockResolvedValue(null);
-      mockRepo.find.mockResolvedValue(types);
+      mockQueryBuilder.getRawAndEntities.mockResolvedValue({ entities: types, raw: [] });
 
       const result = await service.findAll();
 
@@ -120,7 +130,10 @@ describe('TypesService', () => {
       mockRepo.findOne.mockResolvedValue(type);
       mockCache.del.mockResolvedValue(undefined);
 
-      const result = await service.create({ name: 'Article' });
+      const result = await service.create({
+        name: 'Article',
+        color: '#4aa1f2',
+      });
 
       expect(mockRepo.save).toHaveBeenCalled();
       expect(mockCache.del).toHaveBeenCalledWith('types:all');

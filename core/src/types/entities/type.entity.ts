@@ -13,6 +13,13 @@ export class Type {
   })
   name: string;
 
+  @Column({
+    nullable: false,
+    length: 7,
+    default: '#4aa1f2',
+  })
+  color: string;
+
   @OneToMany(() => Note, (note) => note.type)
   notes: Note[];
 }
