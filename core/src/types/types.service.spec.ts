@@ -82,7 +82,10 @@ describe('TypesService', () => {
     it('fetches from DB and caches on miss', async () => {
       const types = [mockType()];
       mockCache.get.mockResolvedValue(null);
-      mockQueryBuilder.getRawAndEntities.mockResolvedValue({ entities: types, raw: [] });
+      mockQueryBuilder.getRawAndEntities.mockResolvedValue({
+        entities: types,
+        raw: [],
+      });
 
       const result = await service.findAll();
 
