@@ -8,7 +8,7 @@ const mockNote: NoteType = {
   title: 'Test Note',
   preview: 'Preview text',
   content: 'Full content',
-  type: { id: 1, name: 'Article' },
+  type: { id: 1, name: 'Article', color: '#4aa1f2' },
 };
 
 describe('notes-slice', () => {

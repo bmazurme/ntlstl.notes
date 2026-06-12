@@ -15,6 +15,7 @@ export type NoteResponse = {
   type: {
     id: number;
     name: string;
+    color: string;
   };
 };
 

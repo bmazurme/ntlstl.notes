@@ -74,18 +74,23 @@ export default function NotePage() {
                   />
                   All notes
                 </Button>
-                <Label
-                  className={data?.type ? `type-label-${data.type.id}` : undefined}
-                  icon={(
-                    <Icon
-                      size={14}
-                      data={CircleFill}
-                      aria-hidden="true"
-                    />
-                  )}
-                >
-                  {data?.type?.name}
-                </Label>
+                {data?.type && (
+                  <span style={{ '--type-color': data.type.color } as React.CSSProperties}>
+                    <Label
+                      className="type-label"
+                      icon={(
+                        <Icon
+                          size={14}
+                          data={CircleFill}
+                          aria-hidden="true"
+                          style={{ color: data.type.color }}
+                        />
+                      )}
+                    >
+                      {data.type.name}
+                    </Label>
+                  </span>
+                )}
               </div>
               <ProtectedWrapper>
                 <div className={style.tools}>

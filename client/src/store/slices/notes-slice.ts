@@ -10,6 +10,7 @@ export type NoteType = {
   type: {
     id: number;
     name: string;
+    color: string;
   };
 }
 

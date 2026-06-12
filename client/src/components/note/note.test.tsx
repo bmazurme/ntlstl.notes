@@ -22,7 +22,7 @@ const mockNote: NoteType = {
   title: 'Тестовая заметка',
   preview: 'Краткое описание',
   content: 'Полный текст',
-  type: { id: 1, name: 'Article' },
+  type: { id: 1, name: 'Article', color: '#4aa1f2' },
 };
 
 describe('Note', () => {

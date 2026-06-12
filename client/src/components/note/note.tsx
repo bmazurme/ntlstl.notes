@@ -25,19 +25,22 @@ export default function Note({ note }: NoteProps) {
         <Text variant="header-1">
           {note.title}
         </Text>
-        <Label
-          size="s"
-          className={`type-label-${note.type.id}`}
-          icon={(
-            <Icon
-              data={CircleFill}
-              size={12}
-              aria-hidden="true"
-            />
-          )}
-        >
-          {note.type.name}
-        </Label>
+        <span style={{ '--type-color': note.type.color } as React.CSSProperties}>
+          <Label
+            size="s"
+            className="type-label"
+            icon={(
+              <Icon
+                data={CircleFill}
+                size={10}
+                aria-hidden="true"
+                style={{ color: note.type.color }}
+              />
+            )}
+          >
+            {note.type.name}
+          </Label>
+        </span>
       </div>
 
       <div className="post-content">

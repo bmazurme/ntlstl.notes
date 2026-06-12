@@ -5,11 +5,20 @@ import style from './confirm-delete-modal.module.css';
 interface ConfirmDeleteModalProps {
   open: boolean;
   isLoading: boolean;
+  title?: string;
+  description?: string;
   onConfirm: () => void;
   onClose: () => void;
 }
 
-export default function ConfirmDeleteModal({ open, isLoading, onConfirm, onClose }: ConfirmDeleteModalProps) {
+export default function ConfirmDeleteModal({
+  open,
+  isLoading,
+  title = 'Удалить заметку?',
+  description = 'Это действие нельзя отменить.',
+  onConfirm,
+  onClose,
+}: ConfirmDeleteModalProps) {
   return (
     <Modal
       open={open}
@@ -25,9 +34,9 @@ export default function ConfirmDeleteModal({ open, isLoading, onConfirm, onClose
           variant="header-1"
           id="confirm-delete-title"
         >
-          Удалить заметку?
+          {title}
         </Text>
-        <Text>Это действие нельзя отменить.</Text>
+        <Text>{description}</Text>
         <div className={style.actions}>
           <Button
             view="normal"

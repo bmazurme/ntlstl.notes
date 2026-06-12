@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { Text, TextInput } from '@gravity-ui/uikit';
+import { Button, Text, TextInput } from '@gravity-ui/uikit';
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import ContentWrapper from '../../components/content-wrapper';
 import PageMeta from '../../components/page-meta';
@@ -8,6 +9,7 @@ import ProtectedWrapper from '../../components/protected-wrapper';
 import RedirectToLogin from '../../components/redirect-to-login';
 import { useIsAuthenticated } from '../../hooks/use-is-authenticated';
 import { toaster } from '../../main';
+import { useGetNotesByPageMutation } from '../../store/api/notes-api/endpoints';
 import {
   useGetUserInfoMutation,
   useUpdateUserMutation,
@@ -16,11 +18,14 @@ import {
 import style from './profile.module.css';
 
 function ProfilePage() {
+  const navigate = useNavigate();
   const [getUserInfo] = useGetUserInfoMutation();
   const [updateUser] = useUpdateUserMutation();
+  const [getNotesByPage] = useGetNotesByPageMutation();
   const [userId, setUserId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [notesTotal, setNotesTotal] = useState<number | null>(null);
   const { isAuthenticated } = useIsAuthenticated();
 
   const handleGetUserInfo = useCallback(async () => {
@@ -37,6 +42,19 @@ function ProfilePage() {
       });
     }
   }, [getUserInfo]);
+
+  const handleGetNotesTotal = useCallback(async () => {
+    try {
+      const { total } = await getNotesByPage(1).unwrap();
+      setNotesTotal(total);
+    } catch {
+      toaster.add({
+        name: 'get-notes-total-error',
+        title: 'Не удалось загрузить количество заметок',
+        theme: 'danger',
+      });
+    }
+  }, [getNotesByPage]);
 
   const handleStatusBlur = useCallback(async () => {
     if (userId === null || status === null) return;
@@ -59,8 +77,9 @@ function ProfilePage() {
   useEffect(() => {
     if (isAuthenticated) {
       handleGetUserInfo();
+      handleGetNotesTotal();
     }
-  }, [isAuthenticated, handleGetUserInfo]);
+  }, [isAuthenticated, handleGetUserInfo, handleGetNotesTotal]);
 
   return (
     <ContentWrapper
@@ -83,6 +102,18 @@ function ProfilePage() {
                 onUpdate={setStatus}
                 onBlur={handleStatusBlur}
               />
+              <TextInput
+                label="Notes"
+                disabled
+                value={notesTotal !== null ? String(notesTotal) : '—'}
+              />
+              <Button
+                view="outlined-action"
+                size="m"
+                onClick={() => navigate('/admin/types')}
+              >
+                Управление типами
+              </Button>
             </div>
           </ProtectedWrapper>
         </section>

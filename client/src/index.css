@@ -204,24 +204,10 @@ body {
   margin-left: 0.5rem;
 }
 
-.type-label-1 {
-  --_--bg-color: #4aa1f21a;
-  --_--text-color: #4aa1f2;
-}
-
-.type-label-2 {
-  --_--bg-color: #f29c391a;
-  --_--text-color: #f29c39;
-}
-
-.type-label-3 {
-  --_--bg-color: #a575d61a;
-  --_--text-color: #a575d6;
-}
-
-.type-label-4 {
-  --_--bg-color: #5fb8a51a;
-  --_--text-color: #5fb8a5;
+.type-label {
+  --_--border-radius: var(--g-border-radius-l);
+  --_--bg-color: color-mix(in srgb, var(--type-color) 10%, transparent);
+  --_--text-color: var(--type-color);
 }
 
 

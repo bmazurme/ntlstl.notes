@@ -6,7 +6,6 @@ import { useNavigate, useParams, useMatch } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
 import { setTypes, typesSelector, useGetTypesMutation } from '../../store';
-import { TYPE_COLORS } from '../../utils/constants';
 import ProtectedWrapper from '../protected-wrapper';
 
 import style from './sidebar.module.css';
@@ -45,7 +44,7 @@ export default function Sidebar() {
       <ProtectedWrapper>
         <Button
           view="action"
-          size="m"
+          size="l"
           aria-label="Создать новую заметку"
           onClick={() => navigate('/add-note')}
         >
@@ -95,7 +94,7 @@ export default function Sidebar() {
                   data={CircleFill}
                   size={12}
                   aria-hidden="true"
-                  style={{ color: TYPE_COLORS[type.id] }}
+                  style={{ color: type.color }}
                 />
                 {type.name}
               </Button>

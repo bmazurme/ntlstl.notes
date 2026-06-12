@@ -3,8 +3,7 @@ import typesApi from '../index';
 export type Type = {
   id: number;
   name: string;
-  description: string;
-  link: string;
+  color: string;
 };
 
 const typesApiEndpoints = typesApi
@@ -20,10 +19,36 @@ const typesApiEndpoints = typesApi
         }),
         invalidatesTags: ['Types'],
       }),
+      createType: builder.mutation<Type, { name: string; color: string }>({
+        query: (data) => ({
+          url: 'types',
+          method: 'POST',
+          body: data,
+        }),
+        invalidatesTags: ['Types'],
+      }),
+      updateType: builder.mutation<Type, { id: number; name: string; color: string }>({
+        query: ({ id, ...data }) => ({
+          url: `types/${id}`,
+          method: 'PATCH',
+          body: data,
+        }),
+        invalidatesTags: ['Types'],
+      }),
+      deleteType: builder.mutation<void, number>({
+        query: (id) => ({
+          url: `types/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Types'],
+      }),
     }),
   });
 
 export const {
   useGetTypesMutation,
+  useCreateTypeMutation,
+  useUpdateTypeMutation,
+  useDeleteTypeMutation,
 } = typesApiEndpoints;
 export { typesApiEndpoints };

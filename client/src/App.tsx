@@ -11,6 +11,7 @@ const OauthErrorPage = lazy(() => import('./pages/oauth-error-page/oauth-error-p
 const OauthPage = lazy(() => import('./pages/oauth-page'));
 const ProfilePage = lazy(() => import('./pages/profile-page'));
 const TypeNotesPage = lazy(() => import('./pages/type-notes-page'));
+const TypesAdminPage = lazy(() => import('./pages/types-admin-page'));
 
 const fallback = (
   <div className="suspense-fallback">
@@ -32,6 +33,7 @@ function App() {
           <Route path="/note/:noteId" element={(<NotePage />)} />
           <Route path="/notes/type/:typeId" element={(<TypeNotesPage />)} />
           <Route path="/profile" element={(<ProfilePage />)} />
+          <Route path="/admin/types" element={(<TypesAdminPage />)} />
           <Route path="*" element={(<NotFoundPage />)} />
         </Routes>
       </Suspense>
