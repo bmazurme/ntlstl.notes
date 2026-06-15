@@ -145,6 +145,10 @@ body {
   gap: 10px;
 }
 
+.main {
+  min-width: 0;
+}
+
 .blog-post {
   padding: 2rem;
   margin-bottom: 1rem;
