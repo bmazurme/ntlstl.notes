@@ -1,6 +1,6 @@
 import notesApi from '..';
 
-type Note = {
+type NotePayload = {
   title: string;
   preview: string;
   content: string;
@@ -25,16 +25,16 @@ const notesApiEndpoints = notesApi
   })
   .injectEndpoints({
     endpoints: (builder) => ({
-      createNote: builder.mutation<NoteResponse, Note>({
-        query: (data: Note) => ({
+      createNote: builder.mutation<NoteResponse, NotePayload>({
+        query: (data: NotePayload) => ({
           url: '/notes',
           method: 'POST',
           body: { ...data, type: { id: Number(data.type) } },
         }),
         invalidatesTags: ['Notes'],
       }),
-      updateNote: builder.mutation<NoteResponse, Note & { id: number }>({
-        query: ({ id, ...data }: Note & { id: number }) => ({
+      updateNote: builder.mutation<NoteResponse, NotePayload & { id: number }>({
+        query: ({ id, ...data }: NotePayload & { id: number }) => ({
           url: `/notes/${id}`,
           method: 'PATCH',
           body: { ...data, type: { id: Number(data.type) } },

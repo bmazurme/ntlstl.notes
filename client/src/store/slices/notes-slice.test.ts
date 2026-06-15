@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 
-import notesReducer, { initialStateNotes, setNotes, setNote } from './notes-slice';
-import type { NoteType } from './notes-slice';
+import type { NoteResponse } from '..';
 
-const mockNote: NoteType = {
+import notesReducer, { initialStateNotes, setNotes, setNote } from './notes-slice';
+
+const mockNote: NoteResponse = {
   id: 1,
   title: 'Test Note',
   preview: 'Preview text',

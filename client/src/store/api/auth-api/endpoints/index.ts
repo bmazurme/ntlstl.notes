@@ -1,6 +1,6 @@
 import authApi from '..';
 
-type LoginResponse = {
+type RefreshResponse = {
   accessToken: string;
   expiresIn: number;
 };
@@ -16,7 +16,7 @@ const authApiEndpoints = authApi
   })
   .injectEndpoints({
     endpoints: (builder) => ({
-      refresh: builder.mutation<LoginResponse, void>({
+      refresh: builder.mutation<RefreshResponse, void>({
         query: () => ({
           url: '/auth/refresh',
           method: 'POST',

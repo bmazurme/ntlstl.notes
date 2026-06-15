@@ -1,16 +1,12 @@
 import usersApi from '..';
 
-type User = {
+export type UserResponse = {
   id: number;
   username: string;
   status: string;
 };
 
-type UserResponse = {
-  id: number;
-  username: string;
-  status: string;
-};
+type UpdateUserPayload = Pick<UserResponse, 'id' | 'status'>;
 
 const usersApiEndpoints = usersApi
   .enhanceEndpoints({
@@ -24,8 +20,8 @@ const usersApiEndpoints = usersApi
           method: 'GET',
         }),
       }),
-      updateUser: builder.mutation<UserResponse, User>({
-        query: ({ id, status }: User) => ({
+      updateUser: builder.mutation<UserResponse, UpdateUserPayload>({
+        query: ({ id, status }: UpdateUserPayload) => ({
           url: `/users/${id}`,
           method: 'PATCH',
           body: { status },

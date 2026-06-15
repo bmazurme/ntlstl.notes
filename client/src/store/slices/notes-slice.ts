@@ -1,22 +1,10 @@
- import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
-import type { RootState } from '..';
-
-export type NoteType = {
-  id: number;
-  title: string;
-  preview: string;
-  content: string;
-  type: {
-    id: number;
-    name: string;
-    color: string;
-  };
-}
+import type { NoteResponse, RootState } from '..';
 
 type NotesState = {
-  notes: NoteType [];
-  note: NoteType | null;
+  notes: NoteResponse[];
+  note: NoteResponse | null;
 };
 
 export const initialStateNotes: NotesState = {

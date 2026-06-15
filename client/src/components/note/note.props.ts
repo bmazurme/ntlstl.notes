@@ -1,5 +1,5 @@
-import type { NoteType } from '../../store';
+import type { NoteResponse } from '../../store';
 
 export type NoteProps = {
-  note: NoteType;
+  note: NoteResponse;
 };

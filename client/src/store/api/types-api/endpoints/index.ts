@@ -1,6 +1,6 @@
 import typesApi from '../index';
 
-export type Type = {
+export type TypeResponse = {
   id: number;
   name: string;
   color: string;
@@ -12,14 +12,14 @@ const typesApiEndpoints = typesApi
   })
   .injectEndpoints({
     endpoints: (builder) => ({
-      getTypes: builder.mutation<Type[], void>({
+      getTypes: builder.mutation<TypeResponse[], void>({
         query: () => ({
           url: 'types',
           method: 'GET',
         }),
         invalidatesTags: ['Types'],
       }),
-      createType: builder.mutation<Type, { name: string; color: string }>({
+      createType: builder.mutation<TypeResponse, { name: string; color: string }>({
         query: (data) => ({
           url: 'types',
           method: 'POST',
@@ -27,7 +27,7 @@ const typesApiEndpoints = typesApi
         }),
         invalidatesTags: ['Types'],
       }),
-      updateType: builder.mutation<Type, { id: number; name: string; color: string }>({
+      updateType: builder.mutation<TypeResponse, { id: number; name: string; color: string }>({
         query: ({ id, ...data }) => ({
           url: `types/${id}`,
           method: 'PATCH',

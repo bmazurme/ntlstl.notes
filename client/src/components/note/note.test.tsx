@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 
-import type { NoteType } from '../../store/slices/notes-slice';
+import type { NoteResponse } from '../../store';
 import { renderWithProviders } from '../../test/utils';
 
 import Note from './note';
@@ -17,7 +17,7 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
-const mockNote: NoteType = {
+const mockNote: NoteResponse = {
   id: 42,
   title: 'Тестовая заметка',
   preview: 'Краткое описание',

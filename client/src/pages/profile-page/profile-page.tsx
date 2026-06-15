@@ -59,7 +59,7 @@ function ProfilePage() {
   const handleStatusBlur = useCallback(async () => {
     if (userId === null || status === null) return;
     try {
-      await updateUser({ id: userId, username: username ?? '', status }).unwrap();
+      await updateUser({ id: userId, status }).unwrap();
       toaster.add({
         name: 'update-status-success',
         title: 'Статус обновлён',
@@ -72,7 +72,7 @@ function ProfilePage() {
         theme: 'danger',
       });
     }
-  }, [userId, username, status, updateUser]);
+  }, [userId, status, updateUser]);
 
   useEffect(() => {
     if (isAuthenticated) {

@@ -1,13 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 import type { RootState } from '..';
+import { getStoredTheme } from '../../hooks/use-theme';
 
 export interface ThemeState {
   isDark: boolean;
 }
 
 export const initialStateTheme: ThemeState = {
-  isDark: true,
+  isDark: getStoredTheme() === 'dark',
 };
 
 const themeSlice = createSlice({

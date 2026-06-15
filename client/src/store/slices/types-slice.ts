@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import type { RootState, Type } from '..';
+import type { RootState, TypeResponse } from '..';
 
 type TypesState = {
-  types: Type[];
+  types: TypeResponse[];
 };
 
 export const initialStateTypes: TypesState = {

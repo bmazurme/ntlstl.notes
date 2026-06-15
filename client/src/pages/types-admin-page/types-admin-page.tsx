@@ -16,7 +16,7 @@ import {
   useDeleteTypeMutation,
   useGetTypesMutation,
   useUpdateTypeMutation,
-  type Type,
+  type TypeResponse,
 } from '../../store';
 
 import style from './types-admin-page.module.css';
@@ -28,7 +28,7 @@ function TypesAdminPage() {
   const [updateType, { isLoading: isUpdating }] = useUpdateTypeMutation();
   const [deleteType, { isLoading: isDeleting }] = useDeleteTypeMutation();
 
-  const [types, setLocalTypes] = useState<Type[]>([]);
+  const [types, setLocalTypes] = useState<TypeResponse[]>([]);
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState('#4aa1f2');
   const [editId, setEditId] = useState<number | null>(null);
@@ -78,7 +78,7 @@ function TypesAdminPage() {
     }
   };
 
-  const handleStartEdit = (type: Type) => {
+  const handleStartEdit = (type: TypeResponse) => {
     setEditId(type.id);
     setEditName(type.name);
     setEditColor(type.color);
