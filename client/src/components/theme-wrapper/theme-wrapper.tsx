@@ -1,5 +1,5 @@
-import { ThemeProvider } from '@gravity-ui/uikit';
-import React, { type ReactNode } from 'react';
+import { ThemeProvider, type Theme } from '@gravity-ui/uikit';
+import type { ReactNode } from 'react';
 
 import { useTheme } from '../../hooks/use-theme';
 
@@ -7,20 +7,12 @@ interface ThemeWrapperProps {
   children: ReactNode;
 }
 
-function getInitialTheme(): 'dark' | 'light' {
-  const attr = document.documentElement.getAttribute('data-theme');
-  return attr === 'light' ? 'light' : 'dark';
-}
-
 export default function ThemeWrapper({ children }: ThemeWrapperProps) {
   const { isDark } = useTheme();
-  const theme = React.useMemo(() => isDark ? 'dark' : 'light', [isDark]);
+  const theme: Theme = isDark ? 'dark' : 'light';
 
   return (
-    <ThemeProvider
-      theme={theme}
-      rootClassName={`theme-${getInitialTheme()}`}
-    >
+    <ThemeProvider theme={theme}>
       {children}
     </ThemeProvider>
   );
