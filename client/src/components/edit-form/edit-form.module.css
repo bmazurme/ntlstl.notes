@@ -20,6 +20,22 @@
   text-align: left;
   box-sizing: border-box;
   padding: 16px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.box :global(pre) {
+  overflow-x: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.box :global(code) {
+  word-break: break-word;
+}
+
+.box :global(pre code) {
+  word-break: normal;
 }
 .preview {
   composes: box;
