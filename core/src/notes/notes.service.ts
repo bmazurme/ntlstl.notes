@@ -174,7 +174,7 @@ export class NotesService {
           title: true,
           preview: true,
           content: true,
-          type: { id: true, name: true },
+          type: { id: true, name: true, color: true },
         },
       });
 
@@ -243,6 +243,7 @@ export class NotesService {
           type: {
             id: true,
             name: true,
+            color: true,
           },
         },
       });
