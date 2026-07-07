@@ -64,6 +64,7 @@ export default function TypeNotesPage() {
           : notes.length === 0
             ? (
               <Text
+                className={style.empty}
                 variant="body-1"
                 color="secondary"
               >
