@@ -12,6 +12,7 @@ import { UsersModule } from './users/users.module';
 import { NotesModule } from './notes/notes.module';
 import { TypesModule } from './types/types.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { FeedModule } from './feed/feed.module';
 
 import { TypeOrmModuleConfig } from './config/type-orm.config';
 import { createWinstonConfig } from './config/logger.config';
@@ -38,6 +39,7 @@ import { HttpMetricsInterceptor } from './metrics/metrics.interceptor';
     NotesModule,
     TypesModule,
     MetricsModule,
+    FeedModule,
   ],
   controllers: [AppController],
   providers: [

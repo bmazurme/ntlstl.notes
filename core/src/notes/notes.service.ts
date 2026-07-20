@@ -174,6 +174,8 @@ export class NotesService {
           title: true,
           preview: true,
           content: true,
+          createdAt: true,
+          updatedAt: true,
           type: { id: true, name: true, color: true },
         },
       });
