@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ntlstl.ru/sitemap.xml
+Sitemap: https://notes.ntlstl.dev/sitemap.xml

@@ -6,4 +6,4 @@ export const BASE_PROJECT_API_URL = import.meta.env.VITE_API_DOMAIN || 'http://l
  * зависели от того, по какому хосту открыта страница (www, IP, http вместо https,
  * превью-домен). Должен совпадать с backend-переменной SITE_URL (RSS/sitemap/пререндер).
  */
-export const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://notes.ntlstl.ru').replace(/\/+$/, '');
+export const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://notes.ntlstl.dev').replace(/\/+$/, '');

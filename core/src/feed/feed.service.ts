@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { Note } from '../notes/entities/note.entity';
 import { Type } from '../types/entities/type.entity';
 
-const DEFAULT_SITE_URL = 'https://ntlstl.ru';
+const DEFAULT_SITE_URL = 'https://notes.ntlstl.dev';
 const RSS_LIMIT = 30;
 
 /**
@@ -48,8 +48,9 @@ export class FeedService {
     ).replace(/\/+$/, '');
   }
 
-  private noteUrl(id: number): string {
-    return `${this.siteUrl}/note/${id}`;
+  /** Канонический адрес заметки — /n/:slug (совпадает с canonical на клиенте). */
+  private noteUrl(slug: string): string {
+    return `${this.siteUrl}/n/${slug}`;
   }
 
   async generateRss(): Promise<string> {
@@ -61,6 +62,7 @@ export class FeedService {
       take: RSS_LIMIT,
       select: {
         id: true,
+        slug: true,
         title: true,
         preview: true,
         createdAt: true,
@@ -72,7 +74,7 @@ export class FeedService {
 
     const items = notes
       .map((note) => {
-        const link = this.noteUrl(note.id);
+        const link = this.noteUrl(note.slug);
         const category = note.type?.name
           ? `\n      <category>${escapeXml(note.type.name)}</category>`
           : '';
@@ -106,7 +108,7 @@ ${items}
     const [notes, types] = await Promise.all([
       this.noteRepository.find({
         order: { id: 'DESC' },
-        select: { id: true, updatedAt: true },
+        select: { id: true, slug: true, updatedAt: true },
       }),
       this.typeRepository.find({ select: { id: true } }),
     ]);
@@ -129,7 +131,7 @@ ${items}
 
     for (const note of notes) {
       urls.push(`  <url>
-    <loc>${this.noteUrl(note.id)}</loc>
+    <loc>${this.noteUrl(note.slug)}</loc>
     <lastmod>${new Date(note.updatedAt).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
