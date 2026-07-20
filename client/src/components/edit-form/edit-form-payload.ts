@@ -3,4 +3,5 @@ export type FormPayload = {
   type: string;
   preview: string;
   content: string;
+  tags: string[];
 };

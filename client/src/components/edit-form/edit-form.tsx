@@ -7,7 +7,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
-import { setTypes, typesSelector, useGetTypesMutation, type NoteResponse } from '../../store';
+import {
+  setTags,
+  setTypes,
+  tagsSelector,
+  typesSelector,
+  useGetTagsMutation,
+  useGetTypesMutation,
+  type NoteResponse,
+} from '../../store';
+import TagsInput from '../tags-input/tags-input';
 
 import { type FormPayload } from './edit-form-payload';
 import style from './edit-form.module.css';
@@ -26,7 +35,9 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const [getTypes, { isLoading }] = useGetTypesMutation();
+  const [getTags] = useGetTagsMutation();
   const types = useAppSelector(typesSelector);
+  const tags = useAppSelector(tagsSelector);
   const {
     control, handleSubmit, register, setValue, formState: { errors },
   } = useForm<FormPayload>({
@@ -35,6 +46,7 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       type: data?.type?.name || '',
       preview: data?.preview || '',
       content: data?.content || '',
+      tags: data?.tags?.map((tag) => tag.name) || [],
     },
   });
 
@@ -88,7 +100,17 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       }
     };
 
+    const fetchTags = async () => {
+      try {
+        const tags = await getTags().unwrap();
+        dispatch(setTags(tags));
+      } catch {
+        // Подсказки по тегам необязательны — молча игнорируем ошибку.
+      }
+    };
+
     fetchTypes();
+    fetchTags();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -148,7 +170,7 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
                   width="max"
                   {...register}
                   onUpdate={field.onChange}
-                  defaultValue={field.value ? [field.value] : []}
+                  defaultValue={typeof field.value === 'string' && field.value ? [field.value] : []}
                   errorMessage={fieldState.error?.message}
                   validationState={errors?.type ? 'invalid' : undefined}
                   placeholder={isLoading ? 'Загрузка...' : 'Выберите вариант'}
@@ -161,6 +183,17 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
           )}
         />
       ))}
+      <Controller
+        name="tags"
+        control={control}
+        render={({ field }) => (
+          <TagsInput
+            value={Array.isArray(field.value) ? field.value : []}
+            onChange={field.onChange}
+            suggestions={tags}
+          />
+        )}
+      />
       <MarkdownEditorView
         stickyToolbar
         autofocus

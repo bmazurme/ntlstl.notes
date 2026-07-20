@@ -219,6 +219,21 @@ export default function NotePage() {
                 )}
             </div>
 
+            {data?.tags && data.tags.length > 0 && (
+              <div className="post-tags">
+                {data.tags.map((tag) => (
+                  <Label
+                    key={tag.id}
+                    size="s"
+                    theme="info"
+                    onClick={() => navigate(`/notes/tag/${tag.slug}`)}
+                  >
+                    {`#${tag.name}`}
+                  </Label>
+                ))}
+              </div>
+            )}
+
             <div
               className="post-excerpt"
               aria-busy={isLoading}
@@ -238,6 +253,36 @@ export default function NotePage() {
                   />
                 )}
             </div>
+
+            {data?.backlinks && data.backlinks.length > 0 && (
+              <div className="backlinks">
+                <Text
+                  variant="subheader-2"
+                  className="backlinks-title"
+                >
+                  Обратные ссылки
+                </Text>
+                <nav
+                  className="backlinks-list"
+                  aria-label="Заметки, ссылающиеся на эту"
+                >
+                  {data.backlinks.map((backlink) => (
+                    <a
+                      key={backlink.id}
+                      className="backlink-item"
+                      onClick={() => navigate(`/n/${backlink.slug}`)}
+                    >
+                      <Icon
+                        data={LinkIcon}
+                        size={14}
+                        aria-hidden="true"
+                      />
+                      {backlink.title}
+                    </a>
+                  ))}
+                </nav>
+              </div>
+            )}
           </Card>
         )}
         sidebar

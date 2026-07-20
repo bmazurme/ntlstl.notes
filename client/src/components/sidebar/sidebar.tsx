@@ -1,11 +1,18 @@
 import { Plus, CircleFill, Layers } from '@gravity-ui/icons';
-import { Button, Icon, Skeleton } from '@gravity-ui/uikit';
+import { Button, Icon, Label, Skeleton } from '@gravity-ui/uikit';
 import { useEffect } from 'react';
 import { useNavigate, useParams, useMatch } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
-import { setTypes, typesSelector, useGetTypesMutation } from '../../store';
+import {
+  setTags,
+  setTypes,
+  tagsSelector,
+  typesSelector,
+  useGetTagsMutation,
+  useGetTypesMutation,
+} from '../../store';
 import ProtectedWrapper from '../protected-wrapper';
 
 import style from './sidebar.module.css';
@@ -14,9 +21,13 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const { typeId } = useParams();
   const isAllNotes = !useMatch('/notes/type/:typeId');
+  const tagMatch = useMatch('/notes/tag/:slug');
+  const activeTagSlug = tagMatch?.params.slug;
   const dispatch = useAppDispatch();
   const types = useAppSelector(typesSelector);
+  const tags = useAppSelector(tagsSelector);
   const [getTypes, { isLoading: isTypesLoading }] = useGetTypesMutation();
+  const [getTags] = useGetTagsMutation();
 
   useEffect(() => {
     const fetchTypes = async () => {
@@ -32,7 +43,17 @@ export default function Sidebar() {
       }
     };
 
+    const fetchTags = async () => {
+      try {
+        const tags = await getTags().unwrap();
+        dispatch(setTags(tags));
+      } catch {
+        // Облако тегов необязательно — молча игнорируем ошибку.
+      }
+    };
+
     fetchTypes();
+    fetchTags();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -100,6 +121,28 @@ export default function Sidebar() {
               </Button>
             );
           })}
+
+      {tags.length > 0 && (
+        <>
+          <div className={style.sectionTitle}>Теги</div>
+          <div className={style.tagCloud}>
+            {tags.map((tag) => {
+              const isActive = activeTagSlug === tag.slug;
+              return (
+                <Label
+                  key={tag.id}
+                  size="m"
+                  theme={isActive ? 'info' : 'normal'}
+                  className={style.tag}
+                  onClick={() => navigate(`/notes/tag/${tag.slug}`)}
+                >
+                  {`#${tag.name}${tag.count ? ` ${tag.count}` : ''}`}
+                </Label>
+              );
+            })}
+          </div>
+        </>
+      )}
     </nav>
   );
 }

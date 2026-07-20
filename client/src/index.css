@@ -194,6 +194,66 @@ body {
   margin: 1rem 0;
 }
 
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 1rem;
+}
+
+.post-tags > * {
+  cursor: pointer;
+}
+
+/* Вики-ссылки [[...]] в содержимом заметки */
+.wikilink {
+  color: var(--g-color-text-link);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--g-color-text-link);
+  cursor: pointer;
+}
+
+.wikilink:hover {
+  color: var(--g-color-text-link-hover);
+  border-bottom-style: solid;
+}
+
+.wikilink-missing {
+  color: var(--g-color-text-danger);
+  border-bottom-color: var(--g-color-text-danger);
+}
+
+/* Панель обратных ссылок (backlinks) */
+.backlinks {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--g-color-line-generic);
+}
+
+.backlinks-title {
+  margin-bottom: 0.75rem;
+}
+
+.backlinks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.backlink-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--g-color-text-link);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.backlink-item:hover {
+  color: var(--g-color-text-link-hover);
+}
+
 .blog-footer {
   background: var(--g-bg-surface);
   border-top: 1px solid var(--g-border-default);

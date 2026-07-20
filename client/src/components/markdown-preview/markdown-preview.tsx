@@ -2,9 +2,32 @@
 import { YfmStaticView } from '@gravity-ui/markdown-editor';
 import debounce from 'lodash/debounce';
 import { parse, setOptions } from 'marked';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import style from './markdown-preview.module.css';
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+/**
+ * Преобразует Obsidian-подобные вики-ссылки `[[Заголовок]]` и
+ * `[[Заголовок|Текст]]` в кликабельные ссылки на резолвер `/wiki/:title`.
+ */
+const renderWikiLinks = (markdown: string) =>
+  markdown.replace(
+    /\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/g,
+    (_match, target: string, alias?: string) => {
+      const title = target.trim();
+      const text = escapeHtml((alias ?? target).trim());
+      const href = `/wiki/${encodeURIComponent(title)}`;
+      return `<a class="wikilink" data-internal="true" href="${href}">${text}</a>`;
+    },
+  );
 
 function transform(
   markdown: string,
@@ -22,7 +45,7 @@ function transform(
     breaks: options.breaks ?? true,
   });
 
-  const html = parse(markdown);
+  const html = parse(renderWikiLinks(markdown));
 
   return {
     result: {
@@ -53,6 +76,21 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
 
   const [html, setHtml] = useState('');
   const divRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  // Перехватываем клики по внутренним вики-ссылкам, чтобы переходить
+  // средствами роутера (SPA), а не полной перезагрузкой страницы.
+  const handleClick = (event: MouseEvent<HTMLDivElement>) => {
+    const anchor = (event.target as HTMLElement).closest<HTMLAnchorElement>(
+      'a[data-internal="true"]',
+    );
+    if (!anchor) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    const url = new URL(anchor.href);
+    navigate(`${url.pathname}${url.search}`);
+  };
 
   const safeSetHtml = (value: string | Promise<string>) => {
     if (value instanceof Promise) {
@@ -87,7 +125,10 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
   }, [props, render]);
 
   return (
-    <div className={style.wrapper}>
+    <div
+      className={style.wrapper}
+      onClick={handleClick}
+    >
       <YfmStaticView
         ref={divRef}
         html={html}

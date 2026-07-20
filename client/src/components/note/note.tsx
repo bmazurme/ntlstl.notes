@@ -49,6 +49,24 @@ export default function Note({ note }: NoteProps) {
           {...MARKDOWN_SETTINGS}
         />
       </div>
+
+      {note.tags && note.tags.length > 0 && (
+        <div className="post-tags">
+          {note.tags.map((tag) => (
+            <Label
+              key={tag.id}
+              size="s"
+              theme="info"
+              onClick={(event) => {
+                event.stopPropagation();
+                navigate(`/notes/tag/${tag.slug}`);
+              }}
+            >
+              {`#${tag.name}`}
+            </Label>
+          ))}
+        </div>
+      )}
     </Card>
   )
 }

@@ -5,6 +5,19 @@ type NotePayload = {
   preview: string;
   content: string;
   type: string;
+  tags?: string[];
+};
+
+export type NoteTag = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
+export type BacklinkRef = {
+  id: number;
+  slug: string;
+  title: string;
 };
 
 export type NoteResponse = {
@@ -20,6 +33,8 @@ export type NoteResponse = {
     name: string;
     color: string;
   };
+  tags?: NoteTag[];
+  backlinks?: BacklinkRef[];
 };
 
 const notesApiEndpoints = notesApi
@@ -79,6 +94,20 @@ const notesApiEndpoints = notesApi
         }),
         invalidatesTags: ['Notes'],
       }),
+      getNotesByTag: builder.mutation<{ data: NoteResponse[]; total: number }, { slug: string; page: number }>({
+        query: ({ slug, page }) => ({
+          url: `/notes/tag/${encodeURIComponent(slug)}/pages/${page}`,
+          method: 'GET',
+        }),
+        invalidatesTags: ['Notes'],
+      }),
+      getNoteByTitle: builder.query<BacklinkRef, string>({
+        query: (title) => ({
+          url: `/notes/by-title/${encodeURIComponent(title)}`,
+          method: 'GET',
+        }),
+        providesTags: ['Notes'],
+      }),
     }),
   });
 
@@ -90,5 +119,7 @@ export const {
   useGetNotesByPageMutation,
   useDeleteNoteMutation,
   useGetNotesByTypeMutation,
+  useGetNotesByTagMutation,
+  useGetNoteByTitleQuery,
 } = notesApiEndpoints;
 export { notesApiEndpoints };

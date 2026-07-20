@@ -1,0 +1,15 @@
+.heading {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.skeleton {
+  width: 100%;
+  min-height: 240px;
+}
+
+.empty {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
