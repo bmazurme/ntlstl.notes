@@ -11,6 +11,14 @@ interface PageMetaProps {
   section?: string;
   /** Закрыть страницу от индексации (приватные/служебные разделы). */
   noindex?: boolean;
+  /**
+   * Явный канонический URL. Если не задан — вычисляется из текущего адреса.
+   * Для заметок передаём канонический /n/:slug, чтобы он не зависел от того,
+   * по какому маршруту (/note/:id или /n/:slug) открыта страница.
+   */
+  url?: string;
+  /** Абсолютный URL картинки для og:image / twitter:image. */
+  image?: string;
 }
 
 const SITE_NAME = 'NTLSTL';
@@ -30,10 +38,12 @@ export default function PageMeta({
   publishedTime,
   section,
   noindex = false,
+  url,
+  image,
 }: PageMetaProps) {
   const fullTitle = `${title} — ${SITE_NAME}`;
   const metaDescription = description || DEFAULT_DESCRIPTION;
-  const canonical = getCanonicalUrl();
+  const canonical = url || getCanonicalUrl();
 
   return (
     <Helmet>
@@ -78,6 +88,12 @@ export default function PageMeta({
         property="og:locale"
         content="ru_RU"
       />
+      {image && (
+        <meta
+          property="og:image"
+          content={image}
+        />
+      )}
       {type === 'article' && publishedTime && (
         <meta
           property="article:published_time"
@@ -94,7 +110,7 @@ export default function PageMeta({
       {/* Twitter Card */}
       <meta
         name="twitter:card"
-        content="summary"
+        content={image ? 'summary_large_image' : 'summary'}
       />
       <meta
         name="twitter:title"
@@ -104,6 +120,12 @@ export default function PageMeta({
         name="twitter:description"
         content={metaDescription}
       />
+      {image && (
+        <meta
+          name="twitter:image"
+          content={image}
+        />
+      )}
     </Helmet>
   );
 }

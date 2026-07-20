@@ -1,4 +1,4 @@
-import { Pencil, TrashBin, ArrowLeft, CircleFill } from '@gravity-ui/icons';
+import { Pencil, TrashBin, ArrowLeft, CircleFill, Link as LinkIcon } from '@gravity-ui/icons';
 import { Button, Card, Icon, Label, Skeleton, Text } from '@gravity-ui/uikit';
 import { useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -11,17 +11,54 @@ import { MARKDOWN_SETTINGS } from '../../components/note/markdown-settings';
 import PageMeta from '../../components/page-meta';
 import ProtectedWrapper from '../../components/protected-wrapper';
 import { toaster } from '../../main';
-import { useGetNoteByIdQuery, useDeleteNoteMutation } from '../../store/api/notes-api/endpoints';
+import {
+  useGetNoteByIdQuery,
+  useGetNoteBySlugQuery,
+  useDeleteNoteMutation,
+} from '../../store/api/notes-api/endpoints';
 
 import style from './note-page.module.css';
 
 export default function NotePage() {
-  const { noteId } = useParams();
+  const { noteId, slug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { data, isLoading } = useGetNoteByIdQuery(+noteId!);
+
+  // Поддерживаем оба маршрута: канонический /n/:slug и старый /note/:noteId.
+  const bySlug = useGetNoteBySlugQuery(slug!, { skip: !slug });
+  const byId = useGetNoteByIdQuery(+noteId!, { skip: !noteId });
+  const { data, isLoading } = slug ? bySlug : byId;
+
+  const resolvedId = data?.id;
+
+  // Канонический адрес заметки не зависит от того, каким маршрутом её открыли.
+  const canonicalUrl = data?.slug && typeof window !== 'undefined'
+    ? `${window.location.origin}/n/${data.slug}`
+    : undefined;
+
   const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleShare = useCallback(() => {
+    if (!data?.slug) return;
+    const url = `${window.location.origin}/n/${data.slug}`;
+    navigator.clipboard
+      ?.writeText(url)
+      .then(() => {
+        toaster.add({
+          name: 'share-note',
+          title: 'Ссылка скопирована',
+          theme: 'success',
+        });
+      })
+      .catch(() => {
+        toaster.add({
+          name: 'share-note-error',
+          title: 'Не удалось скопировать ссылку',
+          theme: 'danger',
+        });
+      });
+  }, [data]);
 
   const canGoBack = location.key !== 'default';
   const handleBack = useCallback(() => {
@@ -33,8 +70,9 @@ export default function NotePage() {
   }, [navigate, canGoBack]);
 
   const handleDelete = async () => {
+    if (!resolvedId) return;
     try {
-      await deleteNote(+noteId!).unwrap();
+      await deleteNote(resolvedId).unwrap();
       setConfirmOpen(false);
       navigate('/notes');
     } catch {
@@ -55,6 +93,7 @@ export default function NotePage() {
         type="article"
         section={data?.type?.name}
         publishedTime={data?.createdAt}
+        url={canonicalUrl}
       />
       {data && (
         <Helmet>
@@ -67,14 +106,10 @@ export default function NotePage() {
               datePublished: data.createdAt,
               dateModified: data.updatedAt,
               articleSection: data.type?.name,
-              url: typeof window !== 'undefined'
-                ? `${window.location.origin}${window.location.pathname}`
-                : undefined,
+              url: canonicalUrl,
               mainEntityOfPage: {
                 '@type': 'WebPage',
-                '@id': typeof window !== 'undefined'
-                  ? `${window.location.origin}${window.location.pathname}`
-                  : undefined,
+                '@id': canonicalUrl,
               },
             })}
           </script>
@@ -120,13 +155,27 @@ export default function NotePage() {
                   </span>
                 )}
               </div>
-              <ProtectedWrapper>
-                <div className={style.tools}>
+              <div className={style.tools}>
+                <Button
+                  view="outlined"
+                  size="s"
+                  aria-label={`Поделиться заметкой: ${data?.title}`}
+                  disabled={!data?.slug}
+                  onClick={handleShare}
+                >
+                  <Icon
+                    data={LinkIcon}
+                    size={14}
+                    aria-hidden="true"
+                  />
+                  Share
+                </Button>
+                <ProtectedWrapper>
                   <Button
                     view="outlined-action"
                     size="s"
                     aria-label={`Редактировать заметку: ${data?.title}`}
-                    onClick={() => navigate(`/edit-note/${noteId}`)}
+                    onClick={() => navigate(`/edit-note/${resolvedId}`)}
                   >
                     <Icon
                       data={Pencil}
@@ -148,8 +197,8 @@ export default function NotePage() {
                     />
                     Delete
                   </Button>
-                </div>
-              </ProtectedWrapper>
+                </ProtectedWrapper>
+              </div>
             </div>
 
             <div

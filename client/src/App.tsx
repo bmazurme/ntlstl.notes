@@ -31,6 +31,7 @@ function App() {
           <Route path="/add-note" element={(<AddPage />)} />
           <Route path="/edit-note/:noteId" element={(<EditPage />)} />
           <Route path="/note/:noteId" element={(<NotePage />)} />
+          <Route path="/n/:slug" element={(<NotePage />)} />
           <Route path="/notes/type/:typeId" element={(<TypeNotesPage />)} />
           <Route path="/profile" element={(<ProfilePage />)} />
           <Route path="/admin/types" element={(<TypesAdminPage />)} />

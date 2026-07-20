@@ -9,6 +9,7 @@ type NotePayload = {
 
 export type NoteResponse = {
   id: number;
+  slug: string;
   title: string;
   preview: string;
   content: string;
@@ -50,6 +51,13 @@ const notesApiEndpoints = notesApi
         }),
         providesTags: ['Notes'],
       }),
+      getNoteBySlug: builder.query<NoteResponse, string>({
+        query: (slug) => ({
+          url: `/notes/slug/${slug}`,
+          method: 'GET',
+        }),
+        providesTags: ['Notes'],
+      }),
       getNotesByPage: builder.mutation<{ data: NoteResponse[]; total: number }, number>({
         query: (page) => ({
           url: `/notes/pages/${page}`,
@@ -78,6 +86,7 @@ export const {
   useCreateNoteMutation,
   useUpdateNoteMutation,
   useGetNoteByIdQuery,
+  useGetNoteBySlugQuery,
   useGetNotesByPageMutation,
   useDeleteNoteMutation,
   useGetNotesByTypeMutation,
