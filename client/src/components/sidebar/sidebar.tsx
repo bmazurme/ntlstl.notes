@@ -1,5 +1,5 @@
 import { Plus, CircleFill, Layers, Magnifier } from '@gravity-ui/icons';
-import { Button, Icon, Label, Skeleton, TextInput } from '@gravity-ui/uikit';
+import { Button, Icon, Skeleton, TextInput } from '@gravity-ui/uikit';
 import { useEffect, useState, type KeyboardEvent } from 'react';
 import { useNavigate, useParams, useMatch, useSearchParams } from 'react-router-dom';
 
@@ -14,6 +14,7 @@ import {
   useGetTypesMutation,
 } from '../../store';
 import ProtectedWrapper from '../protected-wrapper';
+import Tag from '../tag/tag';
 
 import style from './sidebar.module.css';
 
@@ -152,21 +153,17 @@ export default function Sidebar() {
       {tags.length > 0 && (
         <>
           <div className={style.sectionTitle}>Tags</div>
-          <div className={style.tagCloud}>
-            {tags.map((tag) => {
-              const isActive = activeTagSlug === tag.slug;
-              return (
-                <Label
-                  key={tag.id}
-                  size="m"
-                  theme={isActive ? 'info' : 'normal'}
-                  className={style.tag}
-                  onClick={() => navigate(`/notes/tag/${tag.slug}`)}
-                >
-                  {`#${tag.name}${tag.count ? ` ${tag.count}` : ''}`}
-                </Label>
-              );
-            })}
+          <div className={style.tagList}>
+            {tags.map((tag) => (
+              <Tag
+                key={tag.id}
+                variant="row"
+                name={tag.name}
+                count={tag.count}
+                active={activeTagSlug === tag.slug}
+                onClick={() => navigate(`/notes/tag/${tag.slug}`)}
+              />
+            ))}
           </div>
         </>
       )}

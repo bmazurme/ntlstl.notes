@@ -5,6 +5,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ContentWrapper from '../../components/content-wrapper';
 import Note from '../../components/note/note';
 import PageMeta from '../../components/page-meta';
+import Tag from '../../components/tag/tag';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
 import { notesSelector, setNotes } from '../../store';
@@ -57,12 +58,19 @@ export default function TagNotesPage() {
         aria-label="Заметки по тегу"
         aria-live="polite"
       >
-        <Text
-          variant="header-2"
-          className={style.heading}
-        >
-          {`#${slug}`}
-        </Text>
+        <div className={style.filterBar}>
+          <Text
+            variant="body-1"
+            color="secondary"
+          >
+            Filtered by
+          </Text>
+          <Tag
+            name={slug ?? ''}
+            active
+            onRemove={() => navigate('/')}
+          />
+        </div>
 
         {isLoading
           ? (

@@ -199,6 +199,7 @@ body {
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .post-tags > * {
@@ -273,7 +274,6 @@ body {
   --_--bg-color: color-mix(in srgb, var(--type-color) 10%, transparent);
   --_--text-color: var(--type-color);
 }
-
 
 @media (max-width: 1024px) {
   .sidebar {

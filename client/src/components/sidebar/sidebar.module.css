@@ -22,13 +22,8 @@
   color: var(--g-color-text-hint);
 }
 
-.tagCloud {
+.tagList {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 0 4px;
-}
-
-.tag {
-  cursor: pointer;
+  flex-direction: column;
+  gap: 2px;
 }

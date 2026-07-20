@@ -3,6 +3,7 @@ import { Card, Icon, Label, Text } from '@gravity-ui/uikit';
 import { useNavigate } from 'react-router-dom';
 
 import MarkdownPreview from '../markdown-preview/markdown-preview';
+import Tag from '../tag/tag';
 
 import { MARKDOWN_SETTINGS } from './markdown-settings';
 import type { NoteProps } from './note.props';
@@ -53,17 +54,14 @@ export default function Note({ note }: NoteProps) {
       {note.tags && note.tags.length > 0 && (
         <div className="post-tags">
           {note.tags.map((tag) => (
-            <Label
+            <Tag
               key={tag.id}
-              size="s"
-              theme="info"
+              name={tag.name}
               onClick={(event) => {
                 event.stopPropagation();
                 navigate(`/notes/tag/${tag.slug}`);
               }}
-            >
-              {`#${tag.name}`}
-            </Label>
+            />
           ))}
         </div>
       )}
