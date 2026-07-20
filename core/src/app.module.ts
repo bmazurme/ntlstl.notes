@@ -15,6 +15,7 @@ import { TagsModule } from './tags/tags.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { FeedModule } from './feed/feed.module';
 import { PrerenderModule } from './prerender/prerender.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 import { TypeOrmModuleConfig } from './config/type-orm.config';
 import { createWinstonConfig } from './config/logger.config';
@@ -44,6 +45,7 @@ import { HttpMetricsInterceptor } from './metrics/metrics.interceptor';
     MetricsModule,
     FeedModule,
     PrerenderModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [
