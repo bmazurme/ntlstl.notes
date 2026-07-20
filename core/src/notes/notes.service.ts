@@ -9,6 +9,7 @@ import { User } from '../users/entities/user.entity';
 
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { slugify } from './slugify';
 
 @Injectable()
 export class NotesService {
@@ -34,6 +35,7 @@ export class NotesService {
       note.content = createNoteDto.content;
       note.type = createNoteDto.type as Type;
       note.creator = user;
+      note.slug = await this.generateUniqueSlug(createNoteDto.title);
 
       this.logger.debug('Preparing to save new note with data', {
         title: note.title,
@@ -89,6 +91,7 @@ export class NotesService {
         skip,
         select: {
           id: true,
+          slug: true,
           title: true,
           preview: true,
           content: true,
@@ -132,6 +135,7 @@ export class NotesService {
         skip,
         select: {
           id: true,
+          slug: true,
           title: true,
           preview: true,
           content: true,
@@ -171,6 +175,7 @@ export class NotesService {
         relations: { type: true },
         select: {
           id: true,
+          slug: true,
           title: true,
           preview: true,
           content: true,
@@ -192,6 +197,55 @@ export class NotesService {
       this.logger.error('Failed to fetch note', { error, id });
       throw error;
     }
+  }
+
+  async findBySlug(slug: string) {
+    this.logger.log('Fetching note by slug', { slug });
+
+    const key = `notes:slug:${slug}`;
+    const cached = await this.cacheManager.get<Note>(key);
+    if (cached) return cached;
+
+    try {
+      const document = await this.noteRepository.findOne({
+        where: { slug },
+        relations: { type: true },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          preview: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          type: { id: true, name: true, color: true },
+        },
+      });
+
+      if (!document) {
+        this.logger.error('Not Found');
+        throw new NotFoundException();
+      }
+
+      await this.cacheManager.set(key, document);
+      return document;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      this.logger.error('Failed to fetch note by slug', { error, slug });
+      throw error;
+    }
+  }
+
+  private async generateUniqueSlug(title: string): Promise<string> {
+    const base = slugify(title);
+    let slug = base;
+    let n = 2;
+
+    while (await this.noteRepository.count({ where: { slug } })) {
+      slug = `${base}-${n++}`;
+    }
+
+    return slug;
   }
 
   async update(id: number, updateNoteDto: UpdateNoteDto): Promise<Note> {
@@ -257,6 +311,9 @@ export class NotesService {
 
       await Promise.all([
         this.cacheManager.del(`notes:${id}`),
+        existingNote.slug
+          ? this.cacheManager.del(`notes:slug:${existingNote.slug}`)
+          : Promise.resolve(),
         this.invalidateListCache(),
       ]);
 
@@ -279,10 +336,13 @@ export class NotesService {
         throw new NotFoundException(`Note with ID ${id} not found`);
       }
 
+      const { slug } = noteToRemove;
+
       await this.noteRepository.remove(noteToRemove);
 
       await Promise.all([
         this.cacheManager.del(`notes:${id}`),
+        slug ? this.cacheManager.del(`notes:slug:${slug}`) : Promise.resolve(),
         this.invalidateListCache(),
       ]);
 

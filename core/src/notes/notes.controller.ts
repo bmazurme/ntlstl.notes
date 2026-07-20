@@ -27,6 +27,11 @@ export class NotesController {
     return this.notesService.create(createNoteDto, user);
   }
 
+  @Get('slug/:slug')
+  findBySlug(@Param('slug') slug: string) {
+    return this.notesService.findBySlug(slug);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.notesService.findOne(+id);

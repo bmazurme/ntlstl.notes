@@ -15,6 +15,14 @@ export class Note extends BaseEntity {
   title: string;
 
   @Column({
+    type: 'varchar',
+    length: 180,
+    unique: true,
+    nullable: true,
+  })
+  slug: string;
+
+  @Column({
     type: 'text',
     nullable: false,
   })
