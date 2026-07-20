@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -35,6 +36,11 @@ export class NotesController {
   @Get('by-title/:title')
   findByTitle(@Param('title') title: string) {
     return this.notesService.findByTitle(title);
+  }
+
+  @Get('search')
+  search(@Query('q') q: string = '', @Query('page') page: string = '1') {
+    return this.notesService.search(q, +page);
   }
 
   @Get(':id')

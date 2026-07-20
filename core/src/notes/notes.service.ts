@@ -218,6 +218,55 @@ export class NotesService {
     }
   }
 
+  /**
+   * Полнотекстовый поиск по заголовку, превью и содержимому.
+   * ILIKE как отправная точка; при росте объёма заметок заменить на
+   * tsvector-индекс без изменения контракта эндпоинта.
+   */
+  async search(query: string, page: number) {
+    const trimmed = query?.trim() ?? '';
+
+    this.logger.log('Searching notes', { query: trimmed, page });
+
+    if (!trimmed) {
+      return { data: [], total: 0 };
+    }
+
+    const take = 10;
+    const skip = (page - 1) * take;
+    const pattern = `%${this.escapeLike(trimmed)}%`;
+
+    try {
+      const [results, total] = await this.noteRepository
+        .createQueryBuilder('note')
+        .leftJoinAndSelect('note.type', 'type')
+        .leftJoinAndSelect('note.tags', 'tag')
+        .where(
+          "(note.title ILIKE :pattern ESCAPE '\\' OR note.preview ILIKE :pattern ESCAPE '\\' OR note.content ILIKE :pattern ESCAPE '\\')",
+          { pattern },
+        )
+        .orderBy('note.id', 'DESC')
+        .skip(skip)
+        .take(take)
+        .getManyAndCount();
+
+      this.logger.debug('Search completed', {
+        query: trimmed,
+        count: results.length,
+        total,
+      });
+
+      return { data: results, total };
+    } catch (error) {
+      this.logger.error('Failed to search notes', {
+        error,
+        query: trimmed,
+        page,
+      });
+      throw error;
+    }
+  }
+
   async findOne(id: number) {
     this.logger.log('Fetching note by ID', { id });
 
