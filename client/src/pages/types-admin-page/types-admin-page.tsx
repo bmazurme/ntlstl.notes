@@ -138,7 +138,7 @@ function TypesAdminPage() {
       sidebar
       children={(
         <ProtectedWrapper fallback={<RedirectToLogin />}>
-          <PageMeta title="Управление типами" />
+          <PageMeta title="Управление типами" noindex />
           <div className={style.container}>
             <Text variant="header-2">Типы заметок</Text>
 

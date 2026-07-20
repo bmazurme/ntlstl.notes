@@ -9,7 +9,7 @@ function OauthErrorPage() {
 
   return (
     <>
-      <PageMeta title="Доступ запрещён" />
+      <PageMeta title="Доступ запрещён" noindex />
       <ContentWrapper
         children={(
           <section className="error">

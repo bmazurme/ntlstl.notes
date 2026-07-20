@@ -9,7 +9,7 @@ function NotFoundPage() {
 
   return (
     <>
-      <PageMeta title="404 — Страница не найдена" />
+      <PageMeta title="404 — Страница не найдена" noindex />
       <ContentWrapper
         children={(
           <section className="error">

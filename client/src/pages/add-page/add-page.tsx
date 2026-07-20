@@ -29,7 +29,7 @@ export default function AddPage() {
   return (
     <ContentWrapper sidebar>
       <ProtectedWrapper fallback={<RedirectToLogin />}>
-        <PageMeta title="Новая заметка" />
+        <PageMeta title="Новая заметка" noindex />
         <div className="form-container">
           <EditForm
             title="Addition"

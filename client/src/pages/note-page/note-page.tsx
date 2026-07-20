@@ -1,6 +1,7 @@
 import { Pencil, TrashBin, ArrowLeft, CircleFill } from '@gravity-ui/icons';
 import { Button, Card, Icon, Label, Skeleton, Text } from '@gravity-ui/uikit';
 import { useCallback, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import ConfirmDeleteModal from '../../components/confirm-delete-modal';
@@ -51,7 +52,34 @@ export default function NotePage() {
       <PageMeta
         title={data?.title ?? 'Заметка'}
         description={data?.preview}
+        type="article"
+        section={data?.type?.name}
+        publishedTime={data?.createdAt}
       />
+      {data && (
+        <Helmet>
+          <script type="application/ld+json">
+            {JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              headline: data.title,
+              description: data.preview,
+              datePublished: data.createdAt,
+              dateModified: data.updatedAt,
+              articleSection: data.type?.name,
+              url: typeof window !== 'undefined'
+                ? `${window.location.origin}${window.location.pathname}`
+                : undefined,
+              mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': typeof window !== 'undefined'
+                  ? `${window.location.origin}${window.location.pathname}`
+                  : undefined,
+              },
+            })}
+          </script>
+        </Helmet>
+      )}
       <ContentWrapper
         children={(
           <Card

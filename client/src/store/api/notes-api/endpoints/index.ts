@@ -12,6 +12,8 @@ export type NoteResponse = {
   title: string;
   preview: string;
   content: string;
+  createdAt?: string;
+  updatedAt?: string;
   type: {
     id: number;
     name: string;

@@ -19,6 +19,7 @@ const OauthPage = () => {
       <PageMeta
         title="Вход"
         description="Войдите через Яндекс ID"
+        noindex
       />
       <div className={style.container}>
         <Button

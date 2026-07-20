@@ -38,7 +38,7 @@ export default function EditPage() {
   return (
     <ContentWrapper sidebar>
       <ProtectedWrapper fallback={<RedirectToLogin />}>
-        <PageMeta title={data ? `Редактирование — ${data.title}` : 'Редактирование'} />
+        <PageMeta title={data ? `Редактирование — ${data.title}` : 'Редактирование'} noindex />
         <div className="form-container">
           {isLoading || !data
             ? (

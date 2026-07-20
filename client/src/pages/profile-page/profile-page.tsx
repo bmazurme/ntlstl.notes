@@ -85,7 +85,7 @@ function ProfilePage() {
     <ContentWrapper
       children={(
         <section id="center">
-          <PageMeta title="Профиль" />
+          <PageMeta title="Профиль" noindex />
           <ProtectedWrapper fallback={<RedirectToLogin />}>
             <div className={style.container}>
               <Text variant="header-2">Profile</Text>
