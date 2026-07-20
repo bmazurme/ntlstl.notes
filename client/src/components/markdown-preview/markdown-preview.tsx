@@ -5,6 +5,8 @@ import { parse, setOptions } from 'marked';
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useTheme } from '../../hooks/use-theme';
+
 import style from './markdown-preview.module.css';
 
 const escapeHtml = (value: string) =>
@@ -77,6 +79,7 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
   const [html, setHtml] = useState('');
   const divRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { isDark } = useTheme();
 
   // Перехватываем клики по внутренним вики-ссылкам, чтобы переходить
   // средствами роутера (SPA), а не полной перезагрузкой страницы.
@@ -123,6 +126,53 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = (props) => {
   useEffect(() => {
     render();
   }, [props, render]);
+
+  // Рендерим mermaid-диаграммы: marked отдаёт ```mermaid как
+  // <pre><code class="language-mermaid">, заменяем такие блоки на SVG.
+  // mermaid подгружаем динамически — тяжёлую библиотеку не тянем в основной бандл.
+  useEffect(() => {
+    const container = divRef.current;
+    if (!container) return;
+
+    const blocks = container.querySelectorAll<HTMLElement>('code.language-mermaid');
+    if (blocks.length === 0) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const mermaid = (await import('mermaid')).default;
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'strict',
+          theme: isDark ? 'dark' : 'default',
+        });
+
+        for (let i = 0; i < blocks.length; i += 1) {
+          const code = blocks[i];
+          const target = code.closest('pre') ?? code;
+          // textContent, а не innerHTML — mermaid нужен исходный текст без HTML-эскейпа.
+          const source = code.textContent ?? '';
+          try {
+            const { svg } = await mermaid.render(`mermaid-${Date.now()}-${i}`, source);
+            if (cancelled) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'mermaid';
+            wrapper.innerHTML = svg;
+            target.replaceWith(wrapper);
+          } catch {
+            // Некорректная диаграмма — оставляем исходный код-блок как есть.
+          }
+        }
+      } catch (error) {
+        console.error('Не удалось загрузить mermaid:', error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [html, isDark]);
 
   return (
     <div

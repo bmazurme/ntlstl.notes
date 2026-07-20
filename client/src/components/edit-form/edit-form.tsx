@@ -1,5 +1,6 @@
  
 import { MarkdownEditorView, useMarkdownEditor } from '@gravity-ui/markdown-editor';
+import { Mermaid } from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import { Button, Select, TextInput, Text } from '@gravity-ui/uikit';
 import { useCallback, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -23,6 +24,16 @@ import style from './edit-form.module.css';
 import fields from './form.fields';
 import { TEXT_INPUT_PROPS } from './text-input-props';
 
+
+/**
+ * Подгружает подготовленный mermaid-runtime от diplodoc. Он через
+ * window.mermaidJsonp передаёт инстанс mermaid в NodeView расширения,
+ * который рендерит диаграммы прямо в WYSIWYG. Динамический import держит
+ * тяжёлый mermaid вне основного бандла — грузится только при открытии редактора.
+ */
+const loadMermaidRuntime = () => {
+  import('@diplodoc/mermaid-extension/runtime');
+};
 
 interface EditLayoutProps {
   title: string;
@@ -64,6 +75,11 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       markup: data?.content || '',
     },
     md: { html: false },
+    wysiwygConfig: {
+      // Расширение Mermaid: блоки ```mermaid парсятся и рендерятся диаграммой.
+      extensions: (builder) =>
+        builder.use(Mermaid, { loadRuntimeScript: loadMermaidRuntime }),
+    },
   });
   const previewEditor = useMarkdownEditor({
     initial: {

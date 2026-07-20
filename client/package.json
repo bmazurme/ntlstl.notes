@@ -22,11 +22,13 @@
     "cy:docker:full": "docker compose -f ../docker-compose.yml --profile e2e up --build --abort-on-container-exit --exit-code-from cypress"
   },
   "dependencies": {
+    "@diplodoc/mermaid-extension": "^2.1.0",
     "@diplodoc/transform": "^4.76.0",
     "@gravity-ui/markdown-editor": "^15.40.0",
     "@reduxjs/toolkit": "^2.11.2",
     "lodash": "^4.18.1",
     "marked": "^18.0.4",
+    "mermaid": "^11.13.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-error-boundary": "^6.1.1",
