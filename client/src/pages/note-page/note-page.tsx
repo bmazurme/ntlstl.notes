@@ -2,7 +2,7 @@ import { Pencil, TrashBin, ArrowLeft, CircleFill, Link as LinkIcon } from '@grav
 import { Button, Card, Icon, Label, Skeleton, Text } from '@gravity-ui/uikit';
 import { useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import ConfirmDeleteModal from '../../components/confirm-delete-modal';
 import ContentWrapper from '../../components/content-wrapper';
@@ -17,6 +17,7 @@ import {
   useGetNoteBySlugQuery,
   useDeleteNoteMutation,
 } from '../../store/api/notes-api/endpoints';
+import { SITE_URL } from '../../utils/constants';
 
 import style from './note-page.module.css';
 
@@ -32,17 +33,16 @@ export default function NotePage() {
 
   const resolvedId = data?.id;
 
-  // Канонический адрес заметки не зависит от того, каким маршрутом её открыли.
-  const canonicalUrl = data?.slug && typeof window !== 'undefined'
-    ? `${window.location.origin}/n/${data.slug}`
-    : undefined;
+  // Канонический адрес заметки не зависит ни от маршрута (/note/:id или /n/:slug),
+  // ни от хоста, по которому открыта страница — всегда SITE_URL + /n/:slug.
+  const canonicalUrl = data?.slug ? `${SITE_URL}/n/${data.slug}` : undefined;
 
   const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleShare = useCallback(() => {
     if (!data?.slug) return;
-    const url = `${window.location.origin}/n/${data.slug}`;
+    const url = `${SITE_URL}/n/${data.slug}`;
     navigator.clipboard
       ?.writeText(url)
       .then(() => {
@@ -265,10 +265,10 @@ export default function NotePage() {
                   aria-label="Заметки, ссылающиеся на эту"
                 >
                   {data.backlinks.map((backlink) => (
-                    <a
+                    <Link
                       key={backlink.id}
                       className="backlink-item"
-                      onClick={() => navigate(`/n/${backlink.slug}`)}
+                      to={`/n/${backlink.slug}`}
                     >
                       <Icon
                         data={LinkIcon}
@@ -276,7 +276,7 @@ export default function NotePage() {
                         aria-hidden="true"
                       />
                       {backlink.title}
-                    </a>
+                    </Link>
                   ))}
                 </nav>
               </div>

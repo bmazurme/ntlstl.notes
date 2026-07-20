@@ -155,6 +155,33 @@ body {
   min-width: 0;
   overflow: hidden;
   contain: layout style;
+  /* Опорный контейнер для растянутой ссылки карточки (.post-link::after). */
+  position: relative;
+}
+
+/* Заголовок-ссылка карточки: настоящий <a href="/n/:slug"> без синевы/подчёркивания. */
+.post-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.post-link:hover {
+  /* text-decoration: underline; */
+  text-decoration: none;
+}
+
+/* Растягиваем кликабельную зону ссылки на всю карточку. */
+.post-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Теги должны кликаться поверх растянутой ссылки (переход по тегу, не по заметке). */
+.post-tags {
+  position: relative;
+  z-index: 2;
 }
 
 /* Последний блок карточки (теги или контент) не должен добавлять

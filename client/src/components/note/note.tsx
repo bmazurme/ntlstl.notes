@@ -1,6 +1,6 @@
 import { CircleFill } from '@gravity-ui/icons';
 import { Card, Icon, Label, Text } from '@gravity-ui/uikit';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import MarkdownPreview from '../markdown-preview/markdown-preview';
 import Tag from '../tag/tag';
@@ -17,14 +17,20 @@ export default function Note({ note }: NoteProps) {
       theme="normal"
       type="selection"
       size="l"
-      role="link"
-      tabIndex={0}
-      aria-label={`Открыть заметку: ${note.title}`}
-      onClick={() => navigate(`/note/${note.id}`)}
     >
       <div className="post-title">
         <Text variant="header-1">
-          {note.title}
+          {/*
+            Настоящая ссылка <a href="/n/:slug"> — краулится ботами и работает
+            в новой вкладке. Класс post-link растягивает кликабельную зону на всю
+            карточку (::after), сохраняя клиентскую навигацию через react-router.
+          */}
+          <Link
+            className="post-link"
+            to={`/n/${note.slug}`}
+          >
+            {note.title}
+          </Link>
         </Text>
         <span style={{ '--type-color': note.type.color } as React.CSSProperties}>
           <Label

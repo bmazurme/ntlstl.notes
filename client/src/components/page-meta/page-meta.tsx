@@ -1,5 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 
+import { SITE_URL } from '../../utils/constants';
+
 interface PageMetaProps {
   title: string;
   description?: string;
@@ -22,13 +24,16 @@ interface PageMetaProps {
 }
 
 const SITE_NAME = 'NTLSTL';
-const SITE_URL = 'https://ntlstl.ru';
 const DEFAULT_DESCRIPTION = 'NTLSTL — платформа для ведения заметок';
 
-/** Канонический URL текущей страницы без query-параметров и хэша. */
+/**
+ * Канонический URL текущей страницы без query-параметров и хэша.
+ * Домен всегда берём из фиксированного SITE_URL (а не window.location.origin),
+ * чтобы canonical/og:url не зависели от хоста, по которому открыта страница.
+ */
 function getCanonicalUrl(): string {
   if (typeof window === 'undefined') return SITE_URL;
-  return `${window.location.origin}${window.location.pathname}`;
+  return `${SITE_URL}${window.location.pathname}`;
 }
 
 export default function PageMeta({
