@@ -157,6 +157,13 @@ body {
   contain: layout style;
 }
 
+/* Последний блок карточки (теги или контент) не должен добавлять
+   собственный margin-bottom поверх padding — иначе отступ снизу
+   отличается от отступа сверху до заголовка. */
+.blog-post > *:last-child {
+  margin-bottom: 0;
+}
+
 .post-title {
   display: flex;
   margin-bottom: 1.6rem;
