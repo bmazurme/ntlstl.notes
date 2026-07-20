@@ -1,7 +1,7 @@
-import { Plus, CircleFill, Layers } from '@gravity-ui/icons';
-import { Button, Icon, Label, Skeleton } from '@gravity-ui/uikit';
-import { useEffect } from 'react';
-import { useNavigate, useParams, useMatch } from 'react-router-dom';
+import { Plus, CircleFill, Layers, Magnifier } from '@gravity-ui/icons';
+import { Button, Icon, Label, Skeleton, TextInput } from '@gravity-ui/uikit';
+import { useEffect, useState, type KeyboardEvent } from 'react';
+import { useNavigate, useParams, useMatch, useSearchParams } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
@@ -28,6 +28,14 @@ export default function Sidebar() {
   const tags = useAppSelector(tagsSelector);
   const [getTypes, { isLoading: isTypesLoading }] = useGetTypesMutation();
   const [getTags] = useGetTagsMutation();
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
+
+  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   useEffect(() => {
     const fetchTypes = async () => {
@@ -62,6 +70,25 @@ export default function Sidebar() {
       className="sidebar"
       aria-label="Фильтрация заметок"
     >
+      <TextInput
+        type="search"
+        size="l"
+        placeholder="Search notes..."
+        value={searchQuery}
+        onUpdate={setSearchQuery}
+        onKeyDown={handleSearchKeyDown}
+        hasClear
+        startContent={(
+          <Icon
+            data={Magnifier}
+            size={16}
+            aria-hidden="true"
+            className={style.searchIcon}
+          />
+        )}
+        aria-label="Поиск по заметкам"
+      />
+
       <ProtectedWrapper>
         <Button
           view="action"
@@ -124,7 +151,7 @@ export default function Sidebar() {
 
       {tags.length > 0 && (
         <>
-          <div className={style.sectionTitle}>Теги</div>
+          <div className={style.sectionTitle}>Tags</div>
           <div className={style.tagCloud}>
             {tags.map((tag) => {
               const isActive = activeTagSlug === tag.slug;

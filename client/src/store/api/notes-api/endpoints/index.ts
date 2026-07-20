@@ -101,6 +101,13 @@ const notesApiEndpoints = notesApi
         }),
         invalidatesTags: ['Notes'],
       }),
+      searchNotes: builder.mutation<{ data: NoteResponse[]; total: number }, { q: string; page: number }>({
+        query: ({ q, page }) => ({
+          url: `/notes/search?q=${encodeURIComponent(q)}&page=${page}`,
+          method: 'GET',
+        }),
+        invalidatesTags: ['Notes'],
+      }),
       getNoteByTitle: builder.query<BacklinkRef, string>({
         query: (title) => ({
           url: `/notes/by-title/${encodeURIComponent(title)}`,
@@ -120,6 +127,7 @@ export const {
   useDeleteNoteMutation,
   useGetNotesByTypeMutation,
   useGetNotesByTagMutation,
+  useSearchNotesMutation,
   useGetNoteByTitleQuery,
 } = notesApiEndpoints;
 export { notesApiEndpoints };

@@ -12,6 +12,7 @@ const OauthPage = lazy(() => import('./pages/oauth-page'));
 const ProfilePage = lazy(() => import('./pages/profile-page'));
 const TypeNotesPage = lazy(() => import('./pages/type-notes-page'));
 const TagNotesPage = lazy(() => import('./pages/tag-notes-page'));
+const SearchNotesPage = lazy(() => import('./pages/search-notes-page'));
 const WikiResolvePage = lazy(() => import('./pages/wiki-resolve-page/wiki-resolve-page'));
 const TypesAdminPage = lazy(() => import('./pages/types-admin-page'));
 
@@ -36,6 +37,7 @@ function App() {
           <Route path="/n/:slug" element={(<NotePage />)} />
           <Route path="/notes/type/:typeId" element={(<TypeNotesPage />)} />
           <Route path="/notes/tag/:slug" element={(<TagNotesPage />)} />
+          <Route path="/search" element={(<SearchNotesPage />)} />
           <Route path="/wiki/:title" element={(<WikiResolvePage />)} />
           <Route path="/profile" element={(<ProfilePage />)} />
           <Route path="/admin/types" element={(<TypesAdminPage />)} />

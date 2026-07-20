@@ -7,6 +7,11 @@
   justify-content: flex-start;
 }
 
+.searchIcon {
+  color: var(--g-color-text-hint);
+  margin-left: 8px;
+}
+
 .sectionTitle {
   margin: 14px 0 6px;
   padding: 0 8px;
