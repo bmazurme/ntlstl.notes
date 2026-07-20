@@ -1,6 +1,16 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+} from 'typeorm';
+// Обратные ссылки (backlinks) вычисляются динамически по содержимому заметок
+// (см. NotesService.findBacklinks), поэтому отдельная связь note→note не нужна.
 
 import { BaseEntity } from '../../base.entity';
+import { Tag } from '../../tags/entities/tag.entity';
 import { Type } from '../../types/entities/type.entity';
 import { User } from '../../users/entities/user.entity';
 
@@ -39,6 +49,14 @@ export class Note extends BaseEntity {
   })
   @JoinColumn({ name: 'typeId' })
   type: Type;
+
+  @ManyToMany(() => Tag, (tag) => tag.notes)
+  @JoinTable({
+    name: 'note_tags',
+    joinColumn: { name: 'noteId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tagId', referencedColumnName: 'id' },
+  })
+  tags: Tag[];
 
   @ManyToOne(() => User, (user) => user.notes, {
     nullable: false,

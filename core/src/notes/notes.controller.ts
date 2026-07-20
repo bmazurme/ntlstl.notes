@@ -32,6 +32,11 @@ export class NotesController {
     return this.notesService.findBySlug(slug);
   }
 
+  @Get('by-title/:title')
+  findByTitle(@Param('title') title: string) {
+    return this.notesService.findByTitle(title);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.notesService.findOne(+id);
@@ -44,6 +49,11 @@ export class NotesController {
   @Get('type/:typeId/pages/:page')
   findAllByType(@Param('page') page: string, @Param('typeId') typeId: string) {
     return this.notesService.findAllByType(+typeId, +page);
+  }
+
+  @Get('tag/:slug/pages/:page')
+  findAllByTag(@Param('page') page: string, @Param('slug') slug: string) {
+    return this.notesService.findAllByTag(slug, +page);
   }
 
   @UseGuards(JwtGuard)

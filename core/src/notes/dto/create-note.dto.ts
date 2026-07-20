@@ -1,6 +1,9 @@
 import {
+  ArrayMaxSize,
+  IsArray,
   IsNotEmpty,
   IsObject,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -25,4 +28,11 @@ export class CreateNoteDto {
   @IsObject({ message: 'Тип документа должен быть объектом' })
   @IsNotEmpty({ message: 'Тип документа обязателен для указания' })
   type: TypeIdDto;
+
+  @IsOptional()
+  @IsArray({ message: 'Теги должны быть массивом' })
+  @ArrayMaxSize(30, { message: 'Не более 30 тегов на заметку' })
+  @IsString({ each: true, message: 'Каждый тег должен быть строкой' })
+  @MaxLength(50, { each: true, message: 'Тег не может превышать 50 символов' })
+  tags?: string[];
 }

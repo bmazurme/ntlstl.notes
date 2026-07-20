@@ -6,10 +6,12 @@ import { NotesService } from './notes.service';
 import { NotesController } from './notes.controller';
 import { Note } from './entities/note.entity';
 import { TypesModule } from '../types/types.module';
+import { TagsModule } from '../tags/tags.module';
 
 @Module({
   imports: [
     TypesModule,
+    TagsModule,
     TypeOrmModule.forFeature([Note]),
     CacheModule.register({ ttl: 60, max: 200 }),
   ],

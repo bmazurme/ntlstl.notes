@@ -11,6 +11,7 @@ import { OauthModule } from './oauth/oauth.module';
 import { UsersModule } from './users/users.module';
 import { NotesModule } from './notes/notes.module';
 import { TypesModule } from './types/types.module';
+import { TagsModule } from './tags/tags.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { FeedModule } from './feed/feed.module';
 
@@ -38,6 +39,7 @@ import { HttpMetricsInterceptor } from './metrics/metrics.interceptor';
     UsersModule,
     NotesModule,
     TypesModule,
+    TagsModule,
     MetricsModule,
     FeedModule,
   ],

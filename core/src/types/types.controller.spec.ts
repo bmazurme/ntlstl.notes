@@ -35,9 +35,15 @@ describe('TypesController', () => {
     const type = mockType();
     mockTypesService.create.mockResolvedValue(type);
 
-    const result = await controller.create({ name: 'Article' });
+    const result = await controller.create({
+      name: 'Article',
+      color: '#4aa1f2',
+    });
 
-    expect(mockTypesService.create).toHaveBeenCalledWith({ name: 'Article' });
+    expect(mockTypesService.create).toHaveBeenCalledWith({
+      name: 'Article',
+      color: '#4aa1f2',
+    });
     expect(result).toBe(type);
   });
 

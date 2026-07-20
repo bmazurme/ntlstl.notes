@@ -10,6 +10,10 @@ import { User } from '../users/entities/user.entity';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { slugify } from './slugify';
+import { TagsService } from '../tags/tags.service';
+
+/** Компактное представление заметки в списке обратных ссылок. */
+export type BacklinkRef = Pick<Note, 'id' | 'slug' | 'title'>;
 
 @Injectable()
 export class NotesService {
@@ -18,6 +22,7 @@ export class NotesService {
   constructor(
     @InjectRepository(Note)
     private readonly noteRepository: Repository<Note>,
+    private readonly tagsService: TagsService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -36,11 +41,13 @@ export class NotesService {
       note.type = createNoteDto.type as Type;
       note.creator = user;
       note.slug = await this.generateUniqueSlug(createNoteDto.title);
+      note.tags = await this.tagsService.resolveTags(createNoteDto.tags);
 
       this.logger.debug('Preparing to save new note with data', {
         title: note.title,
         typeId: note.type?.id,
         creatorId: user.id,
+        tags: note.tags.length,
       });
 
       const { id } = await this.noteRepository.save(note);
@@ -49,10 +56,10 @@ export class NotesService {
 
       const result = await this.noteRepository.findOne({
         where: { id },
-        relations: { type: true },
+        relations: { type: true, tags: true },
       });
 
-      await this.invalidateListCache();
+      await this.invalidateAllNotesCache();
 
       this.logger.log('Note created successfully', {
         noteId: result?.id,
@@ -85,7 +92,7 @@ export class NotesService {
 
     try {
       const [results, total] = await this.noteRepository.findAndCount({
-        relations: { type: true },
+        relations: { type: true, tags: true },
         order: { id: 'DESC' },
         take,
         skip,
@@ -96,6 +103,7 @@ export class NotesService {
           preview: true,
           content: true,
           type: true,
+          tags: { id: true, name: true, slug: true },
         },
       });
 
@@ -128,7 +136,7 @@ export class NotesService {
 
     try {
       const [results, total] = await this.noteRepository.findAndCount({
-        relations: { type: true },
+        relations: { type: true, tags: true },
         where: { type: { id: typeId } },
         order: { id: 'DESC' },
         take,
@@ -140,6 +148,7 @@ export class NotesService {
           preview: true,
           content: true,
           type: true,
+          tags: { id: true, name: true, slug: true },
         },
       });
 
@@ -162,17 +171,64 @@ export class NotesService {
     }
   }
 
+  async findAllByTag(slug: string, page: number) {
+    this.logger.log('Fetching notes list by tag', { slug, page });
+
+    const key = `notes:tag:${slug}:page:${page}`;
+    const cached = await this.cacheManager.get(key);
+    if (cached) return cached;
+
+    const take = 10;
+    const skip = (page - 1) * take;
+
+    try {
+      // Фильтр по тегу через подзапрос по join-таблице: так подгрузка всех
+      // тегов заметки для отображения не искажает условие фильтрации, а
+      // getManyAndCount корректно применяет пагинацию к самим заметкам.
+      const [results, total] = await this.noteRepository
+        .createQueryBuilder('note')
+        .leftJoinAndSelect('note.type', 'type')
+        .leftJoinAndSelect('note.tags', 'tag')
+        .where((qb) => {
+          const sub = qb
+            .subQuery()
+            .select('nt.noteId')
+            .from('note_tags', 'nt')
+            .innerJoin('tag', 'ft', 'ft.id = nt.tagId')
+            .where('ft.slug = :slug')
+            .getQuery();
+          return `note.id IN ${sub}`;
+        })
+        .setParameter('slug', slug)
+        .orderBy('note.id', 'DESC')
+        .skip(skip)
+        .take(take)
+        .getManyAndCount();
+
+      const response = { data: results, total };
+      await this.cacheManager.set(key, response);
+      return response;
+    } catch (error) {
+      this.logger.error('Failed to fetch notes list by tag', {
+        error,
+        slug,
+        page,
+      });
+      throw error;
+    }
+  }
+
   async findOne(id: number) {
     this.logger.log('Fetching note by ID', { id });
 
     const key = `notes:${id}`;
-    const cached = await this.cacheManager.get<Note>(key);
+    const cached = await this.cacheManager.get(key);
     if (cached) return cached;
 
     try {
       const document = await this.noteRepository.findOne({
         where: { id },
-        relations: { type: true },
+        relations: { type: true, tags: true },
         select: {
           id: true,
           slug: true,
@@ -182,6 +238,7 @@ export class NotesService {
           createdAt: true,
           updatedAt: true,
           type: { id: true, name: true, color: true },
+          tags: { id: true, name: true, slug: true },
         },
       });
 
@@ -190,8 +247,13 @@ export class NotesService {
         throw new NotFoundException();
       }
 
-      await this.cacheManager.set(key, document);
-      return document;
+      const result = {
+        ...document,
+        backlinks: await this.findBacklinks(document.title, document.id),
+      };
+
+      await this.cacheManager.set(key, result);
+      return result;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       this.logger.error('Failed to fetch note', { error, id });
@@ -203,13 +265,13 @@ export class NotesService {
     this.logger.log('Fetching note by slug', { slug });
 
     const key = `notes:slug:${slug}`;
-    const cached = await this.cacheManager.get<Note>(key);
+    const cached = await this.cacheManager.get(key);
     if (cached) return cached;
 
     try {
       const document = await this.noteRepository.findOne({
         where: { slug },
-        relations: { type: true },
+        relations: { type: true, tags: true },
         select: {
           id: true,
           slug: true,
@@ -219,6 +281,7 @@ export class NotesService {
           createdAt: true,
           updatedAt: true,
           type: { id: true, name: true, color: true },
+          tags: { id: true, name: true, slug: true },
         },
       });
 
@@ -227,13 +290,70 @@ export class NotesService {
         throw new NotFoundException();
       }
 
-      await this.cacheManager.set(key, document);
-      return document;
+      const result = {
+        ...document,
+        backlinks: await this.findBacklinks(document.title, document.id),
+      };
+
+      await this.cacheManager.set(key, result);
+      return result;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       this.logger.error('Failed to fetch note by slug', { error, slug });
       throw error;
     }
+  }
+
+  /** Резолвинг вики-ссылки `[[Заголовок]]` в заметку по её заголовку. */
+  async findByTitle(title: string): Promise<BacklinkRef> {
+    const document = await this.noteRepository
+      .createQueryBuilder('note')
+      .select(['note.id', 'note.slug', 'note.title'])
+      .where('LOWER(note.title) = LOWER(:title)', { title: title.trim() })
+      .orderBy('note.id', 'ASC')
+      .getOne();
+
+    if (!document) {
+      throw new NotFoundException(`Заметка «${title}» не найдена`);
+    }
+
+    return document;
+  }
+
+  /**
+   * Обратные ссылки: заметки, чьё содержимое ссылается на `title`
+   * через `[[title]]` или `[[title|алиас]]`. Вычисляется динамически,
+   * поэтому всегда актуально независимо от порядка создания заметок.
+   */
+  async findBacklinks(
+    title: string,
+    excludeId?: number,
+  ): Promise<BacklinkRef[]> {
+    const safe = this.escapeLike(title.trim());
+
+    const qb = this.noteRepository
+      .createQueryBuilder('note')
+      .select(['note.id', 'note.slug', 'note.title'])
+      .where(
+        "(note.content ILIKE :exact ESCAPE '\\' OR note.content ILIKE :alias ESCAPE '\\')",
+        {
+          exact: `%[[${safe}]]%`,
+          alias: `%[[${safe}|%`,
+        },
+      )
+      .orderBy('note.id', 'DESC')
+      .take(50);
+
+    if (excludeId) {
+      qb.andWhere('note.id != :excludeId', { excludeId });
+    }
+
+    return qb.getMany();
+  }
+
+  /** Экранирование спецсимволов LIKE/ILIKE: `\`, `%`, `_`. */
+  private escapeLike(value: string): string {
+    return value.replace(/[\\%_]/g, (m) => `\\${m}`);
   }
 
   private async generateUniqueSlug(title: string): Promise<string> {
@@ -256,6 +376,7 @@ export class NotesService {
         where: { id },
         relations: {
           type: true,
+          tags: true,
         },
       });
 
@@ -280,6 +401,12 @@ export class NotesService {
         existingNote.type = updateNoteDto.type as Type;
       }
 
+      if (updateNoteDto.tags !== undefined) {
+        existingNote.tags = await this.tagsService.resolveTags(
+          updateNoteDto.tags,
+        );
+      }
+
       const updatedNote = await this.noteRepository.save(existingNote);
 
       this.logger.debug('Note updated in database', {
@@ -290,6 +417,7 @@ export class NotesService {
         where: { id: updatedNote.id },
         relations: {
           type: true,
+          tags: true,
         },
         select: {
           id: true,
@@ -301,6 +429,7 @@ export class NotesService {
             name: true,
             color: true,
           },
+          tags: { id: true, name: true, slug: true },
         },
       });
 
@@ -309,13 +438,7 @@ export class NotesService {
         title: result?.title,
       });
 
-      await Promise.all([
-        this.cacheManager.del(`notes:${id}`),
-        existingNote.slug
-          ? this.cacheManager.del(`notes:slug:${existingNote.slug}`)
-          : Promise.resolve(),
-        this.invalidateListCache(),
-      ]);
+      await this.invalidateAllNotesCache();
 
       return result as Note;
     } catch (error) {
@@ -336,15 +459,9 @@ export class NotesService {
         throw new NotFoundException(`Note with ID ${id} not found`);
       }
 
-      const { slug } = noteToRemove;
-
       await this.noteRepository.remove(noteToRemove);
 
-      await Promise.all([
-        this.cacheManager.del(`notes:${id}`),
-        slug ? this.cacheManager.del(`notes:slug:${slug}`) : Promise.resolve(),
-        this.invalidateListCache(),
-      ]);
+      await this.invalidateAllNotesCache();
 
       this.logger.log(`Note with ID ${id} successfully deleted`);
 
@@ -356,14 +473,17 @@ export class NotesService {
     }
   }
 
-  private async invalidateListCache(): Promise<void> {
+  /**
+   * Сбрасывает весь кэш заметок (списки и карточки). Полная инвалидация
+   * нужна потому, что обратные ссылки одной заметки зависят от содержимого
+   * других, а фильтры по тегам/типам кэшируются постранично.
+   */
+  private async invalidateAllNotesCache(): Promise<void> {
     const store = (this.cacheManager as any).store;
     if (typeof store?.keys !== 'function') return;
 
     const keys: string[] = await store.keys();
-    const toDelete = keys.filter(
-      (k: string) => k.startsWith('notes:page:') || k.startsWith('notes:type:'),
-    );
+    const toDelete = keys.filter((k: string) => k.startsWith('notes:'));
     await Promise.all(toDelete.map((k: string) => this.cacheManager.del(k)));
   }
 }

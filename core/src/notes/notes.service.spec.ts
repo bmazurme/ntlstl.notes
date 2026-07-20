@@ -5,6 +5,7 @@ import { NotFoundException } from '@nestjs/common';
 
 import { NotesService } from './notes.service';
 import { Note } from './entities/note.entity';
+import { TagsService } from '../tags/tags.service';
 
 jest.mock('../metrics/metrics.provider', () => ({
   createRequestCounter: () => ({ inc: jest.fn() }),
@@ -29,11 +30,37 @@ const mockNote = (overrides = {}): Note =>
 describe('NotesService', () => {
   let service: NotesService;
 
+  const mockQb = {
+    select: jest.fn().mockReturnThis(),
+    addSelect: jest.fn().mockReturnThis(),
+    innerJoin: jest.fn().mockReturnThis(),
+    leftJoin: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    groupBy: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    getMany: jest.fn().mockResolvedValue([]),
+    getOne: jest.fn().mockResolvedValue(null),
+    getCount: jest.fn().mockResolvedValue(0),
+    getRawAndEntities: jest.fn().mockResolvedValue({ entities: [], raw: [] }),
+  };
+
   const mockRepo = {
     save: jest.fn(),
     findOne: jest.fn(),
+    find: jest.fn(),
     findAndCount: jest.fn(),
+    count: jest.fn().mockResolvedValue(0),
     remove: jest.fn(),
+    createQueryBuilder: jest.fn(() => mockQb),
+  };
+
+  const mockTagsService = {
+    resolveTags: jest.fn().mockResolvedValue([]),
+    findAll: jest.fn(),
+    findBySlug: jest.fn(),
   };
 
   const mockStoreKeys = jest.fn();
@@ -50,6 +77,7 @@ describe('NotesService', () => {
       providers: [
         NotesService,
         { provide: getRepositoryToken(Note), useValue: mockRepo },
+        { provide: TagsService, useValue: mockTagsService },
         { provide: CACHE_MANAGER, useValue: mockCache },
       ],
     }).compile();
@@ -132,8 +160,11 @@ describe('NotesService', () => {
 
       const result = await service.findOne(1);
 
-      expect(result).toBe(note);
-      expect(mockCache.set).toHaveBeenCalledWith('notes:1', note);
+      expect(result).toEqual({ ...note, backlinks: [] });
+      expect(mockCache.set).toHaveBeenCalledWith(
+        'notes:1',
+        expect.objectContaining({ id: note.id, backlinks: [] }),
+      );
     });
 
     it('throws NotFoundException when note not found', async () => {
@@ -180,7 +211,9 @@ describe('NotesService', () => {
 
       const result = await service.update(1, { title: 'Updated' } as any);
 
-      expect(mockCache.del).toHaveBeenCalledWith('notes:1');
+      // Полная инвалидация кэша: удаляются все ключи с префиксом notes:
+      expect(mockCache.del).toHaveBeenCalledWith('notes:page:1');
+      expect(mockCache.del).toHaveBeenCalledWith('notes:type:2:page:1');
       expect(result).toBe(updated);
     });
 
@@ -204,7 +237,7 @@ describe('NotesService', () => {
       const result = await service.remove(1);
 
       expect(mockRepo.remove).toHaveBeenCalledWith(note);
-      expect(mockCache.del).toHaveBeenCalledWith('notes:1');
+      expect(mockCache.del).toHaveBeenCalledWith('notes:page:1');
       expect(result).toEqual({ message: expect.stringContaining('1') });
     });
 
