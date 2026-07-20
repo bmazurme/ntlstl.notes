@@ -15,6 +15,7 @@ import {
   typesSelector,
   useGetTagsMutation,
   useGetTypesMutation,
+  useUploadImageMutation,
   type NoteResponse,
 } from '../../store';
 import TagsInput from '../tags-input/tags-input';
@@ -47,6 +48,7 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
   const dispatch = useAppDispatch();
   const [getTypes, { isLoading }] = useGetTypesMutation();
   const [getTags] = useGetTagsMutation();
+  const [uploadImage] = useUploadImageMutation();
   const types = useAppSelector(typesSelector);
   const tags = useAppSelector(tagsSelector);
   const {
@@ -60,6 +62,28 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       tags: data?.tags?.map((tag) => tag.name) || [],
     },
   });
+
+  /**
+   * Загружает изображение в object store и возвращает URL для вставки в
+   * markdown. Передаётся редактору как handlers.uploadFile — срабатывает при
+   * загрузке с устройства, drag-n-drop и вставке из буфера.
+   */
+  const uploadFileHandler = useCallback(
+    async (file: File) => {
+      try {
+        const { url, name } = await uploadImage(file).unwrap();
+        return { url, name };
+      } catch {
+        toaster.add({
+          name: 'upload-image-error',
+          title: 'Не удалось загрузить изображение',
+          theme: 'danger',
+        });
+        throw new Error('Upload failed');
+      }
+    },
+    [uploadImage],
+  );
 
   const canGoBack = location.key !== 'default';
   const handleBack = useCallback(() => {
@@ -75,6 +99,9 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       markup: data?.content || '',
     },
     md: { html: false },
+    handlers: {
+      uploadFile: uploadFileHandler,
+    },
     wysiwygConfig: {
       // Расширение Mermaid: блоки ```mermaid парсятся и рендерятся диаграммой.
       extensions: (builder) =>
@@ -86,6 +113,9 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       markup: data?.preview || '',
     },
     md: { html: false },
+    handlers: {
+      uploadFile: uploadFileHandler,
+    },
   });
 
   useEffect(() => {

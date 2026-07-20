@@ -115,6 +115,18 @@ const notesApiEndpoints = notesApi
         }),
         providesTags: ['Notes'],
       }),
+      uploadImage: builder.mutation<{ url: string; name: string }, File>({
+        query: (file) => {
+          const body = new FormData();
+          body.append('file', file);
+
+          return {
+            url: '/uploads/image',
+            method: 'POST',
+            body,
+          };
+        },
+      }),
     }),
   });
 
@@ -129,5 +141,6 @@ export const {
   useGetNotesByTagMutation,
   useSearchNotesMutation,
   useGetNoteByTitleQuery,
+  useUploadImageMutation,
 } = notesApiEndpoints;
 export { notesApiEndpoints };
