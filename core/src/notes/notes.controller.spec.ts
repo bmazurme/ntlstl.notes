@@ -57,23 +57,32 @@ describe('NotesController', () => {
     expect(result).toBe(note);
   });
 
-  it('findOne delegates to service with numeric id', async () => {
+  it('findOne delegates to service with numeric id, includeDrafts false when anonymous', async () => {
     const note = mockNote();
     mockNotesService.findOne.mockResolvedValue(note);
 
-    const result = await controller.findOne('1');
+    const result = await controller.findOne('1', undefined);
 
-    expect(mockNotesService.findOne).toHaveBeenCalledWith(1);
+    expect(mockNotesService.findOne).toHaveBeenCalledWith(1, false);
     expect(result).toBe(note);
+  });
+
+  it('findOne passes includeDrafts true when a user is present', async () => {
+    const note = mockNote();
+    mockNotesService.findOne.mockResolvedValue(note);
+
+    await controller.findOne('1', { userId: 1 });
+
+    expect(mockNotesService.findOne).toHaveBeenCalledWith(1, true);
   });
 
   it('findAll delegates to service with numeric page', async () => {
     const data = { data: [mockNote()], total: 1 };
     mockNotesService.findAll.mockResolvedValue(data);
 
-    const result = await controller.findAll('2');
+    const result = await controller.findAll('2', undefined);
 
-    expect(mockNotesService.findAll).toHaveBeenCalledWith(2);
+    expect(mockNotesService.findAll).toHaveBeenCalledWith(2, false);
     expect(result).toBe(data);
   });
 
@@ -81,9 +90,9 @@ describe('NotesController', () => {
     const data = { data: [mockNote()], total: 1 };
     mockNotesService.findAllByType.mockResolvedValue(data);
 
-    const result = await controller.findAllByType('1', '3');
+    const result = await controller.findAllByType('1', '3', undefined);
 
-    expect(mockNotesService.findAllByType).toHaveBeenCalledWith(3, 1);
+    expect(mockNotesService.findAllByType).toHaveBeenCalledWith(3, 1, false);
     expect(result).toBe(data);
   });
 

@@ -53,6 +53,14 @@ export class Note extends BaseEntity {
   })
   coverImage: string | null;
 
+  /** Черновик виден только авторизованному автору; публичным — только после публикации. */
+  @Column({
+    type: 'boolean',
+    default: true,
+    nullable: false,
+  })
+  published: boolean;
+
   @ManyToOne(() => Type, (type) => type.notes, {
     nullable: false,
   })

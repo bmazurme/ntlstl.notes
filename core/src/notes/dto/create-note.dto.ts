@@ -1,6 +1,7 @@
 import {
   ArrayMaxSize,
   IsArray,
+  IsBoolean,
   IsInt,
   IsNotEmpty,
   IsObject,
@@ -48,4 +49,9 @@ export class CreateNoteDto {
   @ArrayMaxSize(20, { message: 'Не более 20 связанных заметок' })
   @IsInt({ each: true, message: 'ID связанной заметки должен быть числом' })
   relatedNoteIds?: number[];
+
+  /** Черновик (false) виден только автору; публикуется явно. */
+  @IsOptional()
+  @IsBoolean({ message: 'Признак публикации должен быть булевым' })
+  published?: boolean;
 }

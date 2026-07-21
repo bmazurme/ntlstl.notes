@@ -3,7 +3,7 @@ import { Picture, Xmark } from '@gravity-ui/icons';
 import { MarkdownEditorView, useMarkdownEditor } from '@gravity-ui/markdown-editor';
 import { Mermaid } from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {
-  Button, Select, TextInput, Text, Icon,
+  Button, Select, TextInput, Text, Icon, Checkbox,
 } from '@gravity-ui/uikit';
 import { useCallback, useEffect, useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -66,6 +66,7 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       coverImage: data?.coverImage || '',
       tags: data?.tags?.map((tag) => tag.name) || [],
       relatedNoteIds: data?.relatedNotes?.map((note) => note.id) || [],
+      published: data?.published ?? false,
     },
   });
 
@@ -283,6 +284,19 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
             initialSelected={data?.relatedNotes}
             excludeId={data?.id}
           />
+        )}
+      />
+      <Controller
+        name="published"
+        control={control}
+        render={({ field }) => (
+          <Checkbox
+            checked={!!field.value}
+            onUpdate={field.onChange}
+            size="l"
+          >
+            Опубликовано
+          </Checkbox>
         )}
       />
       <Controller

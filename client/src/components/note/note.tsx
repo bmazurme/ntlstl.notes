@@ -48,6 +48,14 @@ export default function Note({ note }: NoteProps) {
             {note.type.name}
           </Label>
         </span>
+        {note.published === false && (
+          <Label
+            size="s"
+            theme="warning"
+          >
+            Черновик
+          </Label>
+        )}
       </div>
 
       <div className="post-content">

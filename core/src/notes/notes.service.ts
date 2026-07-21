@@ -48,6 +48,7 @@ export class NotesService {
       note.relatedNotes = await this.resolveRelatedNotes(
         createNoteDto.relatedNoteIds,
       );
+      note.published = createNoteDto.published ?? false;
 
       this.logger.debug('Preparing to save new note with data', {
         title: note.title,
@@ -84,10 +85,10 @@ export class NotesService {
     }
   }
 
-  async findAll(page: number) {
+  async findAll(page: number, includeDrafts = false) {
     this.logger.log('Fetching notes list', { page });
 
-    const key = `notes:page:${page}`;
+    const key = `notes:page:${page}:${includeDrafts ? 'all' : 'pub'}`;
     const cached = await this.cacheManager.get(key);
     if (cached) return cached;
 
@@ -99,6 +100,7 @@ export class NotesService {
     try {
       const [results, total] = await this.noteRepository.findAndCount({
         relations: { type: true, tags: true },
+        where: includeDrafts ? {} : { published: true },
         order: { id: 'DESC' },
         take,
         skip,
@@ -111,6 +113,7 @@ export class NotesService {
           coverImage: true,
           type: true,
           tags: { id: true, name: true, slug: true },
+          published: true,
         },
       });
 
@@ -129,10 +132,10 @@ export class NotesService {
     }
   }
 
-  async findAllByType(typeId: number, page: number) {
+  async findAllByType(typeId: number, page: number, includeDrafts = false) {
     this.logger.log('Fetching notes list by type', { typeId, page });
 
-    const key = `notes:type:${typeId}:page:${page}`;
+    const key = `notes:type:${typeId}:page:${page}:${includeDrafts ? 'all' : 'pub'}`;
     const cached = await this.cacheManager.get(key);
     if (cached) return cached;
 
@@ -142,9 +145,13 @@ export class NotesService {
     this.logger.debug('Pagination parameters', { page, take, skip });
 
     try {
+      const where = includeDrafts
+        ? { type: { id: typeId } }
+        : { type: { id: typeId }, published: true };
+
       const [results, total] = await this.noteRepository.findAndCount({
         relations: { type: true, tags: true },
-        where: { type: { id: typeId } },
+        where,
         order: { id: 'DESC' },
         take,
         skip,
@@ -157,6 +164,7 @@ export class NotesService {
           coverImage: true,
           type: true,
           tags: { id: true, name: true, slug: true },
+          published: true,
         },
       });
 
@@ -179,10 +187,10 @@ export class NotesService {
     }
   }
 
-  async findAllByTag(slug: string, page: number) {
+  async findAllByTag(slug: string, page: number, includeDrafts = false) {
     this.logger.log('Fetching notes list by tag', { slug, page });
 
-    const key = `notes:tag:${slug}:page:${page}`;
+    const key = `notes:tag:${slug}:page:${page}:${includeDrafts ? 'all' : 'pub'}`;
     const cached = await this.cacheManager.get(key);
     if (cached) return cached;
 
@@ -193,7 +201,7 @@ export class NotesService {
       // Фильтр по тегу через подзапрос по join-таблице: так подгрузка всех
       // тегов заметки для отображения не искажает условие фильтрации, а
       // getManyAndCount корректно применяет пагинацию к самим заметкам.
-      const [results, total] = await this.noteRepository
+      const qb = this.noteRepository
         .createQueryBuilder('note')
         .leftJoinAndSelect('note.type', 'type')
         .leftJoinAndSelect('note.tags', 'tag')
@@ -210,8 +218,13 @@ export class NotesService {
         .setParameter('slug', slug)
         .orderBy('note.id', 'DESC')
         .skip(skip)
-        .take(take)
-        .getManyAndCount();
+        .take(take);
+
+      if (!includeDrafts) {
+        qb.andWhere('note.published = true');
+      }
+
+      const [results, total] = await qb.getManyAndCount();
 
       const response = { data: results, total };
       await this.cacheManager.set(key, response);
@@ -231,7 +244,7 @@ export class NotesService {
    * ILIKE как отправная точка; при росте объёма заметок заменить на
    * tsvector-индекс без изменения контракта эндпоинта.
    */
-  async search(query: string, page: number) {
+  async search(query: string, page: number, includeDrafts = false) {
     const trimmed = query?.trim() ?? '';
 
     this.logger.log('Searching notes', { query: trimmed, page });
@@ -245,7 +258,7 @@ export class NotesService {
     const pattern = `%${this.escapeLike(trimmed)}%`;
 
     try {
-      const [results, total] = await this.noteRepository
+      const qb = this.noteRepository
         .createQueryBuilder('note')
         .leftJoinAndSelect('note.type', 'type')
         .leftJoinAndSelect('note.tags', 'tag')
@@ -255,8 +268,13 @@ export class NotesService {
         )
         .orderBy('note.id', 'DESC')
         .skip(skip)
-        .take(take)
-        .getManyAndCount();
+        .take(take);
+
+      if (!includeDrafts) {
+        qb.andWhere('note.published = true');
+      }
+
+      const [results, total] = await qb.getManyAndCount();
 
       this.logger.debug('Search completed', {
         query: trimmed,
@@ -275,12 +293,17 @@ export class NotesService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, includeDrafts = false) {
     this.logger.log('Fetching note by ID', { id });
 
     const key = `notes:${id}`;
-    const cached = await this.cacheManager.get(key);
-    if (cached) return cached;
+    const cached: any = await this.cacheManager.get(key);
+    if (cached) {
+      if (cached.published === false && !includeDrafts) {
+        throw new NotFoundException();
+      }
+      return cached;
+    }
 
     try {
       const document = await this.noteRepository.findOne({
@@ -295,6 +318,7 @@ export class NotesService {
           coverImage: true,
           createdAt: true,
           updatedAt: true,
+          published: true,
           type: { id: true, name: true, color: true },
           tags: { id: true, name: true, slug: true },
           relatedNotes: { id: true, slug: true, title: true },
@@ -312,6 +336,11 @@ export class NotesService {
       };
 
       await this.cacheManager.set(key, result);
+
+      if (result.published === false && !includeDrafts) {
+        throw new NotFoundException();
+      }
+
       return result;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
@@ -320,12 +349,17 @@ export class NotesService {
     }
   }
 
-  async findBySlug(slug: string) {
+  async findBySlug(slug: string, includeDrafts = false) {
     this.logger.log('Fetching note by slug', { slug });
 
     const key = `notes:slug:${slug}`;
-    const cached = await this.cacheManager.get(key);
-    if (cached) return cached;
+    const cached: any = await this.cacheManager.get(key);
+    if (cached) {
+      if (cached.published === false && !includeDrafts) {
+        throw new NotFoundException();
+      }
+      return cached;
+    }
 
     try {
       const document = await this.noteRepository.findOne({
@@ -340,6 +374,7 @@ export class NotesService {
           coverImage: true,
           createdAt: true,
           updatedAt: true,
+          published: true,
           type: { id: true, name: true, color: true },
           tags: { id: true, name: true, slug: true },
           relatedNotes: { id: true, slug: true, title: true },
@@ -357,6 +392,11 @@ export class NotesService {
       };
 
       await this.cacheManager.set(key, result);
+
+      if (result.published === false && !includeDrafts) {
+        throw new NotFoundException();
+      }
+
       return result;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
@@ -366,15 +406,18 @@ export class NotesService {
   }
 
   /** Резолвинг вики-ссылки `[[Заголовок]]` в заметку по её заголовку. */
-  async findByTitle(title: string): Promise<BacklinkRef> {
+  async findByTitle(
+    title: string,
+    includeDrafts = false,
+  ): Promise<BacklinkRef> {
     const document = await this.noteRepository
       .createQueryBuilder('note')
-      .select(['note.id', 'note.slug', 'note.title'])
+      .select(['note.id', 'note.slug', 'note.title', 'note.published'])
       .where('LOWER(note.title) = LOWER(:title)', { title: title.trim() })
       .orderBy('note.id', 'ASC')
       .getOne();
 
-    if (!document) {
+    if (!document || (document.published === false && !includeDrafts)) {
       throw new NotFoundException(`Заметка «${title}» не найдена`);
     }
 
@@ -497,6 +540,10 @@ export class NotesService {
         );
       }
 
+      if (updateNoteDto.published !== undefined) {
+        existingNote.published = updateNoteDto.published;
+      }
+
       const updatedNote = await this.noteRepository.save(existingNote);
 
       this.logger.debug('Note updated in database', {
@@ -516,6 +563,7 @@ export class NotesService {
           preview: true,
           content: true,
           coverImage: true,
+          published: true,
           type: {
             id: true,
             name: true,

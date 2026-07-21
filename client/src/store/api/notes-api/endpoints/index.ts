@@ -8,6 +8,7 @@ type NotePayload = {
   type: string;
   tags?: string[];
   relatedNoteIds?: number[];
+  published?: boolean;
 };
 
 export type NoteTag = {
@@ -39,6 +40,7 @@ export type NoteResponse = {
   tags?: NoteTag[];
   backlinks?: BacklinkRef[];
   relatedNotes?: BacklinkRef[];
+  published?: boolean;
 };
 
 const notesApiEndpoints = notesApi

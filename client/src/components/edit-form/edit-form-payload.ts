@@ -6,4 +6,5 @@ export type FormPayload = {
   coverImage?: string;
   tags: string[];
   relatedNoteIds: number[];
+  published: boolean;
 };

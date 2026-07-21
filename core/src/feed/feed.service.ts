@@ -58,6 +58,7 @@ export class FeedService {
 
     const notes = await this.noteRepository.find({
       relations: { type: true },
+      where: { published: true },
       order: { id: 'DESC' },
       take: RSS_LIMIT,
       select: {
@@ -107,6 +108,7 @@ ${items}
 
     const [notes, types] = await Promise.all([
       this.noteRepository.find({
+        where: { published: true },
         order: { id: 'DESC' },
         select: { id: true, slug: true, updatedAt: true },
       }),

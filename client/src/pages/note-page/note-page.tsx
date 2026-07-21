@@ -158,6 +158,11 @@ export default function NotePage() {
                     </Label>
                   </span>
                 )}
+                {data?.published === false && (
+                  <Label theme="warning">
+                    Черновик
+                  </Label>
+                )}
               </div>
               <div className={style.tools}>
                 <Button

@@ -116,7 +116,7 @@ describe('NotesService', () => {
       const result = await service.findAll(1);
 
       expect(result).toEqual({ data: notes, total: 1 });
-      expect(mockCache.set).toHaveBeenCalledWith('notes:page:1', {
+      expect(mockCache.set).toHaveBeenCalledWith('notes:page:1:pub', {
         data: notes,
         total: 1,
       });
@@ -143,7 +143,7 @@ describe('NotesService', () => {
 
       expect(result).toEqual({ data: notes, total: 1 });
       expect(mockCache.set).toHaveBeenCalledWith(
-        'notes:type:2:page:1',
+        'notes:type:2:page:1:pub',
         expect.any(Object),
       );
     });
