@@ -1,8 +1,11 @@
- 
+
+import { Picture, Xmark } from '@gravity-ui/icons';
 import { MarkdownEditorView, useMarkdownEditor } from '@gravity-ui/markdown-editor';
 import { Mermaid } from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
-import { Button, Select, TextInput, Text } from '@gravity-ui/uikit';
-import { useCallback, useEffect } from 'react';
+import {
+  Button, Select, TextInput, Text, Icon,
+} from '@gravity-ui/uikit';
+import { useCallback, useEffect, useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -59,6 +62,7 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       type: data?.type?.name || '',
       preview: data?.preview || '',
       content: data?.content || '',
+      coverImage: data?.coverImage || '',
       tags: data?.tags?.map((tag) => tag.name) || [],
     },
   });
@@ -83,6 +87,33 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       }
     },
     [uploadImage],
+  );
+
+  const coverImageInputRef = useRef<HTMLInputElement>(null);
+
+  /**
+   * Обложка заметки (og:image / twitter:image на странице заметки). Хранится
+   * как абсолютный URL, который возвращает /uploads/image — тот же формат,
+   * что и картинки внутри содержимого.
+   */
+  const handleCoverImageChange = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = '';
+      if (!file) return;
+
+      try {
+        const { url } = await uploadImage(file).unwrap();
+        setValue('coverImage', url, { shouldDirty: true });
+      } catch {
+        toaster.add({
+          name: 'upload-cover-error',
+          title: 'Не удалось загрузить обложку',
+          theme: 'danger',
+        });
+      }
+    },
+    [uploadImage, setValue],
   );
 
   const canGoBack = location.key !== 'default';
@@ -238,6 +269,66 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
             onChange={field.onChange}
             suggestions={tags}
           />
+        )}
+      />
+      <Controller
+        name="coverImage"
+        control={control}
+        render={({ field }) => (
+          <div className={style.cover}>
+            <Text
+              variant="subheader-2"
+              className={style.coverLabel}
+            >
+              Обложка
+            </Text>
+            {field.value
+              ? (
+                <div className={style.coverPreview}>
+                  <img
+                    src={field.value}
+                    alt="Обложка заметки"
+                    className={style.coverImg}
+                  />
+                  <Button
+                    view="outlined-danger"
+                    size="s"
+                    onClick={() => setValue('coverImage', '', { shouldDirty: true })}
+                    aria-label="Удалить обложку"
+                  >
+                    <Icon
+                      data={Xmark}
+                      size={14}
+                      aria-hidden="true"
+                    />
+                    Удалить
+                  </Button>
+                </div>
+              )
+              : (
+                <Button
+                  view="outlined"
+                  size="s"
+                  onClick={() => coverImageInputRef.current?.click()}
+                >
+                  <Icon
+                    data={Picture}
+                    size={14}
+                    aria-hidden="true"
+                  />
+                  Загрузить обложку
+                </Button>
+              )}
+            <input
+              ref={coverImageInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+              className={style.coverInput}
+              aria-hidden="true"
+              tabIndex={-1}
+              onChange={handleCoverImageChange}
+            />
+          </div>
         )}
       />
       <MarkdownEditorView

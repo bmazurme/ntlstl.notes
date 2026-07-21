@@ -3,5 +3,6 @@ export type FormPayload = {
   type: string;
   preview: string;
   content: string;
+  coverImage?: string;
   tags: string[];
 };

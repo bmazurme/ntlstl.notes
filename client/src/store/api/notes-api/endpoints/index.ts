@@ -4,6 +4,7 @@ type NotePayload = {
   title: string;
   preview: string;
   content: string;
+  coverImage?: string;
   type: string;
   tags?: string[];
 };
@@ -26,6 +27,7 @@ export type NoteResponse = {
   title: string;
   preview: string;
   content: string;
+  coverImage?: string | null;
   createdAt?: string;
   updatedAt?: string;
   type: {

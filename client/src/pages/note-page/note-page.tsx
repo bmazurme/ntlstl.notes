@@ -95,6 +95,7 @@ export default function NotePage() {
         section={data?.type?.name}
         publishedTime={data?.createdAt}
         url={canonicalUrl}
+        image={data?.coverImage ?? undefined}
       />
       {data && (
         <Helmet>
@@ -104,6 +105,7 @@ export default function NotePage() {
               '@type': 'BlogPosting',
               headline: data.title,
               description: data.preview,
+              image: data.coverImage || undefined,
               datePublished: data.createdAt,
               dateModified: data.updatedAt,
               articleSection: data.type?.name,

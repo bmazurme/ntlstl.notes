@@ -59,6 +59,7 @@ jobs:
           docker build \
             --build-arg VITE_API_DOMAIN=${{ secrets.VITE_API_DOMAIN }} \
             --build-arg VITE_TOKEN=${{ secrets.VITE_TOKEN }} \
+            --build-arg VITE_SITE_URL=${{ secrets.VITE_SITE_URL }} \
             -t "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:$IMAGE_TAG" \
             -t "$CR_HOST/$CR_REGISTRY/$CR_IMAGE:latest" \
             ./client
