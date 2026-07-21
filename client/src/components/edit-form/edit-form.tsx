@@ -21,6 +21,7 @@ import {
   useUploadImageMutation,
   type NoteResponse,
 } from '../../store';
+import RelatedNotesInput from '../related-notes-input/related-notes-input';
 import TagsInput from '../tags-input/tags-input';
 
 import { type FormPayload } from './edit-form-payload';
@@ -64,6 +65,7 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       content: data?.content || '',
       coverImage: data?.coverImage || '',
       tags: data?.tags?.map((tag) => tag.name) || [],
+      relatedNoteIds: data?.relatedNotes?.map((note) => note.id) || [],
     },
   });
 
@@ -268,6 +270,18 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
             value={Array.isArray(field.value) ? field.value : []}
             onChange={field.onChange}
             suggestions={tags}
+          />
+        )}
+      />
+      <Controller
+        name="relatedNoteIds"
+        control={control}
+        render={({ field }) => (
+          <RelatedNotesInput
+            value={Array.isArray(field.value) ? field.value : []}
+            onChange={field.onChange}
+            initialSelected={data?.relatedNotes}
+            excludeId={data?.id}
           />
         )}
       />

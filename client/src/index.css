@@ -301,6 +301,37 @@ body {
   color: var(--g-color-text-link-hover);
 }
 
+/* Панель связанных заметок (выбираются автором вручную) */
+.related-notes {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--g-color-line-generic);
+}
+
+.related-notes-title {
+  margin-bottom: 0.75rem;
+}
+
+.related-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.related-note-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--g-color-text-link);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.related-note-item:hover {
+  color: var(--g-color-text-link-hover);
+}
+
 .blog-footer {
   background: var(--g-bg-surface);
   border-top: 1px solid var(--g-border-default);

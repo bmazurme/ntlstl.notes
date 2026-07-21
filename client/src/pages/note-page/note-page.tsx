@@ -10,6 +10,7 @@ import MarkdownPreview from '../../components/markdown-preview/markdown-preview'
 import { MARKDOWN_SETTINGS } from '../../components/note/markdown-settings';
 import PageMeta from '../../components/page-meta';
 import ProtectedWrapper from '../../components/protected-wrapper';
+import RelatedNotes from '../../components/related-notes/related-notes';
 import Tag from '../../components/tag/tag';
 import { toaster } from '../../main';
 import {
@@ -253,6 +254,8 @@ export default function NotePage() {
                   />
                 )}
             </div>
+
+            <RelatedNotes notes={data?.relatedNotes} />
 
             {data?.backlinks && data.backlinks.length > 0 && (
               <div className="backlinks">
