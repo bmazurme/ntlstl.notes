@@ -7,7 +7,8 @@ import {
   ManyToOne,
 } from 'typeorm';
 // Обратные ссылки (backlinks) вычисляются динамически по содержимому заметок
-// (см. NotesService.findBacklinks), поэтому отдельная связь note→note не нужна.
+// (см. NotesService.findBacklinks). Связанные заметки (relatedNotes), в
+// отличие от них, — явная связь note→note, которую автор выбирает вручную.
 
 import { BaseEntity } from '../../base.entity';
 import { Tag } from '../../tags/entities/tag.entity';
@@ -65,6 +66,14 @@ export class Note extends BaseEntity {
     inverseJoinColumn: { name: 'tagId', referencedColumnName: 'id' },
   })
   tags: Tag[];
+
+  @ManyToMany(() => Note)
+  @JoinTable({
+    name: 'note_related_notes',
+    joinColumn: { name: 'noteId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'relatedNoteId', referencedColumnName: 'id' },
+  })
+  relatedNotes: Note[];
 
   @ManyToOne(() => User, (user) => user.notes, {
     nullable: false,

@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 import { Note } from './entities/note.entity';
@@ -45,6 +45,9 @@ export class NotesService {
       note.creator = user;
       note.slug = await this.generateUniqueSlug(createNoteDto.title);
       note.tags = await this.tagsService.resolveTags(createNoteDto.tags);
+      note.relatedNotes = await this.resolveRelatedNotes(
+        createNoteDto.relatedNoteIds,
+      );
 
       this.logger.debug('Preparing to save new note with data', {
         title: note.title,
@@ -282,7 +285,7 @@ export class NotesService {
     try {
       const document = await this.noteRepository.findOne({
         where: { id },
-        relations: { type: true, tags: true },
+        relations: { type: true, tags: true, relatedNotes: true },
         select: {
           id: true,
           slug: true,
@@ -294,6 +297,7 @@ export class NotesService {
           updatedAt: true,
           type: { id: true, name: true, color: true },
           tags: { id: true, name: true, slug: true },
+          relatedNotes: { id: true, slug: true, title: true },
         },
       });
 
@@ -326,7 +330,7 @@ export class NotesService {
     try {
       const document = await this.noteRepository.findOne({
         where: { slug },
-        relations: { type: true, tags: true },
+        relations: { type: true, tags: true, relatedNotes: true },
         select: {
           id: true,
           slug: true,
@@ -338,6 +342,7 @@ export class NotesService {
           updatedAt: true,
           type: { id: true, name: true, color: true },
           tags: { id: true, name: true, slug: true },
+          relatedNotes: { id: true, slug: true, title: true },
         },
       });
 
@@ -412,6 +417,23 @@ export class NotesService {
     return value.replace(/[\\%_]/g, (m) => `\\${m}`);
   }
 
+  /**
+   * Резолвинг ID связанных заметок в сущности. Дедуплицирует и отбрасывает
+   * ссылку на саму заметку (excludeId), чтобы заметка не могла быть связана
+   * сама с собой.
+   */
+  private async resolveRelatedNotes(
+    ids?: number[],
+    excludeId?: number,
+  ): Promise<Note[]> {
+    if (!ids?.length) return [];
+
+    const unique = [...new Set(ids)].filter((id) => id !== excludeId);
+    if (!unique.length) return [];
+
+    return this.noteRepository.find({ where: { id: In(unique) } });
+  }
+
   private async generateUniqueSlug(title: string): Promise<string> {
     const base = slugify(title);
     let slug = base;
@@ -433,6 +455,7 @@ export class NotesService {
         relations: {
           type: true,
           tags: true,
+          relatedNotes: true,
         },
       });
 
@@ -467,6 +490,13 @@ export class NotesService {
         );
       }
 
+      if (updateNoteDto.relatedNoteIds !== undefined) {
+        existingNote.relatedNotes = await this.resolveRelatedNotes(
+          updateNoteDto.relatedNoteIds,
+          id,
+        );
+      }
+
       const updatedNote = await this.noteRepository.save(existingNote);
 
       this.logger.debug('Note updated in database', {
@@ -478,6 +508,7 @@ export class NotesService {
         relations: {
           type: true,
           tags: true,
+          relatedNotes: true,
         },
         select: {
           id: true,
@@ -491,6 +522,7 @@ export class NotesService {
             color: true,
           },
           tags: { id: true, name: true, slug: true },
+          relatedNotes: { id: true, slug: true, title: true },
         },
       });
 

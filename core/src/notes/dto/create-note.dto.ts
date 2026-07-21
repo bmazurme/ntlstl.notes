@@ -1,6 +1,7 @@
 import {
   ArrayMaxSize,
   IsArray,
+  IsInt,
   IsNotEmpty,
   IsObject,
   IsOptional,
@@ -41,4 +42,10 @@ export class CreateNoteDto {
   @IsString({ each: true, message: 'Каждый тег должен быть строкой' })
   @MaxLength(50, { each: true, message: 'Тег не может превышать 50 символов' })
   tags?: string[];
+
+  @IsOptional()
+  @IsArray({ message: 'Связанные заметки должны быть массивом' })
+  @ArrayMaxSize(20, { message: 'Не более 20 связанных заметок' })
+  @IsInt({ each: true, message: 'ID связанной заметки должен быть числом' })
+  relatedNoteIds?: number[];
 }
