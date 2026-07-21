@@ -17,6 +17,8 @@ interface MetaInput {
   jsonLd?: Record<string, unknown>;
   /** Текст, показываемый в <body> (краткое содержимое для скрейперов/людей). */
   body?: string;
+  /** Абсолютный URL обложки для og:image / twitter:image. */
+  image?: string;
 }
 
 /** Экранирование для безопасной вставки текста в HTML-разметку. */
@@ -98,6 +100,7 @@ export class PrerenderService {
     slug: string;
     title: string;
     preview?: string;
+    coverImage?: string | null;
     createdAt?: string | Date;
     updatedAt?: string | Date;
     type?: { name?: string };
@@ -116,11 +119,13 @@ export class PrerenderService {
       publishedTime,
       section: note.type?.name,
       body: description,
+      image: note.coverImage || undefined,
       jsonLd: {
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
         headline: note.title,
         description,
+        image: note.coverImage || undefined,
         datePublished: publishedTime,
         dateModified: note.updatedAt
           ? new Date(note.updatedAt).toISOString()
@@ -141,11 +146,13 @@ export class PrerenderService {
     section,
     jsonLd,
     body,
+    image,
   }: MetaInput): string {
     const fullTitle = `${title} — ${SITE_NAME}`;
     const t = escapeHtml(fullTitle);
     const d = escapeHtml(description);
     const url = escapeHtml(canonical);
+    const img = image ? escapeHtml(image) : undefined;
 
     const articleTags = [
       type === 'article' && publishedTime
@@ -179,12 +186,12 @@ export class PrerenderService {
     <meta property="og:description" content="${d}" />
     <meta property="og:url" content="${url}" />
     <meta property="og:locale" content="ru_RU" />
-${articleTags}
+${img ? `    <meta property="og:image" content="${img}" />\n` : ''}${articleTags}
 
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="${img ? 'summary_large_image' : 'summary'}" />
     <meta name="twitter:title" content="${t}" />
     <meta name="twitter:description" content="${d}" />
-${jsonLdTag}
+${img ? `    <meta name="twitter:image" content="${img}" />\n` : ''}${jsonLdTag}
   </head>
   <body>
     <main>

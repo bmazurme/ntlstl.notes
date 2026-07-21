@@ -6,6 +6,7 @@ import { NotFoundException } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { Note } from './entities/note.entity';
 import { TagsService } from '../tags/tags.service';
+import { UploadsService } from '../uploads/uploads.service';
 
 jest.mock('../metrics/metrics.provider', () => ({
   createRequestCounter: () => ({ inc: jest.fn() }),
@@ -63,6 +64,11 @@ describe('NotesService', () => {
     findBySlug: jest.fn(),
   };
 
+  const mockUploadsService = {
+    extractObjectNames: jest.fn().mockReturnValue([]),
+    removeMany: jest.fn().mockResolvedValue(undefined),
+  };
+
   const mockStoreKeys = jest.fn();
 
   const mockCache = {
@@ -78,6 +84,7 @@ describe('NotesService', () => {
         NotesService,
         { provide: getRepositoryToken(Note), useValue: mockRepo },
         { provide: TagsService, useValue: mockTagsService },
+        { provide: UploadsService, useValue: mockUploadsService },
         { provide: CACHE_MANAGER, useValue: mockCache },
       ],
     }).compile();

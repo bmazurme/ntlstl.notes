@@ -11,6 +11,7 @@ import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { slugify } from './slugify';
 import { TagsService } from '../tags/tags.service';
+import { UploadsService } from '../uploads/uploads.service';
 
 /** Компактное представление заметки в списке обратных ссылок. */
 export type BacklinkRef = Pick<Note, 'id' | 'slug' | 'title'>;
@@ -23,6 +24,7 @@ export class NotesService {
     @InjectRepository(Note)
     private readonly noteRepository: Repository<Note>,
     private readonly tagsService: TagsService,
+    private readonly uploadsService: UploadsService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -38,6 +40,7 @@ export class NotesService {
       note.title = createNoteDto.title;
       note.preview = createNoteDto.preview;
       note.content = createNoteDto.content;
+      note.coverImage = createNoteDto.coverImage || null;
       note.type = createNoteDto.type as Type;
       note.creator = user;
       note.slug = await this.generateUniqueSlug(createNoteDto.title);
@@ -102,6 +105,7 @@ export class NotesService {
           title: true,
           preview: true,
           content: true,
+          coverImage: true,
           type: true,
           tags: { id: true, name: true, slug: true },
         },
@@ -147,6 +151,7 @@ export class NotesService {
           title: true,
           preview: true,
           content: true,
+          coverImage: true,
           type: true,
           tags: { id: true, name: true, slug: true },
         },
@@ -284,6 +289,7 @@ export class NotesService {
           title: true,
           preview: true,
           content: true,
+          coverImage: true,
           createdAt: true,
           updatedAt: true,
           type: { id: true, name: true, color: true },
@@ -327,6 +333,7 @@ export class NotesService {
           title: true,
           preview: true,
           content: true,
+          coverImage: true,
           createdAt: true,
           updatedAt: true,
           type: { id: true, name: true, color: true },
@@ -446,6 +453,10 @@ export class NotesService {
         existingNote.content = updateNoteDto.content;
       }
 
+      if (updateNoteDto.coverImage !== undefined) {
+        existingNote.coverImage = updateNoteDto.coverImage || null;
+      }
+
       if (updateNoteDto.type !== undefined) {
         existingNote.type = updateNoteDto.type as Type;
       }
@@ -473,6 +484,7 @@ export class NotesService {
           title: true,
           preview: true,
           content: true,
+          coverImage: true,
           type: {
             id: true,
             name: true,
@@ -512,6 +524,18 @@ export class NotesService {
 
       await this.invalidateAllNotesCache();
 
+      // Удаляем загруженные в заметку изображения из object store. Делаем это
+      // после удаления из БД (best-effort) — сбой MinIO не должен отменять
+      // удаление заметки. Файлы, на которые ещё ссылаются другие заметки, не
+      // трогаем.
+      const objectNames = this.uploadsService.extractObjectNames(
+        noteToRemove.content,
+        noteToRemove.preview,
+        noteToRemove.coverImage,
+      );
+      const orphaned = await this.filterUnreferencedObjects(objectNames, id);
+      await this.uploadsService.removeMany(orphaned);
+
       this.logger.log(`Note with ID ${id} successfully deleted`);
 
       return { message: `Note with ID ${id} has been successfully removed` };
@@ -520,6 +544,36 @@ export class NotesService {
       this.logger.error('Failed to delete note', { error, id });
       throw error;
     }
+  }
+
+  /**
+   * Отфильтровывает ключи объектов, на которые ещё ссылается хотя бы одна
+   * другая заметка (например, если картинку переиспользовали, скопировав
+   * markdown). Такие файлы удалять нельзя — вернутся только «осиротевшие».
+   */
+  private async filterUnreferencedObjects(
+    objectNames: string[],
+    excludeNoteId: number,
+  ): Promise<string[]> {
+    const orphaned: string[] = [];
+
+    for (const name of objectNames) {
+      const pattern = `%${this.escapeLike(name)}%`;
+      const count = await this.noteRepository
+        .createQueryBuilder('note')
+        .where('note.id != :excludeNoteId', { excludeNoteId })
+        .andWhere(
+          "(note.content ILIKE :pattern ESCAPE '\\' OR note.preview ILIKE :pattern ESCAPE '\\' OR note.\"coverImage\" ILIKE :pattern ESCAPE '\\')",
+          { pattern },
+        )
+        .getCount();
+
+      if (count === 0) {
+        orphaned.push(name);
+      }
+    }
+
+    return orphaned;
   }
 
   /**

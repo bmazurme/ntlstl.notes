@@ -24,6 +24,12 @@ export class CreateNoteDto {
   @IsString({ message: 'Название должно быть строкой' })
   content: string;
 
+  /** Абсолютный URL обложки (og:image). Пустая строка снимает обложку. */
+  @IsOptional()
+  @IsString({ message: 'Обложка должна быть строкой' })
+  @MaxLength(500, { message: 'Ссылка на обложку не может превышать 500 символов' })
+  coverImage?: string;
+
   @Type(() => TypeIdDto)
   @IsObject({ message: 'Тип документа должен быть объектом' })
   @IsNotEmpty({ message: 'Тип документа обязателен для указания' })

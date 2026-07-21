@@ -44,6 +44,14 @@ export class Note extends BaseEntity {
   })
   content: string;
 
+  /** Абсолютный URL обложки (og:image / twitter:image). Необязателен. */
+  @Column({
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
+  coverImage: string | null;
+
   @ManyToOne(() => Type, (type) => type.notes, {
     nullable: false,
   })

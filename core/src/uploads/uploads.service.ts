@@ -82,6 +82,43 @@ export class UploadsService implements OnModuleInit {
   }
 
   /**
+   * Извлекает имена объектов (ключи) из текста заметки — по ссылкам вида
+   * `.../api/v1/uploads/<key>`. Хост игнорируется, поэтому работает и с
+   * абсолютными, и с относительными URL. Внешние картинки (вставленные по
+   * произвольной ссылке) под шаблон не попадают и не трогаются.
+   */
+  extractObjectNames(...texts: Array<string | null | undefined>): string[] {
+    const re = /\/api\/v1\/uploads\/([A-Za-z0-9._-]+)/g;
+    const names = new Set<string>();
+
+    for (const text of texts) {
+      if (!text) continue;
+      for (const match of text.matchAll(re)) {
+        names.add(match[1]);
+      }
+    }
+
+    return [...names];
+  }
+
+  /**
+   * Пакетно удаляет объекты из бакета. Best-effort: ошибку логируем, но не
+   * пробрасываем — осиротевший файл не должен ломать удаление заметки.
+   */
+  async removeMany(objectNames: string[]): Promise<void> {
+    if (!objectNames.length) return;
+
+    try {
+      await this.client.removeObjects(this.bucket, objectNames);
+      this.logger.log(`Removed ${objectNames.length} object(s) from MinIO`);
+    } catch (error) {
+      this.logger.error(
+        `MinIO removeObjects failed: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  /**
    * Возвращает поток объекта и его метаданные для проксирования браузеру.
    */
   async getObject(objectName: string): Promise<{
