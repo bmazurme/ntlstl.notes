@@ -61,6 +61,17 @@ export class Note extends BaseEntity {
   })
   published: boolean;
 
+  /**
+   * Дата последней «проверки» — момент, когда автор вручную подтвердил, что
+   * содержимое всё ещё актуально (кнопка «Проверено» в редакторе). В отличие
+   * от updatedAt, не меняется при обычной правке. null — заметку ещё не сверяли.
+   */
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  reviewedAt: Date | null;
+
   @ManyToOne(() => Type, (type) => type.notes, {
     nullable: false,
   })

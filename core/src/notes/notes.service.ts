@@ -49,6 +49,9 @@ export class NotesService {
         createNoteDto.relatedNoteIds,
       );
       note.published = createNoteDto.published ?? false;
+      note.reviewedAt = createNoteDto.reviewedAt
+        ? new Date(createNoteDto.reviewedAt)
+        : null;
 
       this.logger.debug('Preparing to save new note with data', {
         title: note.title,
@@ -318,6 +321,7 @@ export class NotesService {
           coverImage: true,
           createdAt: true,
           updatedAt: true,
+          reviewedAt: true,
           published: true,
           type: { id: true, name: true, color: true },
           tags: { id: true, name: true, slug: true },
@@ -374,6 +378,7 @@ export class NotesService {
           coverImage: true,
           createdAt: true,
           updatedAt: true,
+          reviewedAt: true,
           published: true,
           type: { id: true, name: true, color: true },
           tags: { id: true, name: true, slug: true },
@@ -544,6 +549,12 @@ export class NotesService {
         existingNote.published = updateNoteDto.published;
       }
 
+      if (updateNoteDto.reviewedAt !== undefined) {
+        existingNote.reviewedAt = updateNoteDto.reviewedAt
+          ? new Date(updateNoteDto.reviewedAt)
+          : null;
+      }
+
       const updatedNote = await this.noteRepository.save(existingNote);
 
       this.logger.debug('Note updated in database', {
@@ -564,6 +575,9 @@ export class NotesService {
           content: true,
           coverImage: true,
           published: true,
+          createdAt: true,
+          updatedAt: true,
+          reviewedAt: true,
           type: {
             id: true,
             name: true,

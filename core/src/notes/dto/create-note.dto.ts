@@ -2,6 +2,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
+  IsDateString,
   IsInt,
   IsNotEmpty,
   IsObject,
@@ -9,6 +10,7 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -54,4 +56,13 @@ export class CreateNoteDto {
   @IsOptional()
   @IsBoolean({ message: 'Признак публикации должен быть булевым' })
   published?: boolean;
+
+  /**
+   * Дата последней проверки актуальности (ISO-строка) либо null, чтобы снять
+   * отметку. undefined — поле не трогаем.
+   */
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsDateString({}, { message: 'Дата проверки должна быть корректной датой' })
+  reviewedAt?: string | null;
 }
