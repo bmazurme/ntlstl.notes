@@ -1,5 +1,87 @@
-.container {
+.page {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-top: 24px;
+  padding-bottom: 40px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--g-color-text-brand-contrast);
+  background: var(--g-color-base-brand);
+  user-select: none;
+}
+
+.identityText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-left: 16px;
+}
+
+.statValue {
+  line-height: 1.1;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nameSkeleton {
+  width: 180px;
+  height: 28px;
+}
+
+.statSkeleton {
+  width: 48px;
+  height: 34px;
+}
+
+@media (max-width: 480px) {
+  .identity {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .stat {
+    align-items: flex-start;
+    padding-left: 0;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+  }
 }

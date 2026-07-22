@@ -37,6 +37,24 @@
 .box :global(pre code) {
   word-break: normal;
 }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fieldLabel {
+  color: var(--g-color-text-secondary);
+}
+.fieldHint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--g-color-text-hint);
+}
+.divider {
+  height: 1px;
+  margin: 8px 0;
+  background: var(--g-color-line-generic);
+}
 .cover {
   display: flex;
   flex-direction: column;

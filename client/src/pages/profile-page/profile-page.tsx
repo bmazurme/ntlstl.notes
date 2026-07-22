@@ -1,5 +1,8 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { Button, Text, TextInput } from '@gravity-ui/uikit';
+import { Gear } from '@gravity-ui/icons';
+import {
+  Button, Card, Icon, Skeleton, Text, TextInput,
+} from '@gravity-ui/uikit';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,6 +10,7 @@ import ContentWrapper from '../../components/content-wrapper';
 import PageMeta from '../../components/page-meta';
 import ProtectedWrapper from '../../components/protected-wrapper';
 import RedirectToLogin from '../../components/redirect-to-login';
+import TagsManager from '../../components/tags-manager';
 import { useIsAuthenticated } from '../../hooks/use-is-authenticated';
 import { toaster } from '../../main';
 import { useGetNotesByPageMutation } from '../../store/api/notes-api/endpoints';
@@ -19,12 +23,13 @@ import style from './profile.module.css';
 
 function ProfilePage() {
   const navigate = useNavigate();
-  const [getUserInfo] = useGetUserInfoMutation();
+  const [getUserInfo, { isLoading: isUserLoading }] = useGetUserInfoMutation();
   const [updateUser] = useUpdateUserMutation();
-  const [getNotesByPage] = useGetNotesByPageMutation();
+  const [getNotesByPage, { isLoading: isNotesLoading }] = useGetNotesByPageMutation();
   const [userId, setUserId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [savedStatus, setSavedStatus] = useState<string | null>(null);
   const [notesTotal, setNotesTotal] = useState<number | null>(null);
   const { isAuthenticated } = useIsAuthenticated();
 
@@ -34,6 +39,7 @@ function ProfilePage() {
       setUserId(response.id);
       setUsername(response.username);
       setStatus(response.status);
+      setSavedStatus(response.status);
     } catch {
       toaster.add({
         name: 'get-user-info-error',
@@ -57,9 +63,10 @@ function ProfilePage() {
   }, [getNotesByPage]);
 
   const handleStatusBlur = useCallback(async () => {
-    if (userId === null || status === null) return;
+    if (userId === null || status === null || status === savedStatus) return;
     try {
       await updateUser({ id: userId, status }).unwrap();
+      setSavedStatus(status);
       toaster.add({
         name: 'update-status-success',
         title: 'Статус обновлён',
@@ -72,7 +79,7 @@ function ProfilePage() {
         theme: 'danger',
       });
     }
-  }, [userId, status, updateUser]);
+  }, [userId, status, savedStatus, updateUser]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -81,39 +88,121 @@ function ProfilePage() {
     }
   }, [isAuthenticated, handleGetUserInfo, handleGetNotesTotal]);
 
+  const initial = username?.trim()?.[0]?.toUpperCase() ?? '?';
+
   return (
     <ContentWrapper
       children={(
         <section id="center">
           <PageMeta title="Профиль" noindex />
           <ProtectedWrapper fallback={<RedirectToLogin />}>
-            <div className={style.container}>
-              <Text variant="header-2">Profile</Text>
-              <TextInput
-                label="Email"
-                placeholder="Placeholder"
-                disabled
-                value={username ?? '—'}
-              />
-              <TextInput
-                label="Status"
-                placeholder="Введите статус"
-                value={status ?? ''}
-                onUpdate={setStatus}
-                onBlur={handleStatusBlur}
-              />
-              <TextInput
-                label="Notes"
-                disabled
-                value={notesTotal !== null ? String(notesTotal) : '—'}
-              />
-              <Button
-                view="outlined-action"
-                size="m"
-                onClick={() => navigate('/admin/types')}
+            <div className={style.page}>
+              <Card
+                className={style.card}
+                type="container"
+                size="l"
               >
-                Управление типами
-              </Button>
+                <div className={style.identity}>
+                  <div
+                    className={style.avatar}
+                    aria-hidden="true"
+                  >
+                    {isUserLoading ? '' : initial}
+                  </div>
+                  <div className={style.identityText}>
+                    {isUserLoading
+                      ? <Skeleton className={style.nameSkeleton} />
+                      : (
+                        <Text
+                          variant="header-2"
+                          ellipsis
+                        >
+                          {username ?? '—'}
+                        </Text>
+                      )}
+                    <Text
+                      color="secondary"
+                      ellipsis
+                    >
+                      {isUserLoading
+                        ? ' '
+                        : (savedStatus?.trim() || 'Статус не указан')}
+                    </Text>
+                  </div>
+                  <div className={style.stat}>
+                    {isNotesLoading
+                      ? <Skeleton className={style.statSkeleton} />
+                      : (
+                        <Text
+                          variant="display-1"
+                          className={style.statValue}
+                        >
+                          {notesTotal ?? '—'}
+                        </Text>
+                      )}
+                    <Text
+                      variant="caption-2"
+                      color="secondary"
+                    >
+                      заметок
+                    </Text>
+                  </div>
+                </div>
+              </Card>
+
+              <Card
+                className={style.card}
+                type="container"
+                size="l"
+              >
+                <Text variant="subheader-2">Аккаунт</Text>
+                <div className={style.fields}>
+                  <TextInput
+                    label="Email"
+                    size="l"
+                    disabled
+                    value={username ?? '—'}
+                  />
+                  <TextInput
+                    label="Статус"
+                    size="l"
+                    placeholder="Расскажите о себе"
+                    value={status ?? ''}
+                    note="Короткая подпись, видимая в вашем профиле"
+                    onUpdate={setStatus}
+                    onBlur={handleStatusBlur}
+                  />
+                </div>
+              </Card>
+
+              <Card
+                className={style.card}
+                type="container"
+                size="l"
+              >
+                <TagsManager />
+              </Card>
+
+              <Card
+                className={style.card}
+                type="container"
+                size="l"
+              >
+                <Text variant="subheader-2">Администрирование</Text>
+                <Button
+                  view="outlined-action"
+                  size="l"
+                  width="max"
+                  onClick={() => navigate('/admin/types')}
+                >
+                  <Icon
+                    data={Gear}
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  Управление типами
+                </Button>
+              </Card>
             </div>
           </ProtectedWrapper>
         </section>

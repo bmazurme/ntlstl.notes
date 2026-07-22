@@ -264,42 +264,6 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
         />
       ))}
       <Controller
-        name="tags"
-        control={control}
-        render={({ field }) => (
-          <TagsInput
-            value={Array.isArray(field.value) ? field.value : []}
-            onChange={field.onChange}
-            suggestions={tags}
-          />
-        )}
-      />
-      <Controller
-        name="relatedNoteIds"
-        control={control}
-        render={({ field }) => (
-          <RelatedNotesInput
-            value={Array.isArray(field.value) ? field.value : []}
-            onChange={field.onChange}
-            initialSelected={data?.relatedNotes}
-            excludeId={data?.id}
-          />
-        )}
-      />
-      <Controller
-        name="published"
-        control={control}
-        render={({ field }) => (
-          <Checkbox
-            checked={!!field.value}
-            onUpdate={field.onChange}
-            size="l"
-          >
-            Опубликовано
-          </Checkbox>
-        )}
-      />
-      <Controller
         name="coverImage"
         control={control}
         render={({ field }) => (
@@ -359,17 +323,80 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
           </div>
         )}
       />
-      <MarkdownEditorView
-        stickyToolbar
-        autofocus
-        editor={previewEditor}
-        className={style.preview}
+      <div className={style.divider} />
+
+      <div className={style.field}>
+        <Text
+          variant="subheader-2"
+          className={style.fieldLabel}
+        >
+          Аннотация
+        </Text>
+        <Text className={style.fieldHint}>
+          Короткое превью для карточки заметки и SEO-описания.
+        </Text>
+        <MarkdownEditorView
+          stickyToolbar
+          autofocus
+          editor={previewEditor}
+          className={style.preview}
+        />
+      </div>
+
+      <div className={style.field}>
+        <Text
+          variant="subheader-2"
+          className={style.fieldLabel}
+        >
+          Содержание
+        </Text>
+        <Text className={style.fieldHint}>
+          Основной текст заметки. Поддерживаются markdown, изображения, mermaid-диаграммы и вики-ссылки [[…]].
+        </Text>
+        <MarkdownEditorView
+          stickyToolbar
+          editor={contentEditor}
+          className={style.content}
+        />
+      </div>
+
+      <div className={style.divider} />
+
+      <Controller
+        name="tags"
+        control={control}
+        render={({ field }) => (
+          <TagsInput
+            value={Array.isArray(field.value) ? field.value : []}
+            onChange={field.onChange}
+            suggestions={tags}
+          />
+        )}
       />
-      <MarkdownEditorView
-        stickyToolbar
-        autofocus
-        editor={contentEditor}
-        className={style.content}
+      <Controller
+        name="relatedNoteIds"
+        control={control}
+        render={({ field }) => (
+          <RelatedNotesInput
+            value={Array.isArray(field.value) ? field.value : []}
+            onChange={field.onChange}
+            initialSelected={data?.relatedNotes}
+            excludeId={data?.id}
+          />
+        )}
+      />
+      <Controller
+        name="published"
+        control={control}
+        render={({ field }) => (
+          <Checkbox
+            checked={!!field.value}
+            onUpdate={field.onChange}
+            size="l"
+          >
+            Опубликовано
+          </Checkbox>
+        )}
       />
     </form>
   );

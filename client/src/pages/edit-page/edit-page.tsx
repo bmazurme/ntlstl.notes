@@ -11,6 +11,8 @@ import { useAppSelector } from '../../hooks';
 import { toaster } from '../../main';
 import { typesSelector, useGetNoteByIdQuery, useUpdateNoteMutation } from '../../store';
 
+import style from './edit-page.module.css';
+
 export default function EditPage() {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -42,10 +44,12 @@ export default function EditPage() {
         <div className="form-container">
           {isLoading || !data
             ? (
-              <Loader
-                size="l"
-                aria-label="Загрузка заметки"
-              />
+              <div className={style.loaderWrap}>
+                <Loader
+                  size="l"
+                  aria-label="Загрузка заметки"
+                />
+              </div>
             )
             : (
               <EditForm

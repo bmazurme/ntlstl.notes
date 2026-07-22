@@ -20,8 +20,27 @@ const tagsApiEndpoints = tagsApi
         }),
         invalidatesTags: ['Tags'],
       }),
+      updateTag: builder.mutation<TagResponse, { id: number; name: string }>({
+        query: ({ id, name }) => ({
+          url: `tags/${id}`,
+          method: 'PATCH',
+          body: { name },
+        }),
+        invalidatesTags: ['Tags'],
+      }),
+      deleteTag: builder.mutation<{ message: string }, number>({
+        query: (id) => ({
+          url: `tags/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Tags'],
+      }),
     }),
   });
 
-export const { useGetTagsMutation } = tagsApiEndpoints;
+export const {
+  useGetTagsMutation,
+  useUpdateTagMutation,
+  useDeleteTagMutation,
+} = tagsApiEndpoints;
 export { tagsApiEndpoints };
