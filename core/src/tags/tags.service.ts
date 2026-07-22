@@ -1,7 +1,13 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
+import { UpdateTagDto } from './dto/update-tag.dto';
 import { Tag } from './entities/tag.entity';
 import { slugify } from '../notes/slugify';
 
@@ -33,6 +39,60 @@ export class TagsService {
       slug: r.slug,
       count: Number(r.count),
     })) as Array<Tag & { count: number }>;
+  }
+
+  /**
+   * Переименовывает тег: нормализует имя, пересчитывает slug и проверяет,
+   * что тег с таким же slug'ом ещё не существует. Связи с заметками
+   * (note_tags) при этом сохраняются — меняется только сам тег.
+   */
+  async update(id: number, dto: UpdateTagDto): Promise<Tag> {
+    const tag = await this.tagRepository.findOne({ where: { id } });
+    if (!tag) {
+      throw new NotFoundException(`Тег с id ${id} не найден`);
+    }
+
+    const name = (dto.name ?? '').trim().replace(/\s+/g, ' ');
+    if (!name) {
+      throw new ConflictException('Название тега не может быть пустым');
+    }
+
+    const slug = slugify(name).slice(0, 60);
+    const conflict = await this.tagRepository.findOne({ where: { slug } });
+    if (conflict && conflict.id !== id) {
+      throw new ConflictException(`Тег «${name}» уже существует`);
+    }
+
+    tag.name = name.slice(0, 50);
+    tag.slug = slug;
+    await this.tagRepository.save(tag);
+    this.logger.log(`Tag updated - id: ${id}`);
+
+    return tag;
+  }
+
+  /**
+   * Удаляет тег. Предварительно вычищает строки в связующей таблице
+   * note_tags, чтобы не нарушить внешние ключи (у заметок тег просто
+   * пропадает из списка).
+   */
+  async remove(id: number): Promise<{ message: string }> {
+    const tag = await this.tagRepository.findOne({ where: { id } });
+    if (!tag) {
+      throw new NotFoundException(`Тег с id ${id} не найден`);
+    }
+
+    await this.tagRepository.manager
+      .createQueryBuilder()
+      .delete()
+      .from('note_tags')
+      .where('"tagId" = :id', { id })
+      .execute();
+
+    await this.tagRepository.delete(id);
+    this.logger.log(`Tag removed - id: ${id}`);
+
+    return { message: 'Tag successfully removed' };
   }
 
   async findBySlug(slug: string): Promise<Tag> {
