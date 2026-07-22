@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { Gear } from '@gravity-ui/icons';
+import { Gear, Tag } from '@gravity-ui/icons';
 import {
   Button, Card, Icon, Skeleton, Text, TextInput,
 } from '@gravity-ui/uikit';
@@ -10,7 +10,6 @@ import ContentWrapper from '../../components/content-wrapper';
 import PageMeta from '../../components/page-meta';
 import ProtectedWrapper from '../../components/protected-wrapper';
 import RedirectToLogin from '../../components/redirect-to-login';
-import TagsManager from '../../components/tags-manager';
 import { useIsAuthenticated } from '../../hooks/use-is-authenticated';
 import { toaster } from '../../main';
 import { useGetNotesByPageMutation } from '../../store/api/notes-api/endpoints';
@@ -180,28 +179,35 @@ function ProfilePage() {
                 type="container"
                 size="l"
               >
-                <TagsManager />
-              </Card>
-
-              <Card
-                className={style.card}
-                type="container"
-                size="l"
-              >
                 <Text variant="subheader-2">Администрирование</Text>
-                <Button
-                  view="outlined-action"
-                  size="l"
-                  width="max"
-                  onClick={() => navigate('/admin/types')}
-                >
-                  <Icon
-                    data={Gear}
-                    size={16}
-                    aria-hidden="true"
-                  />
-                  Управление типами
-                </Button>
+                <div className={style.adminActions}>
+                  <Button
+                    view="outlined-action"
+                    size="l"
+                    width="max"
+                    onClick={() => navigate('/admin/types')}
+                  >
+                    <Icon
+                      data={Gear}
+                      size={16}
+                      aria-hidden="true"
+                    />
+                    Управление типами
+                  </Button>
+                  <Button
+                    view="outlined-action"
+                    size="l"
+                    width="max"
+                    onClick={() => navigate('/admin/tags')}
+                  >
+                    <Icon
+                      data={Tag}
+                      size={16}
+                      aria-hidden="true"
+                    />
+                    Управление тегами
+                  </Button>
+                </div>
               </Card>
             </div>
           </ProtectedWrapper>

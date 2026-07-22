@@ -15,6 +15,7 @@ const TagNotesPage = lazy(() => import('./pages/tag-notes-page'));
 const SearchNotesPage = lazy(() => import('./pages/search-notes-page'));
 const WikiResolvePage = lazy(() => import('./pages/wiki-resolve-page/wiki-resolve-page'));
 const TypesAdminPage = lazy(() => import('./pages/types-admin-page'));
+const TagsAdminPage = lazy(() => import('./pages/tags-admin-page'));
 
 const fallback = (
   <div className="suspense-fallback">
@@ -41,6 +42,7 @@ function App() {
           <Route path="/wiki/:title" element={(<WikiResolvePage />)} />
           <Route path="/profile" element={(<ProfilePage />)} />
           <Route path="/admin/types" element={(<TypesAdminPage />)} />
+          <Route path="/admin/tags" element={(<TagsAdminPage />)} />
           <Route path="*" element={(<NotFoundPage />)} />
         </Routes>
       </Suspense>

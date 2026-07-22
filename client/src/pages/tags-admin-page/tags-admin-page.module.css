@@ -1,13 +1,7 @@
-.wrapper {
+.container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.head {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
+  gap: 16px;
 }
 
 .list {
@@ -29,29 +23,20 @@
   border-radius: var(--g-border-radius-m);
 }
 
-.row:hover {
-  border-color: var(--g-color-line-generic-hover);
+.row > :first-child {
+  flex: 1;
+  min-width: 0;
 }
 
-.info {
+.tagInfo {
   display: flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
 }
 
-.row > :first-child {
-  flex: 1;
-  min-width: 0;
-}
-
 .actions {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   flex-shrink: 0;
-}
-
-.rowSkeleton {
-  height: 44px;
-  border-radius: var(--g-border-radius-m);
 }
