@@ -19,6 +19,7 @@ import {
   useDeleteNoteMutation,
 } from '../../store/api/notes-api/endpoints';
 import { SITE_URL } from '../../utils/constants';
+import { toAbsoluteImageUrl, toRelativeImageUrl } from '../../utils/image-url';
 
 import style from './note-page.module.css';
 
@@ -126,7 +127,7 @@ export default function NotePage() {
               '@type': 'BlogPosting',
               headline: data.title,
               description: data.preview,
-              image: data.coverImage || undefined,
+              image: toAbsoluteImageUrl(data.coverImage),
               datePublished: data.createdAt,
               dateModified: data.updatedAt,
               articleSection: data.type?.name,
@@ -229,6 +230,17 @@ export default function NotePage() {
                 </ProtectedWrapper>
               </div>
             </div>
+
+            {data?.coverImage && (
+              <figure className={style.cover}>
+                <img
+                  className={style.coverImg}
+                  src={toRelativeImageUrl(data.coverImage)}
+                  alt={`Обложка заметки: ${data.title}`}
+                  loading="lazy"
+                />
+              </figure>
+            )}
 
             <div
               className="post-title"

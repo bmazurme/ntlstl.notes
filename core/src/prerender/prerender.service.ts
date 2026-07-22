@@ -62,6 +62,23 @@ export class PrerenderService {
     ).replace(/\/+$/, '');
   }
 
+  /**
+   * Приводит хранимый URL картинки к абсолютному на канонический домен для
+   * og:image / JSON-LD (соц-скрейперам нужен абсолютный адрес). Обложки теперь
+   * хранятся относительным путём (`/api/v1/uploads/...`), но метод также
+   * «чинит» легаси-значения с прошитым неверным хостом (напр. http://localhost)
+   * — вырезает часть с /api/v1/uploads/ и достраивает её от SITE_URL. Внешние
+   * абсолютные картинки возвращаются как есть.
+   */
+  private toAbsoluteImageUrl(image?: string | null): string | undefined {
+    if (!image) return undefined;
+    const marker = '/api/v1/uploads/';
+    const idx = image.indexOf(marker);
+    if (idx !== -1) return `${this.siteUrl}${image.slice(idx)}`;
+    if (image.startsWith('/')) return `${this.siteUrl}${image}`;
+    return image;
+  }
+
   /** Мета главной / произвольной страницы (когда конкретной заметки нет). */
   home(path = '/'): string {
     const normalized = path.startsWith('/') ? path : `/${path}`;
@@ -107,6 +124,7 @@ export class PrerenderService {
   }): string {
     const canonical = `${this.siteUrl}/n/${note.slug}`;
     const description = note.preview?.trim() || DEFAULT_DESCRIPTION;
+    const image = this.toAbsoluteImageUrl(note.coverImage);
     const publishedTime = note.createdAt
       ? new Date(note.createdAt).toISOString()
       : undefined;
@@ -119,13 +137,13 @@ export class PrerenderService {
       publishedTime,
       section: note.type?.name,
       body: description,
-      image: note.coverImage || undefined,
+      image,
       jsonLd: {
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
         headline: note.title,
         description,
-        image: note.coverImage || undefined,
+        image,
         datePublished: publishedTime,
         dateModified: note.updatedAt
           ? new Date(note.updatedAt).toISOString()

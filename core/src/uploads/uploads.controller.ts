@@ -4,15 +4,13 @@ import {
   Param,
   ParseFilePipeBuilder,
   Post,
-  Req,
   Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { UploadsService } from './uploads.service';
@@ -22,14 +20,16 @@ const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 
 @Controller('api/v1/uploads')
 export class UploadsController {
-  constructor(
-    private readonly uploadsService: UploadsService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly uploadsService: UploadsService) {}
 
   /**
-   * Загрузка изображения из редактора заметок. Возвращает публичный URL,
-   * который вставляется в markdown как `![alt](url)`.
+   * Загрузка изображения из редактора заметок. Возвращает ОТНОСИТЕЛЬНЫЙ URL
+   * (`/api/v1/uploads/...`), который вставляется в markdown как `![alt](url)`
+   * и хранится в БД. Относительный путь host-agnostic: в браузере он
+   * разрешается относительно текущего origin (dev/prod/preview), а абсолютный
+   * адрес для og:image/JSON-LD достраивается из SITE_URL на этапе рендера меты
+   * (см. PrerenderService, PageMeta). Раньше здесь запекался абсолютный URL по
+   * хосту запроса — при неверном SITE_URL обложки уходили на http://localhost.
    */
   @UseGuards(JwtGuard)
   @Post('image')
@@ -42,12 +42,11 @@ export class UploadsController {
         .build({ fileIsRequired: true }),
     )
     file: Express.Multer.File,
-    @Req() req: Request,
   ): Promise<{ url: string; name: string }> {
     const objectName = await this.uploadsService.upload(file);
 
     return {
-      url: `${this.getPublicBase(req)}/api/v1/uploads/${objectName}`,
+      url: `/api/v1/uploads/${objectName}`,
       name: file.originalname,
     };
   }
@@ -72,21 +71,5 @@ export class UploadsController {
     res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
 
     stream.pipe(res);
-  }
-
-  /**
-   * База для абсолютного URL картинки. В проде задаётся через SITE_URL,
-   * иначе выводится из входящего запроса (учитывает reverse-proxy заголовки).
-   */
-  private getPublicBase(req: Request): string {
-    const configured = this.configService.get<string>('SITE_URL');
-    if (configured) {
-      return configured.replace(/\/+$/, '');
-    }
-
-    const proto = (req.headers['x-forwarded-proto'] as string) ?? req.protocol;
-    const host = (req.headers['x-forwarded-host'] as string) ?? req.get('host');
-
-    return `${proto}://${host}`;
   }
 }

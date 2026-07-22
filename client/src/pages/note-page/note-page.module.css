@@ -26,6 +26,28 @@
   }
 }
 
+.cover {
+  margin: 0 0 1.75rem;
+  border-radius: var(--g-border-radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--g-color-line-generic);
+  background: var(--g-color-base-generic);
+}
+
+.coverImg {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+}
+
+/* В светлой теме обложка читается как отдельная карточка: чуть заметнее рамка
+   и мягкая тень. В тёмной — рамки достаточно, тень не нужна. */
+:global(.g-root_theme_light) .cover {
+  border-color: var(--g-color-line-generic-accent);
+  box-shadow: 0 1px 2px var(--g-color-sfx-shadow);
+}
+
 .meta {
   margin-top: 0.75rem;
   margin-bottom: 1rem;

@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 
 import { SITE_URL } from '../../utils/constants';
+import { toAbsoluteImageUrl } from '../../utils/image-url';
 
 interface PageMetaProps {
   title: string;
@@ -49,6 +50,8 @@ export default function PageMeta({
   const fullTitle = `${title} — ${SITE_NAME}`;
   const metaDescription = description || DEFAULT_DESCRIPTION;
   const canonical = url || getCanonicalUrl();
+  // og:image/twitter:image требуют абсолютный URL на каноническом домене.
+  const absoluteImage = toAbsoluteImageUrl(image);
 
   return (
     <Helmet>
@@ -93,10 +96,10 @@ export default function PageMeta({
         property="og:locale"
         content="ru_RU"
       />
-      {image && (
+      {absoluteImage && (
         <meta
           property="og:image"
-          content={image}
+          content={absoluteImage}
         />
       )}
       {type === 'article' && publishedTime && (
@@ -115,7 +118,7 @@ export default function PageMeta({
       {/* Twitter Card */}
       <meta
         name="twitter:card"
-        content={image ? 'summary_large_image' : 'summary'}
+        content={absoluteImage ? 'summary_large_image' : 'summary'}
       />
       <meta
         name="twitter:title"
@@ -125,10 +128,10 @@ export default function PageMeta({
         name="twitter:description"
         content={metaDescription}
       />
-      {image && (
+      {absoluteImage && (
         <meta
           name="twitter:image"
-          content={image}
+          content={absoluteImage}
         />
       )}
     </Helmet>
