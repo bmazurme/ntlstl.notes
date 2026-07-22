@@ -55,6 +55,19 @@
   margin: 8px 0;
   background: var(--g-color-line-generic);
 }
+.reviewRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.reviewActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
 .cover {
   display: flex;
   flex-direction: column;

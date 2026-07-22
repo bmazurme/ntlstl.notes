@@ -1,5 +1,5 @@
 
-import { Picture, Xmark } from '@gravity-ui/icons';
+import { Check, Picture, Xmark } from '@gravity-ui/icons';
 import { MarkdownEditorView, useMarkdownEditor } from '@gravity-ui/markdown-editor';
 import { Mermaid } from '@gravity-ui/markdown-editor/extensions/additional/Mermaid/index.js';
 import {
@@ -40,6 +40,17 @@ const loadMermaidRuntime = () => {
   import('@diplodoc/mermaid-extension/runtime');
 };
 
+/** Читаемая дата последней проверки для редактора (напр. «22 июля 2026 г.»). */
+const formatReviewDate = (iso: string): string => {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+};
+
 interface EditLayoutProps {
   title: string;
   data?: NoteResponse;
@@ -67,6 +78,7 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
       tags: data?.tags?.map((tag) => tag.name) || [],
       relatedNoteIds: data?.relatedNotes?.map((note) => note.id) || [],
       published: data?.published ?? false,
+      reviewedAt: data?.reviewedAt ?? null,
     },
   });
 
@@ -397,6 +409,53 @@ export default function EditForm({ title, data, action }: EditLayoutProps) {
             Опубликовано
           </Checkbox>
         )}
+      />
+      <Controller
+        name="reviewedAt"
+        control={control}
+        render={({ field }) => {
+          const value = typeof field.value === 'string' ? field.value : null;
+          return (
+            <div className={style.field}>
+              <Text
+                variant="subheader-2"
+                className={style.fieldLabel}
+              >
+                Проверка актуальности
+              </Text>
+              <div className={style.reviewRow}>
+                <Text color="secondary">
+                  {value
+                    ? `Последняя проверка: ${formatReviewDate(value)}`
+                    : 'Заметка ещё не проверялась'}
+                </Text>
+                <div className={style.reviewActions}>
+                  <Button
+                    view="outlined-action"
+                    size="s"
+                    onClick={() => field.onChange(new Date().toISOString())}
+                  >
+                    <Icon
+                      data={Check}
+                      size={14}
+                      aria-hidden="true"
+                    />
+                    Проверено сегодня
+                  </Button>
+                  {value && (
+                    <Button
+                      view="flat-danger"
+                      size="s"
+                      onClick={() => field.onChange(null)}
+                    >
+                      Сбросить
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }}
       />
     </form>
   );

@@ -7,4 +7,5 @@ export type FormPayload = {
   tags: string[];
   relatedNoteIds: number[];
   published: boolean;
+  reviewedAt?: string | null;
 };

@@ -22,6 +22,15 @@ import { SITE_URL } from '../../utils/constants';
 
 import style from './note-page.module.css';
 
+/** Форматирует ISO-дату как «ГГГГ-ММ» (напр. 2026-07). */
+function formatYearMonth(iso?: string | null): string | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${date.getFullYear()}-${month}`;
+}
+
 export default function NotePage() {
   const { noteId, slug } = useParams();
   const navigate = useNavigate();
@@ -37,6 +46,17 @@ export default function NotePage() {
   // Канонический адрес заметки не зависит ни от маршрута (/note/:id или /n/:slug),
   // ни от хоста, по которому открыта страница — всегда SITE_URL + /n/:slug.
   const canonicalUrl = data?.slug ? `${SITE_URL}/n/${data.slug}` : undefined;
+
+  // Строка «Дата проверки … · Обновлено …» формируется автоматически:
+  // «Обновлено» — из updatedAt, «Дата проверки» — из reviewedAt (если задана).
+  const reviewedYm = formatYearMonth(data?.reviewedAt);
+  const updatedYm = formatYearMonth(data?.updatedAt);
+  const metaLine = [
+    reviewedYm && `Дата проверки: ${reviewedYm}`,
+    updatedYm && `Обновлено: ${updatedYm}`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   const [deleteNote, { isLoading: isDeleting }] = useDeleteNoteMutation();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -238,6 +258,17 @@ export default function NotePage() {
                   />
                 ))}
               </div>
+            )}
+
+            {!isLoading && metaLine && (
+              <Text
+                as="p"
+                variant="caption-2"
+                color="secondary"
+                className={style.meta}
+              >
+                {metaLine}
+              </Text>
             )}
 
             <div

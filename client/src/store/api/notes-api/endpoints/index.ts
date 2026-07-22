@@ -9,6 +9,7 @@ type NotePayload = {
   tags?: string[];
   relatedNoteIds?: number[];
   published?: boolean;
+  reviewedAt?: string | null;
 };
 
 export type NoteTag = {
@@ -32,6 +33,7 @@ export type NoteResponse = {
   coverImage?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  reviewedAt?: string | null;
   type: {
     id: number;
     name: string;
