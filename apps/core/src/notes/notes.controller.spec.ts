@@ -3,6 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotesController } from './notes.controller';
 import { NotesService } from './notes.service';
 import { Note } from './entities/note.entity';
+import { IngestKeyGuard } from '../auth/guards/ingest-key.guard';
+import { UsersService } from '../users/users.service';
 
 const mockNote = (overrides = {}): Note =>
   ({
@@ -29,8 +31,14 @@ describe('NotesController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NotesController],
-      providers: [{ provide: NotesService, useValue: mockNotesService }],
-    }).compile();
+      providers: [
+        { provide: NotesService, useValue: mockNotesService },
+        { provide: UsersService, useValue: {} },
+      ],
+    })
+      .overrideGuard(IngestKeyGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<NotesController>(NotesController);
     jest.clearAllMocks();
@@ -115,5 +123,27 @@ describe('NotesController', () => {
 
     expect(mockNotesService.remove).toHaveBeenCalledWith(1);
     expect(result).toEqual({ message: 'removed' });
+  });
+
+  it('createDraft always saves an unpublished note, whatever the body says', async () => {
+    const user = { id: 7 } as never;
+    const dto = {
+      title: 'Дайджест',
+      preview: 'p',
+      content: 'c',
+      type: { id: 6 },
+      tags: ['lab'],
+      published: true,
+      reviewedAt: '2026-11-12T00:00:00.000Z',
+    } as any;
+
+    mockNotesService.create.mockResolvedValue(mockNote({ id: 9 }));
+
+    await controller.createDraft(dto, user);
+
+    expect(mockNotesService.create).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Дайджест', published: false }),
+      user,
+    );
   });
 });

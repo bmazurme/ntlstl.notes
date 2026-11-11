@@ -158,6 +158,7 @@ DOCKER_HOST=ssh://<user>@<vm> docker info --format '{{.Swarm.ControlAvailable}}'
 | `NOTES_YANDEX_ID`, `NOTES_YANDEX_SECRET`, `NOTES_YANDEX_REDIRECT` | Яндекс OAuth |
 | `NOTES_TARGET_URL` | куда редиректить после OAuth (публичный хост) |
 | `EMAILS` | белый список email через запятую; пусто/не задан — пускаем всех |
+| `NOTES_INGEST_KEY`, `NOTES_INGEST_EMAIL` | необязательно. Ключ (от 32 символов) для `POST /api/v1/notes/drafts` — создание черновика другой системой (bridge); не задан — ручки нет (404). `NOTES_INGEST_EMAIL` — автор черновиков, по умолчанию первая почта из `EMAILS` |
 | `COOKIE_DOMAIN` | домен cookie (`notes.ntlstl.dev`) |
 | `CORS_ORIGINS` | список origin'ов через запятую |
 | `LOKI_HOST` | **полный URL** со схемой и портом: `http://10.128.0.11:3100` (`winston-loki` принимает URL целиком) |

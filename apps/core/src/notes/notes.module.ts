@@ -8,17 +8,20 @@ import { Note } from './entities/note.entity';
 import { TypesModule } from '../types/types.module';
 import { TagsModule } from '../tags/tags.module';
 import { UploadsModule } from '../uploads/uploads.module';
+import { UsersModule } from '../users/users.module';
+import { IngestKeyGuard } from '../auth/guards/ingest-key.guard';
 
 @Module({
   imports: [
     TypesModule,
     TagsModule,
     UploadsModule,
+    UsersModule,
     TypeOrmModule.forFeature([Note]),
     CacheModule.register({ ttl: 60, max: 200 }),
   ],
   controllers: [NotesController],
-  providers: [NotesService],
+  providers: [NotesService, IngestKeyGuard],
   exports: [NotesService],
 })
 export class NotesModule {}

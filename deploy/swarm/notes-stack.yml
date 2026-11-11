@@ -42,6 +42,10 @@ services:
       NOTES_TARGET_URL: ${NOTES_TARGET_URL:?NOTES_TARGET_URL is required}
       # Empty/unset = any Yandex account may sign in (see oauth.service.ts).
       EMAILS: ${EMAILS}
+      # Ключ bridge для POST /api/v1/notes/drafts (создаёт только черновик). Пусто или короче 32 символов — ручка выключена (404).
+      # Автор черновиков — NOTES_INGEST_EMAIL, иначе первая почта из EMAILS.
+      NOTES_INGEST_KEY: ${NOTES_INGEST_KEY:-}
+      NOTES_INGEST_EMAIL: ${NOTES_INGEST_EMAIL:-}
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:?COOKIE_DOMAIN is required}
       CORS_ORIGINS: ${CORS_ORIGINS}
       # Absolute origin baked into RSS/sitemap links and og:image URLs.
