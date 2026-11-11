@@ -13,11 +13,13 @@ import {
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { CreateDraftDto } from './dto/create-draft.dto';
 import { User } from '../users/entities/user.entity';
 
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
+import { IngestKeyGuard } from '../auth/guards/ingest-key.guard';
 
 @Controller('api/v1/notes')
 export class NotesController {
@@ -27,6 +29,13 @@ export class NotesController {
   @Post()
   create(@Body() createNoteDto: CreateNoteDto, @CurrentUser() user: User) {
     return this.notesService.create(createNoteDto, user);
+  }
+
+  // Для bridge (Lab → «Дайджесты»): создаёт ТОЛЬКО черновик, по ключу NOTES_INGEST_KEY; всё остальное — по сессии.
+  @UseGuards(IngestKeyGuard)
+  @Post('drafts')
+  createDraft(@Body() dto: CreateDraftDto, @CurrentUser() user: User) {
+    return this.notesService.create({ ...dto, published: false }, user);
   }
 
   @UseGuards(OptionalJwtGuard)

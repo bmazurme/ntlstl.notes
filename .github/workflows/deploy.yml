@@ -163,6 +163,8 @@ jobs:
           NOTES_YANDEX_REDIRECT: ${{ secrets.NOTES_YANDEX_REDIRECT }}
           NOTES_TARGET_URL: ${{ secrets.NOTES_TARGET_URL }}
           EMAILS: ${{ secrets.EMAILS }}
+          NOTES_INGEST_KEY: ${{ secrets.NOTES_INGEST_KEY }}
+          NOTES_INGEST_EMAIL: ${{ secrets.NOTES_INGEST_EMAIL }}
           COOKIE_DOMAIN: ${{ secrets.COOKIE_DOMAIN }}
           CORS_ORIGINS: ${{ secrets.CORS_ORIGINS }}
           SITE_URL: ${{ secrets.VITE_SITE_URL }}
